@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Estimation;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -17,6 +18,7 @@ class EstimationFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
+            'parent_id' => null,
             'quote_number' => 'HQ-O-'.fake()->numerify('#####'),
             'revision_no' => 'R'.fake()->numerify('##'),
             'building_name' => fake()->word().' Building',
@@ -39,6 +41,15 @@ class EstimationFactory extends Factory
             'status' => 'calculated',
             'total_weight_mt' => fake()->randomFloat(4, 10, 200),
             'total_price_aed' => fake()->randomFloat(2, 100000, 5000000),
+        ]);
+    }
+
+    public function revision(Estimation $parent): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'parent_id' => $parent->id,
+            'quote_number' => $parent->quote_number,
+            'input_data' => $parent->input_data,
         ]);
     }
 

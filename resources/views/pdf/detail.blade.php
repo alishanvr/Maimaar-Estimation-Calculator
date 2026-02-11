@@ -4,101 +4,34 @@
     <meta charset="UTF-8">
     <title>Detail - {{ $estimation->quote_number }}</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'DejaVu Sans', Arial, sans-serif;
-            font-size: 9px;
-            color: #1a1a1a;
-            line-height: 1.3;
-        }
-        .header {
-            background-color: #1e3a5f;
-            color: #ffffff;
-            padding: 10px 16px;
-            margin-bottom: 12px;
-        }
-        .header h1 {
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 2px;
-        }
-        .header p {
-            font-size: 9px;
-            opacity: 0.85;
-        }
-        .project-info {
-            margin: 0 16px 12px;
-            padding: 6px 10px;
-            background-color: #f5f7fa;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 9px;
-        }
-        .project-info span {
-            margin-right: 20px;
-        }
-        .project-info strong {
-            color: #333;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 0 auto;
-        }
+        @include('pdf.partials.styles', ['bodyFontSize' => '9px', 'bodyLineHeight' => '1.3'])
+
+        /* === Detail-specific styles === */
         th {
-            background-color: #1e3a5f;
+            background-color: {{ $headerColor ?? '#1e3a5f' }};
             color: #ffffff;
             font-weight: bold;
             text-align: center;
             padding: 5px 4px;
             font-size: 8px;
-            border: 1px solid #1e3a5f;
+            border: 1px solid {{ $headerColor ?? '#1e3a5f' }};
         }
         td {
             padding: 3px 4px;
             border: 1px solid #ccc;
             font-size: 8px;
         }
-        td.number {
-            text-align: right;
-        }
-        td.center {
-            text-align: center;
-        }
-        tr:nth-child(even) {
-            background-color: #f9fafb;
-        }
         .header-row td {
             font-weight: bold;
             background-color: #e2e8f0;
-            color: #1e3a5f;
+            color: {{ $headerColor ?? '#1e3a5f' }};
             font-size: 9px;
-            border-top: 2px solid #1e3a5f;
-        }
-        .footer {
-            margin-top: 16px;
-            text-align: center;
-            font-size: 8px;
-            color: #888;
+            border-top: 2px solid {{ $headerColor ?? '#1e3a5f' }};
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Detail Sheet (Bill of Materials)</h1>
-        <p>Maimaar Estimation Calculator</p>
-    </div>
-
-    <div class="project-info">
-        <span><strong>Quote:</strong> {{ $estimation->quote_number }}</span>
-        <span><strong>Building:</strong> {{ $estimation->building_name }}</span>
-        <span><strong>Customer:</strong> {{ $estimation->customer_name }}</span>
-        <span><strong>Date:</strong> {{ $estimation->estimation_date ? \Carbon\Carbon::parse($estimation->estimation_date)->format('d M Y') : '-' }}</span>
-    </div>
+    @include('pdf.partials.header', ['documentTitle' => 'Detail Sheet', 'estimation' => $estimation])
 
     <table>
         <thead>
@@ -149,8 +82,6 @@
         </tbody>
     </table>
 
-    <div class="footer">
-        Generated on {{ now()->format('d M Y H:i') }} &bull; Maimaar Estimation Calculator
-    </div>
+    @include('pdf.partials.footer', ['documentTitle' => 'Detail Sheet', 'estimation' => $estimation])
 </body>
 </html>

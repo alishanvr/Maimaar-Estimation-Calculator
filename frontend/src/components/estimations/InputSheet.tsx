@@ -23,6 +23,7 @@ interface InputSheetProps {
   estimation: Estimation;
   onInputDataChange: (inputData: InputData) => void;
   onFieldsChange: (fields: Partial<Estimation>) => void;
+  readOnly?: boolean;
 }
 
 /**
@@ -60,6 +61,7 @@ export default function InputSheet({
   estimation,
   onInputDataChange,
   onFieldsChange,
+  readOnly = false,
 }: InputSheetProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const hotRef = useRef<any>(null);
@@ -381,7 +383,7 @@ export default function InputSheet({
           rowHeaders={false}
           columns={[
             { data: 0, readOnly: true },
-            { data: 1 },
+            { data: 1, readOnly },
             { data: 2, readOnly: true },
           ]}
           cells={cellsCallback}

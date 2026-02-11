@@ -1,9 +1,12 @@
 <?php
 
 use App\Filament\Widgets\EstimationsByStatusWidget;
+use App\Filament\Widgets\EstimationsOverTimeWidget;
+use App\Filament\Widgets\EstimationValueTrendsWidget;
 use App\Filament\Widgets\RecentActivityWidget;
 use App\Filament\Widgets\RecentEstimationsWidget;
 use App\Filament\Widgets\StatsOverviewWidget;
+use App\Filament\Widgets\UserActivityWidget;
 use App\Models\Estimation;
 use App\Models\User;
 use Livewire\Livewire;
@@ -82,5 +85,41 @@ it('can render the recent estimations widget', function () {
     $this->actingAs($admin);
 
     Livewire::test(RecentEstimationsWidget::class)
+        ->assertSuccessful();
+});
+
+it('can render the estimations over time widget', function () {
+    $admin = User::factory()->admin()->create();
+
+    Estimation::factory()->count(3)->create();
+
+    $this->actingAs($admin);
+
+    Livewire::test(EstimationsOverTimeWidget::class)
+        ->assertSuccessful();
+});
+
+it('can render the estimation value trends widget', function () {
+    $admin = User::factory()->admin()->create();
+
+    Estimation::factory()->count(2)->create([
+        'status' => 'calculated',
+        'total_price_aed' => 50000,
+    ]);
+
+    $this->actingAs($admin);
+
+    Livewire::test(EstimationValueTrendsWidget::class)
+        ->assertSuccessful();
+});
+
+it('can render the user activity widget', function () {
+    $admin = User::factory()->admin()->create();
+
+    Estimation::factory()->count(3)->create();
+
+    $this->actingAs($admin);
+
+    Livewire::test(UserActivityWidget::class)
         ->assertSuccessful();
 });

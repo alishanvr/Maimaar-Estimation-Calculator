@@ -275,6 +275,7 @@ export type EstimationStatus = "draft" | "calculated" | "finalized";
 
 export interface Estimation {
   id: number;
+  parent_id: number | null;
   quote_number: string | null;
   revision_no: string | null;
   building_name: string | null;
@@ -291,6 +292,32 @@ export interface Estimation {
   items: EstimationItem[];
   created_at: string;
   updated_at: string;
+}
+
+// ── Revision History ──────────────────────────────────────────────
+
+export interface RevisionEntry {
+  id: number;
+  revision_no: string | null;
+  status: EstimationStatus;
+  total_weight_mt: number | null;
+  total_price_aed: number | null;
+  created_at: string;
+  is_current: boolean;
+}
+
+// ── Comparison ────────────────────────────────────────────────────
+
+export interface ComparisonEstimation {
+  id: number;
+  quote_number: string | null;
+  revision_no: string | null;
+  building_name: string | null;
+  status: EstimationStatus;
+  total_weight_mt: number | null;
+  total_price_aed: number | null;
+  summary: EstimationSummary | null;
+  input_data: InputData;
 }
 
 // ── Markups (for calculate request) ────────────────────────────────

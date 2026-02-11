@@ -2,6 +2,14 @@
 @import "handsontable/styles/handsontable.min.css";
 @import "handsontable/styles/ht-theme-main.min.css";
 
+/* Ensure Handsontable frozen overlays stay below header dropdowns (z-50) */
+.ht_clone_top,
+.ht_clone_left,
+.ht_clone_bottom,
+.ht_clone_top_inline_start_corner {
+  z-index: 9 !important;
+}
+
 /* ===== Print Styles ===== */
 
 /* Hidden on screen, visible only in print */
@@ -84,4 +92,9 @@
   @page {
     margin: 10mm 8mm;
   }
+}
+
+
+.ht-root-wrapper > .ht-grid > .ht-wrapper > .ht_clone_top{
+  z-index: 9 !important;
 }

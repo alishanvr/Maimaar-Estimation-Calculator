@@ -4,60 +4,19 @@
     <meta charset="UTF-8">
     <title>Recap - {{ $estimation->quote_number }}</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'DejaVu Sans', Arial, sans-serif;
-            font-size: 11px;
-            color: #1a1a1a;
-            line-height: 1.4;
-        }
-        .header {
-            background-color: #1e3a5f;
-            color: #ffffff;
-            padding: 12px 20px;
-            margin-bottom: 16px;
-        }
-        .header h1 {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 2px;
-        }
-        .header p {
-            font-size: 10px;
-            opacity: 0.85;
-        }
-        .project-info {
-            margin: 0 20px 16px;
-            padding: 8px 12px;
-            background-color: #f5f7fa;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 10px;
-        }
-        .project-info span {
-            margin-right: 24px;
-        }
-        .project-info strong {
-            color: #333;
-        }
+        @include('pdf.partials.styles', ['bodyFontSize' => '11px', 'bodyLineHeight' => '1.4'])
+
+        /* === Recap-specific styles === */
         .section {
             margin: 0 20px 16px;
         }
         .section-title {
             font-size: 12px;
             font-weight: bold;
-            color: #1e3a5f;
-            border-bottom: 2px solid #1e3a5f;
+            color: {{ $headerColor ?? '#1e3a5f' }};
+            border-bottom: 2px solid {{ $headerColor ?? '#1e3a5f' }};
             padding-bottom: 4px;
             margin-bottom: 10px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
         }
         td {
             padding: 8px 12px;
@@ -74,30 +33,10 @@
             width: 50%;
             font-family: 'DejaVu Sans Mono', monospace;
         }
-        .highlight td {
-            background-color: #e8f0fe;
-            font-weight: bold;
-        }
-        .footer {
-            margin-top: 30px;
-            text-align: center;
-            font-size: 9px;
-            color: #888;
-        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Estimation Recap (Summary)</h1>
-        <p>Maimaar Estimation Calculator</p>
-    </div>
-
-    <div class="project-info">
-        <span><strong>Quote:</strong> {{ $estimation->quote_number }}</span>
-        <span><strong>Building:</strong> {{ $estimation->building_name }}</span>
-        <span><strong>Customer:</strong> {{ $estimation->customer_name }}</span>
-        <span><strong>Date:</strong> {{ $estimation->estimation_date ? \Carbon\Carbon::parse($estimation->estimation_date)->format('d M Y') : '-' }}</span>
-    </div>
+    @include('pdf.partials.header', ['documentTitle' => 'Estimation Summary (Recap)', 'estimation' => $estimation])
 
     <div class="section">
         <div class="section-title">Weight Breakdown</div>
@@ -139,8 +78,6 @@
         </table>
     </div>
 
-    <div class="footer">
-        Generated on {{ now()->format('d M Y H:i') }} &bull; Maimaar Estimation Calculator
-    </div>
+    @include('pdf.partials.footer', ['documentTitle' => 'Estimation Summary (Recap)', 'estimation' => $estimation])
 </body>
 </html>

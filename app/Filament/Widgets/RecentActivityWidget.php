@@ -9,7 +9,7 @@ use Spatie\Activitylog\Models\Activity;
 
 class RecentActivityWidget extends TableWidget
 {
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 7;
 
     protected int|string|array $columnSpan = 'full';
 

@@ -21,11 +21,24 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/paint-systems', [DesignConfigurationController::class, 'paintSystems'])
         ->name('paint-systems.index');
 
+    // Collection-level estimation actions (BEFORE apiResource to avoid route conflicts)
+    Route::post('/estimations/compare', [EstimationController::class, 'compare'])
+        ->name('estimations.compare');
+    Route::post('/estimations/bulk-export', [EstimationController::class, 'bulkExport'])
+        ->name('estimations.bulk-export')
+        ->middleware('throttle:exports');
+
     // Estimations CRUD
     Route::apiResource('estimations', EstimationController::class);
 
-    // Estimation actions & sheet data
+    // Estimation instance actions & sheet data
     Route::prefix('estimations/{estimation}')->name('estimations.')->group(function () {
+        Route::post('/clone', [EstimationController::class, 'clone'])->name('clone');
+        Route::post('/revision', [EstimationController::class, 'createRevision'])->name('revision');
+        Route::get('/revisions', [EstimationController::class, 'revisions'])->name('revisions');
+        Route::post('/finalize', [EstimationController::class, 'finalize'])->name('finalize');
+        Route::post('/unlock', [EstimationController::class, 'unlock'])->name('unlock');
+
         Route::post('/calculate', [EstimationController::class, 'calculate'])
             ->name('calculate')
             ->middleware('throttle:calculate');

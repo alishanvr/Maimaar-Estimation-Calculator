@@ -6,6 +6,8 @@ import {
   getEstimation,
   updateEstimation,
   calculateEstimation,
+  finalizeEstimation,
+  unlockEstimation,
 } from "@/lib/estimations";
 
 export function useEstimation(id: number) {
@@ -175,6 +177,46 @@ export function useEstimation(id: number) {
     [estimation]
   );
 
+  /** Mark estimation as finalized (read-only). */
+  const finalize = useCallback(async () => {
+    if (!estimation) return;
+    setIsSaving(true);
+    setError(null);
+    try {
+      const data = await finalizeEstimation(estimation.id);
+      setEstimation(data);
+    } catch (err: unknown) {
+      let message = "Failed to finalize estimation.";
+      if (err && typeof err === "object" && "response" in err) {
+        const axiosErr = err as { response?: { data?: { message?: string } } };
+        message = axiosErr.response?.data?.message || message;
+      }
+      setError(message);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [estimation]);
+
+  /** Unlock a finalized estimation back to draft. */
+  const unlock = useCallback(async () => {
+    if (!estimation) return;
+    setIsSaving(true);
+    setError(null);
+    try {
+      const data = await unlockEstimation(estimation.id);
+      setEstimation(data);
+    } catch (err: unknown) {
+      let message = "Failed to unlock estimation.";
+      if (err && typeof err === "object" && "response" in err) {
+        const axiosErr = err as { response?: { data?: { message?: string } } };
+        message = axiosErr.response?.data?.message || message;
+      }
+      setError(message);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [estimation]);
+
   // Cleanup timer on unmount
   useEffect(() => {
     return () => {
@@ -193,6 +235,8 @@ export function useEstimation(id: number) {
     updateFields,
     calculate,
     saveAndCalculate,
+    finalize,
+    unlock,
     refetch: fetch,
   };
 }

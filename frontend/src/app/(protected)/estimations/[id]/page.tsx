@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEstimation } from "@/hooks/useEstimation";
+import { cloneEstimation, createRevision } from "@/lib/estimations";
 import EstimationHeader from "@/components/estimations/EstimationHeader";
 import PrintHeader from "@/components/estimations/PrintHeader";
 import TabBar from "@/components/estimations/TabBar";
@@ -15,10 +16,13 @@ import BOQSheet from "@/components/estimations/sheets/BOQSheet";
 import JAFSheet from "@/components/estimations/sheets/JAFSheet";
 import type { SheetTab, InputData } from "@/types";
 
-export default function EstimationEditorPage() {
+function EstimationEditor() {
   const params = useParams();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const id = Number(params.id);
   const [activeTab, setActiveTab] = useState<SheetTab>("input");
+  const showFillTestData = searchParams.get("fill_test_data") === "true";
   const {
     estimation,
     isLoading,
@@ -28,8 +32,9 @@ export default function EstimationEditorPage() {
     save,
     updateInputData,
     updateFields,
-    calculate,
     saveAndCalculate,
+    finalize,
+    unlock,
   } = useEstimation(id);
 
   if (isLoading) {
@@ -58,6 +63,7 @@ export default function EstimationEditorPage() {
 
   const isCalculated =
     estimation.status === "calculated" || estimation.status === "finalized";
+  const isFinalized = estimation.status === "finalized";
 
   const handleSave = () => {
     save({
@@ -68,14 +74,12 @@ export default function EstimationEditorPage() {
   };
 
   const handleCalculate = () => {
-    // Extract markups from input_data for the calculate request
     const markups = {
       steel: Number(estimation.input_data?.markup_steel) || 0,
       panels: Number(estimation.input_data?.markup_panels) || 0,
       ssl: Number(estimation.input_data?.markup_ssl) || 0,
       finance: Number(estimation.input_data?.markup_finance) || 0,
     };
-    // Use saveAndCalculate to flush any pending debounced saves first
     saveAndCalculate(
       {
         quote_number: estimation.quote_number,
@@ -97,44 +101,32 @@ export default function EstimationEditorPage() {
       salesperson_code: "SP01",
     };
 
-    // Realistic PEB building values (Quote 53305 reference)
     const testInputData: InputData = {
-      // Building Dimensions
       bay_spacing: "1@6.865+1@9.104+2@9.144",
       span_widths: "1@28.5",
       back_eave_height: 7.5,
       front_eave_height: 7.5,
       left_roof_slope: 1.0,
       right_roof_slope: 1.0,
-
-      // Structural Design
       frame_type: "Clear Span",
       base_type: "Pinned Base",
       cf_finish: "Painted",
       panel_profile: "M45-250",
       outer_skin_material: "AZ Steel",
-
-      // Frame Configuration
       min_thickness: 6,
       double_weld: "No",
-
-      // Endwall Configuration
       left_endwall_columns: "1@4.5+1@5",
       left_endwall_type: "Bearing Frame",
       left_endwall_portal: "None",
       right_endwall_columns: "1@4.5+1@5",
       right_endwall_type: "Bearing Frame",
       right_endwall_portal: "None",
-
-      // Secondary Members
       purlin_depth: "200",
       roof_sag_rods: "0",
       wall_sag_rods: "0",
       roof_sag_rod_dia: "12",
       wall_sag_rod_dia: "12",
       bracing_type: "Cables",
-
-      // Loads
       dead_load: 0.1,
       live_load: 0.57,
       wind_speed: 0.7,
@@ -142,66 +134,42 @@ export default function EstimationEditorPage() {
       live_load_permanent: 0,
       live_load_floor: 0,
       additional_load: 0,
-
-      // Panel & Materials
       roof_panel_code: "",
       wall_panel_code: "",
       core_thickness: 50,
       paint_system: "",
-
-      // Roof Sheeting
       roof_top_skin: "None",
       roof_core: "-",
       roof_bottom_skin: "-",
       roof_insulation: "None",
-
-      // Wall Sheeting
       wall_top_skin: "None",
       wall_core: "-",
       wall_bottom_skin: "-",
       wall_insulation: "None",
-
-      // Trims & Flashings
       trim_size: "0.5 AZ",
       back_eave_condition: "Gutter+Dwnspts",
       front_eave_condition: "Gutter+Dwnspts",
-
-      // Insulation
       wwm_option: "None",
-
-      // Finishes
       bu_finish: "",
-
-      // Roof Monitor
       monitor_type: "None",
       monitor_width: 0,
       monitor_height: 0,
       monitor_length: 0,
-
-      // Freight
       freight_type: "By Mammut",
       freight_rate: 0,
       container_count: 6,
       container_rate: 2000,
-
-      // Sales Codes
       area_sales_code: 1,
       area_description: "Building Area",
       acc_sales_code: 1,
       acc_description: "Accessories",
-
-      // Project / Pricing
       sales_office: "Dubai",
       num_buildings: 1,
       erection_price: 0,
-
-      // Markups
       markup_steel: 0,
       markup_panels: 0,
       markup_ssl: 0,
       markup_finance: 0,
-
-      // Openings
       openings: [
         {
           location: "Front Sidewall",
@@ -211,13 +179,9 @@ export default function EstimationEditorPage() {
           bracing: 0,
         },
       ],
-
-      // Accessories
       accessories: [
         { description: "Skylight Panel", code: "SL-01", qty: 4 },
       ],
-
-      // Optional Components
       cranes: [
         {
           description: "EOT Crane",
@@ -285,7 +249,6 @@ export default function EstimationEditorPage() {
       ],
     };
 
-    // Single atomic save + calculate (no debounce race condition)
     saveAndCalculate(topLevelFields, testInputData, {
       steel: 0,
       panels: 0,
@@ -294,18 +257,22 @@ export default function EstimationEditorPage() {
     });
   };
 
-  const handlePrint = () => {
-    const wideSheets: SheetTab[] = ["detail", "fcpbs"];
-    const style = document.createElement("style");
-    style.id = "print-orientation";
-    if (wideSheets.includes(activeTab)) {
-      style.textContent = "@page { size: landscape; }";
-    } else {
-      style.textContent = "@page { size: portrait; }";
+  const handleClone = async () => {
+    try {
+      const cloned = await cloneEstimation(id);
+      router.push(`/estimations/${cloned.id}`);
+    } catch {
+      alert("Failed to clone estimation.");
     }
-    document.getElementById("print-orientation")?.remove();
-    document.head.appendChild(style);
-    window.print();
+  };
+
+  const handleCreateRevision = async () => {
+    try {
+      const revision = await createRevision(id);
+      router.push(`/estimations/${revision.id}`);
+    } catch {
+      alert("Failed to create revision.");
+    }
   };
 
   return (
@@ -317,8 +284,11 @@ export default function EstimationEditorPage() {
         isCalculating={isCalculating}
         onSave={handleSave}
         onCalculate={handleCalculate}
-        onFillTestData={handleFillTestData}
-        onPrint={handlePrint}
+        onFillTestData={showFillTestData ? handleFillTestData : undefined}
+        onClone={handleClone}
+        onCreateRevision={handleCreateRevision}
+        onFinalize={finalize}
+        onUnlock={unlock}
       />
 
       {/* Error bar */}
@@ -343,43 +313,26 @@ export default function EstimationEditorPage() {
             estimation={estimation}
             onInputDataChange={updateInputData}
             onFieldsChange={updateFields}
+            readOnly={isFinalized}
           />
         )}
         {activeTab === "recap" && (
-          <RecapSheet
-            estimationId={id}
-            version={estimation.updated_at}
-          />
+          <RecapSheet estimationId={id} version={estimation.updated_at} />
         )}
         {activeTab === "detail" && (
-          <DetailSheet
-            estimationId={id}
-            version={estimation.updated_at}
-          />
+          <DetailSheet estimationId={id} version={estimation.updated_at} />
         )}
         {activeTab === "fcpbs" && (
-          <FCPBSSheet
-            estimationId={id}
-            version={estimation.updated_at}
-          />
+          <FCPBSSheet estimationId={id} version={estimation.updated_at} />
         )}
         {activeTab === "sal" && (
-          <SALSheet
-            estimationId={id}
-            version={estimation.updated_at}
-          />
+          <SALSheet estimationId={id} version={estimation.updated_at} />
         )}
         {activeTab === "boq" && (
-          <BOQSheet
-            estimationId={id}
-            version={estimation.updated_at}
-          />
+          <BOQSheet estimationId={id} version={estimation.updated_at} />
         )}
         {activeTab === "jaf" && (
-          <JAFSheet
-            estimationId={id}
-            version={estimation.updated_at}
-          />
+          <JAFSheet estimationId={id} version={estimation.updated_at} />
         )}
       </div>
 
@@ -390,5 +343,19 @@ export default function EstimationEditorPage() {
         isCalculated={isCalculated}
       />
     </div>
+  );
+}
+
+export default function EstimationEditorPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      }
+    >
+      <EstimationEditor />
+    </Suspense>
   );
 }

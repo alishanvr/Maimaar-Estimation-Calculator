@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\BulkExportRequest;
 use App\Http\Requests\Api\CalculateEstimationRequest;
 use App\Http\Requests\Api\StoreEstimationRequest;
 use App\Http\Requests\Api\UpdateEstimationRequest;
@@ -10,6 +11,7 @@ use App\Http\Resources\Api\EstimationCollection;
 use App\Http\Resources\Api\EstimationResource;
 use App\Models\Estimation;
 use App\Services\Estimation\EstimationService;
+use App\Services\Pdf\PdfSettingsService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -156,6 +158,57 @@ class EstimationController extends Controller
     }
 
     /**
+     * Mark a calculated estimation as finalized (read-only).
+     */
+    public function finalize(Request $request, Estimation $estimation): EstimationResource|JsonResponse
+    {
+        $this->authorize('update', $estimation);
+
+        if (! $estimation->isCalculated()) {
+            return response()->json([
+                'message' => 'Only calculated estimations can be finalized.',
+            ], 422);
+        }
+
+        $estimation->update(['status' => 'finalized']);
+
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($estimation)
+            ->log('finalized estimation');
+
+        return new EstimationResource($estimation->fresh());
+    }
+
+    /**
+     * Unlock a finalized estimation back to draft.
+     */
+    public function unlock(Request $request, Estimation $estimation): EstimationResource|JsonResponse
+    {
+        $this->authorize('update', $estimation);
+
+        if (! $estimation->isFinalized()) {
+            return response()->json([
+                'message' => 'Only finalized estimations can be unlocked.',
+            ], 422);
+        }
+
+        $estimation->update([
+            'status' => 'draft',
+            'results_data' => null,
+            'total_weight_mt' => null,
+            'total_price_aed' => null,
+        ]);
+
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($estimation)
+            ->log('unlocked estimation');
+
+        return new EstimationResource($estimation->fresh());
+    }
+
+    /**
      * Get Detail sheet data.
      */
     public function detail(Estimation $estimation): JsonResponse
@@ -229,8 +282,9 @@ class EstimationController extends Controller
             ->performedOn($estimation)
             ->log('exported BOQ PDF');
 
-        $pdf = Pdf::loadView('pdf.boq', compact('estimation', 'boqData'))
-            ->setPaper('a4', 'landscape');
+        $pdfSettings = app(PdfSettingsService::class);
+        $pdf = Pdf::loadView('pdf.boq', $this->getPdfViewData($estimation, 'boqData', $boqData))
+            ->setPaper($pdfSettings->paperSize(), 'landscape');
 
         $filename = 'BOQ-'.($estimation->quote_number ?? 'export').'.pdf';
 
@@ -263,8 +317,9 @@ class EstimationController extends Controller
             ->performedOn($estimation)
             ->log('exported JAF PDF');
 
-        $pdf = Pdf::loadView('pdf.jaf', compact('estimation', 'jafData'))
-            ->setPaper('a4', 'portrait');
+        $pdfSettings = app(PdfSettingsService::class);
+        $pdf = Pdf::loadView('pdf.jaf', $this->getPdfViewData($estimation, 'jafData', $jafData))
+            ->setPaper($pdfSettings->paperSize(), 'portrait');
 
         $filename = 'JAF-'.($estimation->quote_number ?? 'export').'.pdf';
 
@@ -297,8 +352,9 @@ class EstimationController extends Controller
             ->performedOn($estimation)
             ->log('exported Recap PDF');
 
-        $pdf = Pdf::loadView('pdf.recap', compact('estimation', 'recapData'))
-            ->setPaper('a4', 'portrait');
+        $pdfSettings = app(PdfSettingsService::class);
+        $pdf = Pdf::loadView('pdf.recap', $this->getPdfViewData($estimation, 'recapData', $recapData))
+            ->setPaper($pdfSettings->paperSize(), 'portrait');
 
         $filename = 'Recap-'.($estimation->quote_number ?? 'export').'.pdf';
 
@@ -331,8 +387,9 @@ class EstimationController extends Controller
             ->performedOn($estimation)
             ->log('exported Detail PDF');
 
-        $pdf = Pdf::loadView('pdf.detail', compact('estimation', 'detailData'))
-            ->setPaper('a4', 'landscape');
+        $pdfSettings = app(PdfSettingsService::class);
+        $pdf = Pdf::loadView('pdf.detail', $this->getPdfViewData($estimation, 'detailData', $detailData))
+            ->setPaper($pdfSettings->paperSize(), 'landscape');
 
         $filename = 'Detail-'.($estimation->quote_number ?? 'export').'.pdf';
 
@@ -365,8 +422,9 @@ class EstimationController extends Controller
             ->performedOn($estimation)
             ->log('exported FCPBS PDF');
 
-        $pdf = Pdf::loadView('pdf.fcpbs', compact('estimation', 'fcpbsData'))
-            ->setPaper('a4', 'landscape');
+        $pdfSettings = app(PdfSettingsService::class);
+        $pdf = Pdf::loadView('pdf.fcpbs', $this->getPdfViewData($estimation, 'fcpbsData', $fcpbsData))
+            ->setPaper($pdfSettings->paperSize(), 'landscape');
 
         $filename = 'FCPBS-'.($estimation->quote_number ?? 'export').'.pdf';
 
@@ -399,12 +457,233 @@ class EstimationController extends Controller
             ->performedOn($estimation)
             ->log('exported SAL PDF');
 
-        $pdf = Pdf::loadView('pdf.sal', compact('estimation', 'salData'))
-            ->setPaper('a4', 'landscape');
+        $pdfSettings = app(PdfSettingsService::class);
+        $pdf = Pdf::loadView('pdf.sal', $this->getPdfViewData($estimation, 'salData', $salData))
+            ->setPaper($pdfSettings->paperSize(), 'landscape');
 
         $filename = 'SAL-'.($estimation->quote_number ?? 'export').'.pdf';
 
         return $pdf->download($filename);
+    }
+
+    /**
+     * Clone an estimation (copy input_data, reset to draft).
+     */
+    public function clone(Request $request, Estimation $estimation): JsonResponse
+    {
+        $this->authorize('clone', $estimation);
+
+        $clone = $request->user()->estimations()->create([
+            'quote_number' => $estimation->quote_number,
+            'revision_no' => $estimation->revision_no,
+            'building_name' => $estimation->building_name,
+            'building_no' => $estimation->building_no,
+            'project_name' => $estimation->project_name,
+            'customer_name' => $estimation->customer_name,
+            'salesperson_code' => $estimation->salesperson_code,
+            'estimation_date' => now(),
+            'status' => 'draft',
+            'input_data' => $estimation->input_data,
+            'results_data' => null,
+            'total_weight_mt' => null,
+            'total_price_aed' => null,
+        ]);
+
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($clone)
+            ->withProperties(['cloned_from' => $estimation->id])
+            ->log('cloned estimation');
+
+        return (new EstimationResource($clone))
+            ->additional(['message' => 'Estimation cloned successfully.'])
+            ->response()
+            ->setStatusCode(201);
+    }
+
+    /**
+     * Create a revision from an existing estimation.
+     */
+    public function createRevision(Request $request, Estimation $estimation): JsonResponse
+    {
+        $this->authorize('createRevision', $estimation);
+
+        $currentRevNo = (int) preg_replace('/\D/', '', $estimation->revision_no ?? '0');
+        $nextRevNo = 'R'.str_pad($currentRevNo + 1, 2, '0', STR_PAD_LEFT);
+
+        $revision = $request->user()->estimations()->create([
+            'parent_id' => $estimation->id,
+            'quote_number' => $estimation->quote_number,
+            'revision_no' => $nextRevNo,
+            'building_name' => $estimation->building_name,
+            'building_no' => $estimation->building_no,
+            'project_name' => $estimation->project_name,
+            'customer_name' => $estimation->customer_name,
+            'salesperson_code' => $estimation->salesperson_code,
+            'estimation_date' => now(),
+            'status' => 'draft',
+            'input_data' => $estimation->input_data,
+            'results_data' => null,
+            'total_weight_mt' => null,
+            'total_price_aed' => null,
+        ]);
+
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($revision)
+            ->withProperties(['revision_from' => $estimation->id])
+            ->log('created revision');
+
+        return (new EstimationResource($revision))
+            ->additional(['message' => 'Revision created successfully.'])
+            ->response()
+            ->setStatusCode(201);
+    }
+
+    /**
+     * Get revision chain for an estimation.
+     */
+    public function revisions(Estimation $estimation): JsonResponse
+    {
+        $this->authorize('view', $estimation);
+
+        $chain = $estimation->getRevisionChain();
+
+        return response()->json([
+            'data' => $chain->map(fn (Estimation $e) => [
+                'id' => $e->id,
+                'quote_number' => $e->quote_number,
+                'revision_no' => $e->revision_no,
+                'status' => $e->status,
+                'parent_id' => $e->parent_id,
+                'total_weight_mt' => $e->total_weight_mt,
+                'total_price_aed' => $e->total_price_aed,
+                'created_at' => $e->created_at?->toISOString(),
+                'is_current' => $e->id === $estimation->id,
+            ]),
+        ]);
+    }
+
+    /**
+     * Compare two estimations side-by-side.
+     */
+    public function compare(Request $request): JsonResponse
+    {
+        $request->validate([
+            'ids' => ['required', 'array', 'size:2'],
+            'ids.*' => ['required', 'integer', 'exists:estimations,id'],
+        ]);
+
+        $estimations = Estimation::query()
+            ->whereIn('id', $request->input('ids'))
+            ->get();
+
+        foreach ($estimations as $estimation) {
+            $this->authorize('view', $estimation);
+        }
+
+        $result = $estimations->map(fn (Estimation $e) => [
+            'id' => $e->id,
+            'quote_number' => $e->quote_number,
+            'revision_no' => $e->revision_no,
+            'building_name' => $e->building_name,
+            'status' => $e->status,
+            'total_weight_mt' => $e->total_weight_mt,
+            'total_price_aed' => $e->total_price_aed,
+            'summary' => $e->results_data['summary'] ?? null,
+            'input_data' => $e->input_data,
+        ]);
+
+        return response()->json(['data' => $result]);
+    }
+
+    /**
+     * Bulk export multiple estimations as a ZIP of PDFs.
+     */
+    public function bulkExport(BulkExportRequest $request): JsonResponse|Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+    {
+        $ids = $request->validated('ids');
+        $sheets = $request->validated('sheets');
+
+        $estimations = Estimation::query()
+            ->whereIn('id', $ids)
+            ->get();
+
+        foreach ($estimations as $estimation) {
+            $this->authorize('view', $estimation);
+        }
+
+        $calculatedEstimations = $estimations->filter(
+            fn (Estimation $e) => $e->isCalculated() || $e->status === 'finalized'
+        );
+
+        if ($calculatedEstimations->isEmpty()) {
+            return response()->json([
+                'message' => 'None of the selected estimations have been calculated.',
+            ], 422);
+        }
+
+        $sheetConfig = [
+            'recap' => ['view' => 'pdf.recap', 'varName' => 'recapData', 'dataKey' => 'summary', 'paper' => 'portrait'],
+            'detail' => ['view' => 'pdf.detail', 'varName' => 'detailData', 'dataKey' => 'detail', 'paper' => 'landscape'],
+            'fcpbs' => ['view' => 'pdf.fcpbs', 'varName' => 'fcpbsData', 'dataKey' => 'fcpbs', 'paper' => 'landscape'],
+            'sal' => ['view' => 'pdf.sal', 'varName' => 'salData', 'dataKey' => 'sal', 'paper' => 'landscape'],
+            'boq' => ['view' => 'pdf.boq', 'varName' => 'boqData', 'dataKey' => 'boq', 'paper' => 'landscape'],
+            'jaf' => ['view' => 'pdf.jaf', 'varName' => 'jafData', 'dataKey' => 'jaf', 'paper' => 'portrait'],
+        ];
+
+        $pdfSettings = app(PdfSettingsService::class);
+        $tempFile = tempnam(sys_get_temp_dir(), 'bulk_export_');
+        $zip = new \ZipArchive;
+        $zip->open($tempFile, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+
+        foreach ($calculatedEstimations as $estimation) {
+            $quoteLabel = $estimation->quote_number ?? "EST-{$estimation->id}";
+            foreach ($sheets as $sheet) {
+                $config = $sheetConfig[$sheet];
+                $sheetData = $estimation->results_data[$config['dataKey']] ?? null;
+                if (! $sheetData) {
+                    continue;
+                }
+
+                $pdf = Pdf::loadView($config['view'], $this->getPdfViewData($estimation, $config['varName'], $sheetData))
+                    ->setPaper($pdfSettings->paperSize(), $config['paper']);
+
+                $filename = strtoupper($sheet).'-'.$quoteLabel.'.pdf';
+                $zip->addFromString("{$quoteLabel}/{$filename}", $pdf->output());
+            }
+        }
+
+        $zip->close();
+
+        activity()
+            ->causedBy($request->user())
+            ->log('bulk exported '.count($ids).' estimations');
+
+        return response()->download($tempFile, 'estimations-export.zip', [
+            'Content-Type' => 'application/zip',
+        ])->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Build the common view data array for PDF rendering with dynamic settings.
+     *
+     * @return array<string, mixed>
+     */
+    private function getPdfViewData(Estimation $estimation, string $sheetVarName, mixed $sheetData): array
+    {
+        $pdfSettings = app(PdfSettingsService::class);
+
+        return [
+            'estimation' => $estimation,
+            $sheetVarName => $sheetData,
+            'companyName' => $pdfSettings->companyName(),
+            'logoPath' => $pdfSettings->logoAbsolutePath(),
+            'fontFamilyCss' => $pdfSettings->fontFamilyCss(),
+            'headerColor' => $pdfSettings->headerColor(),
+            'showPageNumbers' => $pdfSettings->showPageNumbers(),
+            'footerText' => $pdfSettings->footerText(),
+        ];
     }
 
     /**

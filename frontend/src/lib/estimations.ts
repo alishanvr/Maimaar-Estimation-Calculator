@@ -1,9 +1,11 @@
 import api from "./api";
 import type {
   Estimation,
+  ComparisonEstimation,
   DesignConfiguration,
   Markups,
   PaginatedResponse,
+  RevisionEntry,
   SheetTab,
 } from "@/types";
 
@@ -39,6 +41,54 @@ export async function updateEstimation(
 
 export async function deleteEstimation(id: number): Promise<void> {
   await api.delete(`/estimations/${id}`);
+}
+
+// ── Clone & Revision ────────────────────────────────────────────────
+
+export async function cloneEstimation(id: number): Promise<Estimation> {
+  const { data } = await api.post(`/estimations/${id}/clone`);
+  return data.data;
+}
+
+export async function createRevision(id: number): Promise<Estimation> {
+  const { data } = await api.post(`/estimations/${id}/revision`);
+  return data.data;
+}
+
+export async function getRevisions(id: number): Promise<RevisionEntry[]> {
+  const { data } = await api.get(`/estimations/${id}/revisions`);
+  return data.data;
+}
+
+export async function finalizeEstimation(id: number): Promise<Estimation> {
+  const { data } = await api.post(`/estimations/${id}/finalize`);
+  return data.data;
+}
+
+export async function unlockEstimation(id: number): Promise<Estimation> {
+  const { data } = await api.post(`/estimations/${id}/unlock`);
+  return data.data;
+}
+
+// ── Compare & Bulk Export ───────────────────────────────────────────
+
+export async function compareEstimations(
+  ids: number[]
+): Promise<ComparisonEstimation[]> {
+  const { data } = await api.post("/estimations/compare", { ids });
+  return data.data;
+}
+
+export async function bulkExportEstimations(
+  ids: number[],
+  sheets: string[]
+): Promise<Blob> {
+  const { data } = await api.post(
+    "/estimations/bulk-export",
+    { ids, sheets },
+    { responseType: "blob" }
+  );
+  return data;
 }
 
 // ── Calculation ────────────────────────────────────────────────────

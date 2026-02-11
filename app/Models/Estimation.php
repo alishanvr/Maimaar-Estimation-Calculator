@@ -17,6 +17,7 @@ class Estimation extends Model
 
     protected $fillable = [
         'user_id',
+        'parent_id',
         'quote_number',
         'revision_no',
         'building_name',
@@ -55,9 +56,47 @@ class Estimation extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(Estimation::class, 'parent_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(Estimation::class, 'parent_id');
+    }
+
     public function items(): HasMany
     {
         return $this->hasMany(EstimationItem::class)->orderBy('sort_order');
+    }
+
+    /**
+     * Get all estimations in the same revision chain (root + all descendants).
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, Estimation>
+     */
+    public function getRevisionChain(): \Illuminate\Database\Eloquent\Collection
+    {
+        $root = $this;
+        while ($root->parent_id !== null) {
+            $root = $root->parent;
+        }
+
+        $ids = collect([$root->id]);
+        $toProcess = collect([$root->id]);
+        while ($toProcess->isNotEmpty()) {
+            $childIds = Estimation::query()
+                ->whereIn('parent_id', $toProcess)
+                ->pluck('id');
+            $ids = $ids->merge($childIds);
+            $toProcess = $childIds;
+        }
+
+        return Estimation::query()
+            ->whereIn('id', $ids)
+            ->orderBy('created_at')
+            ->get(['id', 'quote_number', 'revision_no', 'status', 'parent_id', 'total_weight_mt', 'total_price_aed', 'created_at']);
     }
 
     public function isDraft(): bool
@@ -68,5 +107,10 @@ class Estimation extends Model
     public function isCalculated(): bool
     {
         return $this->status === 'calculated';
+    }
+
+    public function isFinalized(): bool
+    {
+        return $this->status === 'finalized';
     }
 }

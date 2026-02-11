@@ -4,59 +4,17 @@
     <meta charset="UTF-8">
     <title>FCPBS - {{ $estimation->quote_number }}</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'DejaVu Sans', Arial, sans-serif;
-            font-size: 9px;
-            color: #1a1a1a;
-            line-height: 1.3;
-        }
-        .header {
-            background-color: #1e3a5f;
-            color: #ffffff;
-            padding: 10px 16px;
-            margin-bottom: 12px;
-        }
-        .header h1 {
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 2px;
-        }
-        .header p {
-            font-size: 9px;
-            opacity: 0.85;
-        }
-        .project-info {
-            margin: 0 16px 12px;
-            padding: 6px 10px;
-            background-color: #f5f7fa;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 9px;
-        }
-        .project-info span {
-            margin-right: 20px;
-        }
-        .project-info strong {
-            color: #333;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 0 auto;
-        }
+        @include('pdf.partials.styles', ['bodyFontSize' => '9px', 'bodyLineHeight' => '1.3'])
+
+        /* === FCPBS-specific styles === */
         th {
-            background-color: #1e3a5f;
+            background-color: {{ $headerColor ?? '#1e3a5f' }};
             color: #ffffff;
             font-weight: bold;
             text-align: center;
             padding: 5px 3px;
             font-size: 7px;
-            border: 1px solid #1e3a5f;
+            border: 1px solid {{ $headerColor ?? '#1e3a5f' }};
         }
         td {
             padding: 3px 4px;
@@ -64,46 +22,13 @@
             font-size: 8px;
             text-align: right;
         }
-        td.left {
-            text-align: left;
-        }
-        td.center {
-            text-align: center;
-        }
-        tr:nth-child(even) {
-            background-color: #f9fafb;
-        }
-        .subtotal-row td {
-            font-weight: bold;
-            background-color: #dbeafe;
-            border-top: 1px solid #93c5fd;
-        }
         .total-row td {
-            font-weight: bold;
-            background-color: #e8f0fe;
-            border-top: 2px solid #1e3a5f;
             font-size: 9px;
-        }
-        .footer {
-            margin-top: 16px;
-            text-align: center;
-            font-size: 8px;
-            color: #888;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>FCPBS (Financial Cost &amp; Price Breakdown)</h1>
-        <p>Maimaar Estimation Calculator</p>
-    </div>
-
-    <div class="project-info">
-        <span><strong>Quote:</strong> {{ $estimation->quote_number }}</span>
-        <span><strong>Building:</strong> {{ $estimation->building_name }}</span>
-        <span><strong>Customer:</strong> {{ $estimation->customer_name }}</span>
-        <span><strong>Date:</strong> {{ $estimation->estimation_date ? \Carbon\Carbon::parse($estimation->estimation_date)->format('d M Y') : '-' }}</span>
-    </div>
+    @include('pdf.partials.header', ['documentTitle' => 'Cost & Price Breakdown (FCPBS)', 'estimation' => $estimation])
 
     @php
         $categoryOrder = ['A', 'B', 'C', 'D'];
@@ -311,8 +236,6 @@
         </tbody>
     </table>
 
-    <div class="footer">
-        Generated on {{ now()->format('d M Y H:i') }} &bull; Maimaar Estimation Calculator
-    </div>
+    @include('pdf.partials.footer', ['documentTitle' => 'Cost & Price Breakdown (FCPBS)', 'estimation' => $estimation])
 </body>
 </html>

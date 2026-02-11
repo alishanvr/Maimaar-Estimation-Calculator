@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\Estimations\Tables;
 
+use App\Models\Estimation;
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -17,6 +19,9 @@ class EstimationsTable
             ->columns([
                 TextColumn::make('quote_number')
                     ->searchable()
+                    ->sortable(),
+                TextColumn::make('revision_no')
+                    ->label('Rev')
                     ->sortable(),
                 TextColumn::make('building_name')
                     ->searchable()
@@ -62,6 +67,23 @@ class EstimationsTable
             ])
             ->recordActions([
                 ViewAction::make(),
+                Action::make('clone')
+                    ->label('Clone')
+                    ->icon('heroicon-o-document-duplicate')
+                    ->color('info')
+                    ->requiresConfirmation()
+                    ->modalDescription('This will create a new draft estimation with the same input data.')
+                    ->action(function (Estimation $record): void {
+                        $clone = $record->replicate(['results_data', 'total_weight_mt', 'total_price_aed', 'status', 'parent_id']);
+                        $clone->status = 'draft';
+                        $clone->results_data = null;
+                        $clone->total_weight_mt = null;
+                        $clone->total_price_aed = null;
+                        $clone->parent_id = null;
+                        $clone->estimation_date = now();
+                        $clone->save();
+                    })
+                    ->successNotificationTitle('Estimation cloned.'),
             ]);
     }
 }

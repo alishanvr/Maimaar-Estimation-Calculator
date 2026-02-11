@@ -56,6 +56,22 @@ class EstimationPolicy
     }
 
     /**
+     * Determine whether the user can clone the model.
+     */
+    public function clone(User $user, Estimation $estimation): bool
+    {
+        return $user->isAdmin() || $user->id === $estimation->user_id;
+    }
+
+    /**
+     * Determine whether the user can create a revision.
+     */
+    public function createRevision(User $user, Estimation $estimation): bool
+    {
+        return $user->isAdmin() || $user->id === $estimation->user_id;
+    }
+
+    /**
      * Determine whether the user can restore the model.
      */
     public function restore(User $user, Estimation $estimation): bool

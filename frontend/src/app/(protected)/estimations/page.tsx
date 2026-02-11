@@ -3,7 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEstimations } from "@/hooks/useEstimations";
-import { createEstimation, deleteEstimation } from "@/lib/estimations";
+import {
+  createEstimation,
+  deleteEstimation,
+  cloneEstimation,
+  bulkExportEstimations,
+} from "@/lib/estimations";
+import { downloadBlob } from "@/lib/download";
 import { INPUT_ROWS } from "@/components/estimations/InputSheetConfig";
 import type { EstimationStatus } from "@/types";
 
@@ -38,6 +44,8 @@ export default function EstimationsPage() {
   const router = useRouter();
   const [statusFilter, setStatusFilter] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [isExporting, setIsExporting] = useState(false);
   const { estimations, meta, isLoading, error, page, setPage, refetch } =
     useEstimations(statusFilter);
 
@@ -61,9 +69,68 @@ export default function EstimationsPage() {
     if (!confirm("Are you sure you want to delete this estimation?")) return;
     try {
       await deleteEstimation(id);
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
       refetch();
     } catch {
       alert("Failed to delete estimation.");
+    }
+  };
+
+  const handleClone = async (id: number) => {
+    try {
+      const cloned = await cloneEstimation(id);
+      router.push(`/estimations/${cloned.id}`);
+    } catch {
+      alert("Failed to clone estimation.");
+    }
+  };
+
+  const handleCompare = () => {
+    const ids = Array.from(selectedIds);
+    router.push(`/estimations/compare?ids=${ids.join(",")}`);
+  };
+
+  const handleBulkExport = async () => {
+    setIsExporting(true);
+    try {
+      const ids = Array.from(selectedIds);
+      const blob = await bulkExportEstimations(ids, [
+        "recap",
+        "detail",
+        "fcpbs",
+        "sal",
+        "boq",
+        "jaf",
+      ]);
+      downloadBlob(blob, "estimations-export.zip");
+    } catch {
+      alert("Failed to export estimations.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const toggleSelection = (id: number) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    if (selectedIds.size === estimations.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(estimations.map((e) => e.id)));
     }
   };
 
@@ -114,6 +181,37 @@ export default function EstimationsPage() {
         ))}
       </div>
 
+      {/* Selection Toolbar */}
+      {selectedIds.size > 0 && (
+        <div className="flex items-center gap-3 mb-4 bg-blue-50 border border-blue-200 rounded-lg px-4 py-2">
+          <span className="text-sm font-medium text-blue-700">
+            {selectedIds.size} selected
+          </span>
+          <div className="h-4 w-px bg-blue-200" />
+          <button
+            onClick={handleCompare}
+            disabled={selectedIds.size !== 2}
+            className="text-sm font-medium text-blue-600 hover:text-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed transition"
+          >
+            Compare
+          </button>
+          <button
+            onClick={handleBulkExport}
+            disabled={isExporting}
+            className="text-sm font-medium text-blue-600 hover:text-blue-800 disabled:text-gray-400 transition"
+          >
+            {isExporting ? "Exporting..." : "Export ZIP"}
+          </button>
+          <div className="flex-1" />
+          <button
+            onClick={() => setSelectedIds(new Set())}
+            className="text-sm text-gray-500 hover:text-gray-700 transition"
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
       {/* Error */}
       {error && (
         <div className="bg-red-50 text-red-700 text-sm rounded-lg p-3 border border-red-200 mb-4">
@@ -154,6 +252,17 @@ export default function EstimationsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="w-10 px-3 py-3">
+                  <input
+                    type="checkbox"
+                    checked={
+                      estimations.length > 0 &&
+                      selectedIds.size === estimations.length
+                    }
+                    onChange={toggleAll}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                </th>
                 <th className="text-left px-4 py-3 font-medium text-gray-500">
                   Quote #
                 </th>
@@ -184,9 +293,23 @@ export default function EstimationsPage() {
               {estimations.map((est) => (
                 <tr
                   key={est.id}
-                  className="hover:bg-gray-50 cursor-pointer transition"
+                  className={`hover:bg-gray-50 cursor-pointer transition ${
+                    selectedIds.has(est.id) ? "bg-blue-50" : ""
+                  }`}
                   onClick={() => router.push(`/estimations/${est.id}`)}
                 >
+                  <td className="w-10 px-3 py-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(est.id)}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        toggleSelection(est.id);
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                  </td>
                   <td className="px-4 py-3 font-mono text-xs">
                     {est.quote_number || "\u2014"}
                   </td>
@@ -213,15 +336,26 @@ export default function EstimationsPage() {
                     {est.estimation_date || est.created_at?.slice(0, 10)}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(est.id);
-                      }}
-                      className="text-red-500 hover:text-red-700 text-xs font-medium transition"
-                    >
-                      Delete
-                    </button>
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleClone(est.id);
+                        }}
+                        className="text-blue-500 hover:text-blue-700 text-xs font-medium transition"
+                      >
+                        Clone
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(est.id);
+                        }}
+                        className="text-red-500 hover:text-red-700 text-xs font-medium transition"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

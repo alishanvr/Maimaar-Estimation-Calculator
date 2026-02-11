@@ -4,46 +4,19 @@
     <meta charset="UTF-8">
     <title>JAF - {{ $estimation->quote_number }}</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'DejaVu Sans', Arial, sans-serif;
-            font-size: 10px;
-            color: #1a1a1a;
-            line-height: 1.4;
-        }
-        .header {
-            background-color: #1e3a5f;
-            color: #ffffff;
-            padding: 12px 20px;
-            margin-bottom: 16px;
-        }
-        .header h1 {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 2px;
-        }
-        .header p {
-            font-size: 10px;
-            opacity: 0.85;
-        }
+        @include('pdf.partials.styles', ['bodyFontSize' => '10px', 'bodyLineHeight' => '1.4'])
+
+        /* === JAF-specific styles === */
         .section {
             margin: 0 16px 14px;
         }
         .section-title {
             font-size: 12px;
             font-weight: bold;
-            color: #1e3a5f;
-            border-bottom: 2px solid #1e3a5f;
+            color: {{ $headerColor ?? '#1e3a5f' }};
+            border-bottom: 2px solid {{ $headerColor ?? '#1e3a5f' }};
             padding-bottom: 4px;
             margin-bottom: 8px;
-        }
-        .info-grid {
-            width: 100%;
-            border-collapse: collapse;
         }
         .info-grid td {
             padding: 4px 8px;
@@ -59,10 +32,6 @@
         .info-grid .value {
             width: 20%;
         }
-        .pricing-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
         .pricing-table td {
             padding: 5px 8px;
             border: 1px solid #e0e0e0;
@@ -77,13 +46,9 @@
             text-align: right;
             width: 45%;
         }
-        .pricing-table .highlight {
+        .pricing-table .highlight-cell {
             background-color: #e8f0fe;
             font-weight: bold;
-        }
-        .requirements-list {
-            width: 100%;
-            border-collapse: collapse;
         }
         .requirements-list td {
             padding: 3px 8px;
@@ -102,19 +67,10 @@
             width: 10%;
             text-align: center;
         }
-        .footer {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 9px;
-            color: #888;
-        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Job Acceptance Form (JAF)</h1>
-        <p>Maimaar Estimation Calculator</p>
-    </div>
+    @include('pdf.partials.header', ['documentTitle' => 'Job Acceptance Form (JAF)', 'estimation' => $estimation])
 
     {{-- Project Information --}}
     <div class="section">
@@ -163,25 +119,25 @@
                 <td class="label">Value Added at "R" Line (AED/MT)</td>
                 <td class="value">{{ number_format(($jafData['pricing']['value_added_r'] ?? 0), 2) }}</td>
             </tr>
-            <tr class="highlight">
-                <td class="label highlight">Total Weight (MT)</td>
-                <td class="value highlight">{{ number_format(($jafData['pricing']['total_weight_mt'] ?? 0), 4) }}</td>
+            <tr>
+                <td class="label highlight-cell">Total Weight (MT)</td>
+                <td class="value highlight-cell">{{ number_format(($jafData['pricing']['total_weight_mt'] ?? 0), 4) }}</td>
             </tr>
             <tr>
                 <td class="label">Primary Weight (MT)</td>
                 <td class="value">{{ number_format(($jafData['pricing']['primary_weight_mt'] ?? 0), 4) }}</td>
             </tr>
-            <tr class="highlight">
-                <td class="label highlight">Supply Price (AED)</td>
-                <td class="value highlight">{{ number_format(($jafData['pricing']['supply_price_aed'] ?? 0), 2) }}</td>
+            <tr>
+                <td class="label highlight-cell">Supply Price (AED)</td>
+                <td class="value highlight-cell">{{ number_format(($jafData['pricing']['supply_price_aed'] ?? 0), 2) }}</td>
             </tr>
             <tr>
                 <td class="label">Erection Price (AED)</td>
                 <td class="value">{{ number_format(($jafData['pricing']['erection_price_aed'] ?? 0), 2) }}</td>
             </tr>
-            <tr class="highlight">
-                <td class="label highlight">Total Contract (AED)</td>
-                <td class="value highlight">{{ number_format(($jafData['pricing']['total_contract_aed'] ?? 0), 2) }}</td>
+            <tr>
+                <td class="label highlight-cell">Total Contract (AED)</td>
+                <td class="value highlight-cell">{{ number_format(($jafData['pricing']['total_contract_aed'] ?? 0), 2) }}</td>
             </tr>
             <tr>
                 <td class="label">Contract Value (USD)</td>
@@ -233,8 +189,6 @@
         </table>
     </div>
 
-    <div class="footer">
-        Generated on {{ now()->format('d M Y H:i') }} &bull; Maimaar Estimation Calculator
-    </div>
+    @include('pdf.partials.footer', ['documentTitle' => 'Job Acceptance Form (JAF)', 'estimation' => $estimation])
 </body>
 </html>
