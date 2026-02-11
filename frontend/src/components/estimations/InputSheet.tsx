@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useMemo, useCallback } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { HotTable } from "@handsontable/react-wrapper";
 import { registerAllModules } from "handsontable/registry";
 import type { CellChange, ChangeSource } from "handsontable/common";
@@ -9,9 +9,13 @@ import "handsontable/styles/ht-theme-main.min.css";
 
 import { INPUT_ROWS, type InputRowDef } from "./InputSheetConfig";
 import { useDesignConfigurations } from "@/hooks/useDesignConfigurations";
-import OpeningsTable from "./OpeningsTable";
-import AccessoriesTable from "./AccessoriesTable";
-import type { Estimation, InputData, Opening, Accessory } from "@/types";
+import ComponentTable from "./ComponentTable";
+import ComponentButtonBar from "./ComponentButtonBar";
+import {
+  COMPONENT_CONFIGS,
+  type ComponentType,
+} from "./ComponentTableConfig";
+import type { Estimation, InputData } from "@/types";
 
 registerAllModules();
 
@@ -295,31 +299,101 @@ export default function InputSheet({
     [dropdowns]
   );
 
-  const handleOpeningsChange = useCallback(
-    (openings: Opening[]) => {
-      onInputDataChange({
-        ...estimation.input_data,
-        openings,
-      } as InputData);
-    },
-    [estimation.input_data, onInputDataChange]
-  );
-
-  const handleAccessoriesChange = useCallback(
-    (accessories: Accessory[]) => {
-      onInputDataChange({
-        ...estimation.input_data,
-        accessories,
-      } as InputData);
-    },
-    [estimation.input_data, onInputDataChange]
-  );
-
   // Fixed height for the main grid based on row count
   const mainGridHeight = INPUT_ROWS.length * 23 + 30;
 
+  // ── Optional Component State ──────────────────────────────────────
+
+  /** Refs for scrolling to component sections */
+  const componentRefs = useRef<Record<ComponentType, HTMLDivElement | null>>({
+    openings: null,
+    accessories: null,
+    cranes: null,
+    mezzanines: null,
+    partitions: null,
+    canopies: null,
+  });
+
+  /** Determine which components are active based on existing data */
+  const [activeComponents, setActiveComponents] = useState<
+    Record<ComponentType, boolean>
+  >(() => ({
+    openings: (estimation.input_data?.openings?.length ?? 0) > 0,
+    accessories: (estimation.input_data?.accessories?.length ?? 0) > 0,
+    cranes: (estimation.input_data?.cranes?.length ?? 0) > 0,
+    mezzanines: (estimation.input_data?.mezzanines?.length ?? 0) > 0,
+    partitions: (estimation.input_data?.partitions?.length ?? 0) > 0,
+    canopies: (estimation.input_data?.canopies?.length ?? 0) > 0,
+  }));
+
+  /** Sync active state when estimation data changes externally (e.g. Fill Test Data) */
+  useEffect(() => {
+    setActiveComponents({
+      openings: (estimation.input_data?.openings?.length ?? 0) > 0,
+      accessories: (estimation.input_data?.accessories?.length ?? 0) > 0,
+      cranes: (estimation.input_data?.cranes?.length ?? 0) > 0,
+      mezzanines: (estimation.input_data?.mezzanines?.length ?? 0) > 0,
+      partitions: (estimation.input_data?.partitions?.length ?? 0) > 0,
+      canopies: (estimation.input_data?.canopies?.length ?? 0) > 0,
+    });
+  }, [estimation.input_data?.openings, estimation.input_data?.accessories, estimation.input_data?.cranes, estimation.input_data?.mezzanines, estimation.input_data?.partitions, estimation.input_data?.canopies]);
+
+  /** Toggle a component on/off. Off = clear its data. */
+  const handleComponentToggle = useCallback(
+    (type: ComponentType) => {
+      const isCurrentlyActive = activeComponents[type];
+
+      if (isCurrentlyActive) {
+        // Remove: first update local state, then clear data (deferred to avoid
+        // calling parent setState during this component's render cycle)
+        setActiveComponents((prev) => ({ ...prev, [type]: false }));
+        setTimeout(() => {
+          const updated = { ...estimation.input_data };
+          delete updated[type];
+          onInputDataChange(updated as InputData);
+        }, 0);
+      } else {
+        // Add: update local state, scroll to section after it renders
+        setActiveComponents((prev) => ({ ...prev, [type]: true }));
+        setTimeout(() => {
+          componentRefs.current[type]?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }, 100);
+      }
+    },
+    [activeComponents, estimation.input_data, onInputDataChange]
+  );
+
+  /** Scroll to a component section */
+  const handleComponentScrollTo = useCallback((type: ComponentType) => {
+    componentRefs.current[type]?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, []);
+
+  /** Generic handler for component data changes */
+  const handleComponentChange = useCallback(
+    (type: ComponentType, items: Record<string, unknown>[]) => {
+      onInputDataChange({
+        ...estimation.input_data,
+        [type]: items,
+      } as InputData);
+    },
+    [estimation.input_data, onInputDataChange]
+  );
+
   return (
     <div ref={containerRef} className="flex-1 overflow-auto">
+      {/* Component toggle buttons */}
+      <ComponentButtonBar
+        activeComponents={activeComponents}
+        onToggle={handleComponentToggle}
+        onScrollTo={handleComponentScrollTo}
+      />
+
       {/* Main input grid */}
       <div style={{ minHeight: mainGridHeight }}>
         <HotTable
@@ -353,27 +427,37 @@ export default function InputSheet({
         />
       </div>
 
-      {/* Openings sub-table */}
-      <div className="mt-4 px-1">
-        <h3 className="text-xs font-bold text-gray-700 bg-gray-200 px-2 py-1.5 uppercase tracking-wider">
-          Openings
-        </h3>
-        <OpeningsTable
-          openings={estimation.input_data?.openings ?? []}
-          onChange={handleOpeningsChange}
-        />
-      </div>
+      {/* Component sub-tables (Openings, Accessories, Crane, Mezzanine, Partition, Canopy) */}
+      {COMPONENT_CONFIGS.map((config) =>
+        activeComponents[config.key] ? (
+          <div
+            key={config.key}
+            ref={(el) => {
+              componentRefs.current[config.key] = el;
+            }}
+            className="mt-4 px-1"
+          >
+            <h3 className="text-xs font-bold text-gray-700 bg-indigo-100 px-2 py-1.5 uppercase tracking-wider border-l-4 border-indigo-500">
+              {config.label}
+            </h3>
+            <ComponentTable
+              columns={config.columns}
+              items={
+                (estimation.input_data?.[
+                  config.key
+                ] as Record<string, unknown>[]) ?? []
+              }
+              maxRows={config.maxRows}
+              onChange={(items) =>
+                handleComponentChange(config.key, items)
+              }
+            />
+          </div>
+        ) : null
+      )}
 
-      {/* Accessories sub-table */}
-      <div className="mt-4 px-1 pb-4">
-        <h3 className="text-xs font-bold text-gray-700 bg-gray-200 px-2 py-1.5 uppercase tracking-wider">
-          Accessories
-        </h3>
-        <AccessoriesTable
-          accessories={estimation.input_data?.accessories ?? []}
-          onChange={handleAccessoriesChange}
-        />
-      </div>
+      {/* Bottom padding */}
+      <div className="h-4" />
     </div>
   );
 }

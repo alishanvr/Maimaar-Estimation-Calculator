@@ -86,6 +86,34 @@ export async function getPaintSystems(): Promise<DesignConfiguration[]> {
 
 // ── PDF Export ────────────────────────────────────────────────────
 
+export async function exportRecapPdf(id: number): Promise<Blob> {
+  const { data } = await api.get(`/estimations/${id}/export/recap`, {
+    responseType: "blob",
+  });
+  return data;
+}
+
+export async function exportDetailPdf(id: number): Promise<Blob> {
+  const { data } = await api.get(`/estimations/${id}/export/detail`, {
+    responseType: "blob",
+  });
+  return data;
+}
+
+export async function exportFcpbsPdf(id: number): Promise<Blob> {
+  const { data } = await api.get(`/estimations/${id}/export/fcpbs`, {
+    responseType: "blob",
+  });
+  return data;
+}
+
+export async function exportSalPdf(id: number): Promise<Blob> {
+  const { data } = await api.get(`/estimations/${id}/export/sal`, {
+    responseType: "blob",
+  });
+  return data;
+}
+
 export async function exportBoqPdf(id: number): Promise<Blob> {
   const { data } = await api.get(`/estimations/${id}/export/boq`, {
     responseType: "blob",

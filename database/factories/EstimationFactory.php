@@ -118,6 +118,37 @@ class EstimationFactory extends Factory
                     'steel_weight_kg' => 27200,
                     'panels_weight_kg' => 22340,
                 ],
+                'detail' => [
+                    ['description' => 'PRIMARY FRAMING', 'code' => '', 'sales_code' => '', 'cost_code' => '', 'size' => 0, 'qty' => 0, 'unit' => '', 'weight_per_unit' => 0, 'rate' => 0, 'is_header' => true, 'sort_order' => 1],
+                    ['description' => 'Main Frame Rafters', 'code' => 'MFR', 'sales_code' => 1, 'cost_code' => 'A1', 'size' => 28.5, 'qty' => 5, 'unit' => 'm', 'weight_per_unit' => 35.2, 'rate' => 3.50, 'is_header' => false, 'sort_order' => 2],
+                    ['description' => 'Main Frame Columns', 'code' => 'MFC', 'sales_code' => 1, 'cost_code' => 'A2', 'size' => 7.5, 'qty' => 10, 'unit' => 'm', 'weight_per_unit' => 28.4, 'rate' => 3.50, 'is_header' => false, 'sort_order' => 3],
+                    ['description' => 'SECONDARY MEMBERS', 'code' => '', 'sales_code' => '', 'cost_code' => '', 'size' => 0, 'qty' => 0, 'unit' => '', 'weight_per_unit' => 0, 'rate' => 0, 'is_header' => true, 'sort_order' => 4],
+                    ['description' => 'Roof Purlins Z200', 'code' => 'RP', 'sales_code' => 1, 'cost_code' => 'B1', 'size' => 9.1, 'qty' => 40, 'unit' => 'm', 'weight_per_unit' => 4.88, 'rate' => 3.20, 'is_header' => false, 'sort_order' => 5],
+                ],
+                'fcpbs' => [
+                    'categories' => [
+                        'A' => ['key' => 'A', 'name' => 'Main Frames', 'quantity' => 1, 'weight_kg' => 15500, 'weight_pct' => 31.3, 'material_cost' => 52700, 'manufacturing_cost' => 15500, 'overhead_cost' => 7750, 'total_cost' => 75950, 'markup' => 0.970, 'selling_price' => 85600, 'selling_price_pct' => 20.1, 'price_per_mt' => 5523, 'value_added' => 9650, 'va_per_mt' => 623],
+                        'B' => ['key' => 'B', 'name' => 'Endwall Frames', 'quantity' => 2, 'weight_kg' => 3200, 'weight_pct' => 6.5, 'material_cost' => 10880, 'manufacturing_cost' => 3200, 'overhead_cost' => 1600, 'total_cost' => 15680, 'markup' => 0.970, 'selling_price' => 17660, 'selling_price_pct' => 4.2, 'price_per_mt' => 5519, 'value_added' => 1980, 'va_per_mt' => 619],
+                    ],
+                    'steel_subtotal' => ['weight_kg' => 27200, 'material_cost' => 92480, 'manufacturing_cost' => 27200, 'overhead_cost' => 13600, 'total_cost' => 133280, 'selling_price' => 150100, 'value_added' => 16820],
+                    'panels_subtotal' => ['weight_kg' => 22340, 'material_cost' => 78190, 'manufacturing_cost' => 11170, 'overhead_cost' => 5585, 'total_cost' => 94945, 'selling_price' => 106933, 'value_added' => 11988],
+                    'fob_price' => 380000,
+                    'total_price' => 424933,
+                    'total_weight_kg' => 49540,
+                    'total_weight_mt' => 49.54,
+                ],
+                'sal' => [
+                    'lines' => [
+                        ['code' => 1, 'description' => 'Building Area', 'weight_kg' => 27200, 'cost' => 133280, 'markup' => 0.970, 'price' => 150100, 'price_per_mt' => 5519],
+                        ['code' => 2, 'description' => 'Mezzanine', 'weight_kg' => 5400, 'cost' => 32400, 'markup' => 0.970, 'price' => 36490, 'price_per_mt' => 6757],
+                        ['code' => 3, 'description' => 'Canopy', 'weight_kg' => 2100, 'cost' => 12600, 'markup' => 0.970, 'price' => 14190, 'price_per_mt' => 6757],
+                    ],
+                    'total_weight_kg' => 49540,
+                    'total_cost' => 228280,
+                    'total_price' => 424933,
+                    'markup_ratio' => 0.970,
+                    'price_per_mt' => 8577.21,
+                ],
             ],
         ]);
     }

@@ -216,6 +216,73 @@ export default function EstimationEditorPage() {
       accessories: [
         { description: "Skylight Panel", code: "SL-01", qty: 4 },
       ],
+
+      // Optional Components
+      cranes: [
+        {
+          description: "EOT Crane",
+          sales_code: 4,
+          capacity: 10,
+          duty: "M",
+          rail_centers: 25,
+          crane_run: "3@9.144",
+        },
+      ],
+      mezzanines: [
+        {
+          description: "Office Mezzanine",
+          sales_code: 2,
+          col_spacing: "2@6",
+          beam_spacing: "1@6",
+          joist_spacing: "1@3",
+          clear_height: 4.5,
+          double_welded: "No",
+          deck_type: "Concrete",
+          n_stairs: 1,
+          dead_load: 0.15,
+          live_load: 2.5,
+          additional_load: 0,
+          bu_finish: "",
+          cf_finish: "",
+          min_thickness: 6,
+        },
+      ],
+      partitions: [
+        {
+          description: "Internal Partition",
+          sales_code: 11,
+          direction: "Transverse",
+          bu_finish: "",
+          cf_finish: "",
+          wind_speed: 0,
+          col_spacing: "1@6",
+          height: 6,
+          opening_height: 4,
+          front_sheeting: "None",
+          back_sheeting: "None",
+          insulation: "None",
+        },
+      ],
+      canopies: [
+        {
+          description: "Front Canopy",
+          sales_code: 3,
+          frame_type: "Lean-To",
+          location: "Front",
+          height: 4,
+          width: 3,
+          col_spacing: "2@6",
+          roof_sheeting: "None",
+          drainage: "None",
+          soffit: "None",
+          wall_sheeting: "None",
+          internal_sheeting: "None",
+          bu_finish: "",
+          cf_finish: "",
+          live_load: 0.57,
+          wind_speed: 0.7,
+        },
+      ],
     };
 
     // Single atomic save + calculate (no debounce race condition)

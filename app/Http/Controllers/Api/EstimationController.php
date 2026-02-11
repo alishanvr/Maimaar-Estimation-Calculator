@@ -272,6 +272,142 @@ class EstimationController extends Controller
     }
 
     /**
+     * Export Recap as PDF.
+     */
+    public function exportRecap(Request $request, Estimation $estimation): JsonResponse|Response
+    {
+        $this->authorize('view', $estimation);
+
+        if (! $estimation->isCalculated() && $estimation->status !== 'finalized') {
+            return response()->json([
+                'message' => 'Estimation has not been calculated yet.',
+            ], 422);
+        }
+
+        $recapData = $estimation->results_data['summary'] ?? null;
+
+        if (! $recapData) {
+            return response()->json([
+                'message' => 'Recap data is not available.',
+            ], 422);
+        }
+
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($estimation)
+            ->log('exported Recap PDF');
+
+        $pdf = Pdf::loadView('pdf.recap', compact('estimation', 'recapData'))
+            ->setPaper('a4', 'portrait');
+
+        $filename = 'Recap-'.($estimation->quote_number ?? 'export').'.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Export Detail as PDF.
+     */
+    public function exportDetail(Request $request, Estimation $estimation): JsonResponse|Response
+    {
+        $this->authorize('view', $estimation);
+
+        if (! $estimation->isCalculated() && $estimation->status !== 'finalized') {
+            return response()->json([
+                'message' => 'Estimation has not been calculated yet.',
+            ], 422);
+        }
+
+        $detailData = $estimation->results_data['detail'] ?? null;
+
+        if (! $detailData) {
+            return response()->json([
+                'message' => 'Detail data is not available.',
+            ], 422);
+        }
+
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($estimation)
+            ->log('exported Detail PDF');
+
+        $pdf = Pdf::loadView('pdf.detail', compact('estimation', 'detailData'))
+            ->setPaper('a4', 'landscape');
+
+        $filename = 'Detail-'.($estimation->quote_number ?? 'export').'.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Export FCPBS as PDF.
+     */
+    public function exportFcpbs(Request $request, Estimation $estimation): JsonResponse|Response
+    {
+        $this->authorize('view', $estimation);
+
+        if (! $estimation->isCalculated() && $estimation->status !== 'finalized') {
+            return response()->json([
+                'message' => 'Estimation has not been calculated yet.',
+            ], 422);
+        }
+
+        $fcpbsData = $estimation->results_data['fcpbs'] ?? null;
+
+        if (! $fcpbsData) {
+            return response()->json([
+                'message' => 'FCPBS data is not available.',
+            ], 422);
+        }
+
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($estimation)
+            ->log('exported FCPBS PDF');
+
+        $pdf = Pdf::loadView('pdf.fcpbs', compact('estimation', 'fcpbsData'))
+            ->setPaper('a4', 'landscape');
+
+        $filename = 'FCPBS-'.($estimation->quote_number ?? 'export').'.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Export SAL as PDF.
+     */
+    public function exportSal(Request $request, Estimation $estimation): JsonResponse|Response
+    {
+        $this->authorize('view', $estimation);
+
+        if (! $estimation->isCalculated() && $estimation->status !== 'finalized') {
+            return response()->json([
+                'message' => 'Estimation has not been calculated yet.',
+            ], 422);
+        }
+
+        $salData = $estimation->results_data['sal'] ?? null;
+
+        if (! $salData) {
+            return response()->json([
+                'message' => 'SAL data is not available.',
+            ], 422);
+        }
+
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($estimation)
+            ->log('exported SAL PDF');
+
+        $pdf = Pdf::loadView('pdf.sal', compact('estimation', 'salData'))
+            ->setPaper('a4', 'landscape');
+
+        $filename = 'SAL-'.($estimation->quote_number ?? 'export').'.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    /**
      * Extract sheet data from a calculated estimation's results.
      */
     private function getSheetData(Estimation $estimation, string $sheetKey): JsonResponse

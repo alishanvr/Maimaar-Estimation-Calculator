@@ -156,6 +156,12 @@ export interface InputData {
   openings?: Opening[];
   accessories?: Accessory[];
 
+  // Optional Components
+  cranes?: Crane[];
+  mezzanines?: Mezzanine[];
+  partitions?: Partition[];
+  canopies?: Canopy[];
+
   [key: string]: unknown;
 }
 
@@ -171,6 +177,69 @@ export interface Accessory {
   description: string;
   code: string;
   qty: number;
+}
+
+// ── Optional Building Components ──────────────────────────────────
+
+export interface Crane {
+  description?: string;
+  sales_code?: number;
+  capacity?: number;
+  duty?: string;
+  rail_centers?: number;
+  crane_run?: string;
+}
+
+export interface Mezzanine {
+  description?: string;
+  sales_code?: number;
+  col_spacing?: string;
+  beam_spacing?: string;
+  joist_spacing?: string;
+  clear_height?: number;
+  double_welded?: string;
+  deck_type?: string;
+  n_stairs?: number;
+  dead_load?: number;
+  live_load?: number;
+  additional_load?: number;
+  bu_finish?: string;
+  cf_finish?: string;
+  min_thickness?: number;
+}
+
+export interface Partition {
+  description?: string;
+  sales_code?: number;
+  direction?: string;
+  bu_finish?: string;
+  cf_finish?: string;
+  wind_speed?: number;
+  col_spacing?: string;
+  height?: number;
+  opening_height?: number;
+  front_sheeting?: string;
+  back_sheeting?: string;
+  insulation?: string;
+}
+
+export interface Canopy {
+  description?: string;
+  sales_code?: number;
+  frame_type?: string;
+  location?: string;
+  height?: number;
+  width?: number;
+  col_spacing?: string;
+  roof_sheeting?: string;
+  drainage?: string;
+  soffit?: string;
+  wall_sheeting?: string;
+  internal_sheeting?: string;
+  bu_finish?: string;
+  cf_finish?: string;
+  live_load?: number;
+  wind_speed?: number;
 }
 
 // ── Estimation Summary (exposed when calculated) ───────────────────
