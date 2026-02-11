@@ -5,7 +5,8 @@ use App\Http\Controllers\Api\DesignConfigurationController;
 use App\Http\Controllers\Api\EstimationController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])
+    ->middleware('throttle:login');
 
 Route::middleware('auth:sanctum')->group(function () {
     // Authentication
@@ -36,11 +37,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/boq', [EstimationController::class, 'boq'])->name('boq');
         Route::get('/jaf', [EstimationController::class, 'jaf'])->name('jaf');
 
-        Route::get('/export/recap', [EstimationController::class, 'exportRecap'])->name('export.recap');
-        Route::get('/export/detail', [EstimationController::class, 'exportDetail'])->name('export.detail');
-        Route::get('/export/fcpbs', [EstimationController::class, 'exportFcpbs'])->name('export.fcpbs');
-        Route::get('/export/sal', [EstimationController::class, 'exportSal'])->name('export.sal');
-        Route::get('/export/boq', [EstimationController::class, 'exportBoq'])->name('export.boq');
-        Route::get('/export/jaf', [EstimationController::class, 'exportJaf'])->name('export.jaf');
+        Route::middleware('throttle:exports')->group(function () {
+            Route::get('/export/recap', [EstimationController::class, 'exportRecap'])->name('export.recap');
+            Route::get('/export/detail', [EstimationController::class, 'exportDetail'])->name('export.detail');
+            Route::get('/export/fcpbs', [EstimationController::class, 'exportFcpbs'])->name('export.fcpbs');
+            Route::get('/export/sal', [EstimationController::class, 'exportSal'])->name('export.sal');
+            Route::get('/export/boq', [EstimationController::class, 'exportBoq'])->name('export.boq');
+            Route::get('/export/jaf', [EstimationController::class, 'exportJaf'])->name('export.jaf');
+        });
     });
 });
