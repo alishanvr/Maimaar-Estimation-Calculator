@@ -95,6 +95,11 @@ class EstimationController extends Controller
 
         $estimation->update($data);
 
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($estimation)
+            ->log('updated estimation');
+
         return new EstimationResource($estimation->fresh());
     }
 

@@ -87,6 +87,11 @@ class UsersTable
                     ->action(function (User $record): void {
                         $newPassword = Str::random(16);
                         $record->update(['password' => Hash::make($newPassword)]);
+
+                        activity()
+                            ->causedBy(auth()->user())
+                            ->performedOn($record)
+                            ->log('reset user password');
                     })
                     ->successNotificationTitle('Password has been reset.'),
             ])
