@@ -1,0 +1,21 @@
+{
+  "locations": [
+    "All Around",
+    "Back Sidewall",
+    "Front Sidewall",
+    "Left Endwall",
+    "Right Endwall",
+    "Back Roof",
+    "Front Roof"
+  ],
+  "finish_types": [],
+  "connection_types": [
+    "Bearing Frame",
+    "Main Frame",
+    "MF 1/2 Load",
+    "False Rafter",
+    "No Frame"
+  ],
+  "panel_profiles": [],
+  "shipping_destinations": []
+}

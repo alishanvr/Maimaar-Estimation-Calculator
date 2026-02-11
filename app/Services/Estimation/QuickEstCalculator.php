@@ -2,10 +2,12 @@
 
 namespace App\Services\Estimation;
 
-use App\Models\MbsdbProduct;
-
 class QuickEstCalculator
 {
+    public function __construct(
+        private readonly CachingService $cachingService
+    ) {}
+
     /**
      * Purlin design table: maps PDIndex range thresholds to cold-formed codes.
      * Derived from DB sheet named ranges PDIndex/PDCode.
@@ -112,17 +114,7 @@ class QuickEstCalculator
      */
     public function getProductWeight(string $code): float
     {
-        static $cache = [];
-
-        if (isset($cache[$code])) {
-            return $cache[$code];
-        }
-
-        $product = MbsdbProduct::query()->byCode($code)->first();
-        $weight = $product ? (float) $product->rate : 0.0;
-        $cache[$code] = $weight;
-
-        return $weight;
+        return $this->cachingService->getProductWeight($code);
     }
 
     /**
@@ -131,9 +123,7 @@ class QuickEstCalculator
      */
     public function getProductField(string $code, string $field): mixed
     {
-        $product = MbsdbProduct::query()->byCode($code)->first();
-
-        return $product ? $product->{$field} : null;
+        return $this->cachingService->getProductField($code, $field);
     }
 
     /**

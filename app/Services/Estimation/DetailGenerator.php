@@ -2,8 +2,6 @@
 
 namespace App\Services\Estimation;
 
-use App\Models\MbsdbProduct;
-
 class DetailGenerator
 {
     /** @var array<int, array{description: string, code: string, sales_code: int|string, size: float|int|string, qty: float|int, is_header: bool, cost_code: string}> */
@@ -13,7 +11,8 @@ class DetailGenerator
 
     public function __construct(
         private readonly InputParserService $parser,
-        private readonly QuickEstCalculator $calculator
+        private readonly QuickEstCalculator $calculator,
+        private readonly CachingService $cachingService
     ) {}
 
     /**
@@ -92,35 +91,7 @@ class DetailGenerator
      */
     private function lookupProduct(string $code): array
     {
-        static $cache = [];
-
-        if (isset($cache[$code])) {
-            return $cache[$code];
-        }
-
-        $product = MbsdbProduct::query()->byCode($code)->first();
-
-        if (! $product) {
-            $cache[$code] = [
-                'description' => $code,
-                'unit' => '',
-                'weight_per_unit' => 0,
-                'rate' => 0,
-            ];
-
-            return $cache[$code];
-        }
-
-        $metadata = $product->metadata ?? [];
-        $cache[$code] = [
-            'description' => $product->description ?? $code,
-            'unit' => $product->unit ?? '',
-            'weight_per_unit' => (float) ($metadata['weight_per_unit'] ?? $product->rate ?? 0),
-            'rate' => (float) ($product->rate ?? 0),
-            'surface_area' => (float) ($metadata['surface_area'] ?? 0),
-        ];
-
-        return $cache[$code];
+        return $this->cachingService->lookupProductDetails($code);
     }
 
     /**

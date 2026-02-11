@@ -10,9 +10,11 @@ use App\Http\Resources\Api\EstimationCollection;
 use App\Http\Resources\Api\EstimationResource;
 use App\Models\Estimation;
 use App\Services\Estimation\EstimationService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class EstimationController extends Controller
 {
@@ -202,27 +204,71 @@ class EstimationController extends Controller
     }
 
     /**
-     * Export BOQ as PDF (stub — deferred to Iteration 7).
+     * Export BOQ as PDF.
      */
-    public function exportBoq(Estimation $estimation): JsonResponse
+    public function exportBoq(Request $request, Estimation $estimation): JsonResponse|Response
     {
         $this->authorize('view', $estimation);
 
-        return response()->json([
-            'message' => 'PDF export will be available in a future release.',
-        ], 501);
+        if (! $estimation->isCalculated() && $estimation->status !== 'finalized') {
+            return response()->json([
+                'message' => 'Estimation has not been calculated yet.',
+            ], 422);
+        }
+
+        $boqData = $estimation->results_data['boq'] ?? null;
+
+        if (! $boqData) {
+            return response()->json([
+                'message' => 'BOQ data is not available.',
+            ], 422);
+        }
+
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($estimation)
+            ->log('exported BOQ PDF');
+
+        $pdf = Pdf::loadView('pdf.boq', compact('estimation', 'boqData'))
+            ->setPaper('a4', 'landscape');
+
+        $filename = 'BOQ-'.($estimation->quote_number ?? 'export').'.pdf';
+
+        return $pdf->download($filename);
     }
 
     /**
-     * Export JAF as PDF (stub — deferred to Iteration 7).
+     * Export JAF as PDF.
      */
-    public function exportJaf(Estimation $estimation): JsonResponse
+    public function exportJaf(Request $request, Estimation $estimation): JsonResponse|Response
     {
         $this->authorize('view', $estimation);
 
-        return response()->json([
-            'message' => 'PDF export will be available in a future release.',
-        ], 501);
+        if (! $estimation->isCalculated() && $estimation->status !== 'finalized') {
+            return response()->json([
+                'message' => 'Estimation has not been calculated yet.',
+            ], 422);
+        }
+
+        $jafData = $estimation->results_data['jaf'] ?? null;
+
+        if (! $jafData) {
+            return response()->json([
+                'message' => 'JAF data is not available.',
+            ], 422);
+        }
+
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($estimation)
+            ->log('exported JAF PDF');
+
+        $pdf = Pdf::loadView('pdf.jaf', compact('estimation', 'jafData'))
+            ->setPaper('a4', 'portrait');
+
+        $filename = 'JAF-'.($estimation->quote_number ?? 'export').'.pdf';
+
+        return $pdf->download($filename);
     }
 
     /**

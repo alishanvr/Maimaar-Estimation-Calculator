@@ -1,0 +1,1584 @@
+[
+  {
+    "code": "SSHRL",
+    "description": " Hot Rolled for Structural (Light 0-30 kg/m)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.6974999999999998"
+  },
+  {
+    "code": "SSHRM",
+    "description": " Hot Rolled for Structural (Medium 30-60 kg/m)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.6974999999999998"
+  },
+  {
+    "code": "SSHRH",
+    "description": " Hot Rolled for Structural (Heavy 60-90 kg/m)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.6974999999999998"
+  },
+  {
+    "code": "SSHRE",
+    "description": " Hot Rolled for Structural (Extra Heavy 90-120 kg/m)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.6974999999999998"
+  },
+  {
+    "code": "SSHRS",
+    "description": " Hot Rolled for Structural (Special 120 kg/m and above)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.6974999999999998"
+  },
+  {
+    "code": "SSHRW2",
+    "description": " Hot Rolled W Sections",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.6974999999999998"
+  },
+  {
+    "code": "SSHRU2",
+    "description": " Hot Rolled UB,UC,HE,IP Sections",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.6974999999999998"
+  },
+  {
+    "code": "SSHRH2",
+    "description": " Hot Rolled SHS,TUBE Sections",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.6974999999999998"
+  },
+  {
+    "code": "SSHRA2",
+    "description": " Hot Rolled Angle,Channel Sections",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.6974999999999998"
+  },
+  {
+    "code": "SSHRP2",
+    "description": " Hot Rolled Pipe Sections",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.6974999999999998"
+  },
+  {
+    "code": "SSSHS",
+    "description": " Square Tube Section (SHS)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "6.3113249999999992"
+  },
+  {
+    "code": "SSRHS",
+    "description": " Rectangular Tube Section (RHS)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "6.3113249999999992"
+  },
+  {
+    "code": "SSCHS",
+    "description": " Circular Tube Section (CHS)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "6.3113249999999992"
+  },
+  {
+    "code": "SSBUL",
+    "description": " Built Ups for Structural (Light 3-16 mm)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.9641000000000002"
+  },
+  {
+    "code": "SSBUM",
+    "description": " Built Ups for Structural (Medium 16-40 mm)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.9641000000000002"
+  },
+  {
+    "code": "SSBUH",
+    "description": " Built Ups for Structural (Heavy 40-63 mm)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.9651750000000003"
+  },
+  {
+    "code": "SSBUE",
+    "description": " Built Ups for Structural (Extra Heavy 63-80 mm)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.9641000000000002"
+  },
+  {
+    "code": "SSBUS",
+    "description": " Built Ups for Structural (Special 80-100 mm)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.9641000000000002"
+  },
+  {
+    "code": "SSPLL",
+    "description": " Plates for Structural (Light 3-16 mm)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.7093249999999998"
+  },
+  {
+    "code": "SSPLM",
+    "description": " Plates for Structural (Medium 16-40 mm)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.7093249999999998"
+  },
+  {
+    "code": "SSPLH",
+    "description": " Plates for Structural (Heavy 40-63 mm)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.7093249999999998"
+  },
+  {
+    "code": "SSPLE",
+    "description": " Plates for Structural (Extra Heavy 63-80 mm)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.7093249999999998"
+  },
+  {
+    "code": "SSPLS",
+    "description": " Plates for Structural (Special 80-100 mm)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.7093249999999998"
+  },
+  {
+    "code": "SSHLP",
+    "description": " Structural Hand Rails Pipe (CHS, SHS, RHS)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "7.0949999999999998"
+  },
+  {
+    "code": "SSHLA",
+    "description": " Structural Hand Rails Angles",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "6.7080000000000002"
+  },
+  {
+    "code": "SSHLB",
+    "description": " Structural Hand Rails Bars (Square, Round)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "7.0949999999999998"
+  },
+  {
+    "code": "SSEPLC",
+    "description": "   End Plate Connections",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.7093249999999998"
+  },
+  {
+    "code": "SSHPLC",
+    "description": " HR Haunch Connections",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.6974999999999998"
+  },
+  {
+    "code": "SSWAT",
+    "description": " Welded Angle Truss",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.9554999999999998"
+  },
+  {
+    "code": "SSWHT",
+    "description": " Welded Hot Rolled Truss",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.6974999999999998"
+  },
+  {
+    "code": "SSWTT",
+    "description": " Welded Tube Truss (CHS, SHS, RHS)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "6.3113249999999992"
+  },
+  {
+    "code": "SSBAT",
+    "description": " Bolted Angle Truss",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.9554999999999998"
+  },
+  {
+    "code": "SSBHT",
+    "description": " Bolted Hot Rolled Truss",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.6974999999999998"
+  },
+  {
+    "code": "SSBTT",
+    "description": " Bolted Tube Truss (CHS, SHS, RHS)",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "6.3113249999999992"
+  },
+  {
+    "code": "SSS5STD",
+    "description": " AZ Steel 0.5X1219 (TBE)",
+    "unit": "M2",
+    "weight": "4.3940000000000001",
+    "price": "24.96448850575846"
+  },
+  {
+    "code": "SSS7STD",
+    "description": " AZ Steel 0.7X1219 (TBE)",
+    "unit": "M2",
+    "weight": "6.4420000000000002",
+    "price": "32.898946997566853"
+  },
+  {
+    "code": "SSA7STD",
+    "description": " Aluminum 0.7X1219 (TBE)",
+    "unit": "M2",
+    "weight": "2.411",
+    "price": "36.635893876076345"
+  },
+  {
+    "code": "SSISAF",
+    "description": " Inner Skin AL Foil (1100 wide)",
+    "unit": "M2",
+    "weight": "0.127",
+    "price": "4.5067448600000004"
+  },
+  {
+    "code": "SSISS5",
+    "description": " Inner Skin AZ Steel 0.5 Flat (1100 wide) (RAL9002) Off white",
+    "unit": "M2",
+    "weight": "3.9649999999999999",
+    "price": "22.852808809999999"
+  },
+  {
+    "code": "SSISS4",
+    "description": " Inner Skin GI Z180 Steel 0.4 Flat (1100 wide) (RAL9002) Off white",
+    "unit": "M2",
+    "weight": "3.427",
+    "price": "21.151461134999998"
+  },
+  {
+    "code": "SSISA5",
+    "description": " Inner Skin Aluminum 0.5 Flat (1100 wide) (RAL9002) Off white",
+    "unit": "M2",
+    "weight": "1.54",
+    "price": "25.935526539999998"
+  },
+  {
+    "code": "SSCore35CEco",
+    "description": " PUCore 35 (40 kg/m3) EcoSafe E (B2)",
+    "unit": "M2",
+    "weight": "2.109",
+    "price": "35.888926814999998"
+  },
+  {
+    "code": "SSCore50CEco",
+    "description": " PU Core 50 (40 kg/m3) EcoSafe E (B2)",
+    "unit": "M2",
+    "weight": "2.7570000000000001",
+    "price": "42.801060285000005"
+  },
+  {
+    "code": "SSCore75CEco",
+    "description": " PUCore 75 (40 kg/m3) EcoSafe E (B2)",
+    "unit": "M2",
+    "weight": "3.8370000000000002",
+    "price": "54.459486820500004"
+  },
+  {
+    "code": "SSCore100CEco",
+    "description": " PUCore 100 (40 kg/m3) EcoSafe E (B2)",
+    "unit": "M2",
+    "weight": "4.9169999999999998",
+    "price": "66.177903000000001"
+  },
+  {
+    "code": "SSPOL",
+    "description": "Special Polyester Paint for Sheeting Material",
+    "unit": "M2",
+    "weight": "0",
+    "price": "10.75"
+  },
+  {
+    "code": "SSPVDF",
+    "description": "Special PVDF Paint for Sheeting Material",
+    "unit": "M2",
+    "weight": "0",
+    "price": "21.5"
+  },
+  {
+    "code": "SSEGS",
+    "description": " Trims and Flashings AZ Steel Painted ",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "7.1369249999999997"
+  },
+  {
+    "code": "SSEGTA",
+    "description": " Trims and Flashings Aluminum painted ",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "14.842525"
+  },
+  {
+    "code": "SSCS3",
+    "description": " Fasteners Carbon Steel (CS) 5.5x40mm Long",
+    "unit": "No",
+    "weight": "1.2E-2",
+    "price": "0.37204890000000002"
+  },
+  {
+    "code": "SSCS5",
+    "description": " Fasteners Carbon Steel (CS) 5.5x80mm Long ",
+    "unit": "No",
+    "weight": "1.4E-2",
+    "price": "0.48473040000000001"
+  },
+  {
+    "code": "SSSS3",
+    "description": " Fasteners Stainless Steel (SS) 5.5x40mm Long",
+    "unit": "No",
+    "weight": "1.2E-2",
+    "price": "1.6619328"
+  },
+  {
+    "code": "SSSS5",
+    "description": " Fasteners Stainless Steel (SS) 5.5x80mm Long ",
+    "unit": "No",
+    "weight": "1.4E-2",
+    "price": "1.9682991999999999"
+  },
+  {
+    "code": "SSANB",
+    "description": " Structural Anchor Bolts",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "11.6616"
+  },
+  {
+    "code": "SSCNB",
+    "description": " Structural Connection Bolts",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "16.495875000000002"
+  },
+  {
+    "code": "SSSTUD",
+    "description": " Structural Shear Studs",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "17.522500000000001"
+  },
+  {
+    "code": "SSSTR",
+    "description": " Staircase",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "6.1328750000000003"
+  },
+  {
+    "code": "SSTRD",
+    "description": " Stair Treads",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "6.1328750000000003"
+  },
+  {
+    "code": "SSLAD",
+    "description": " Ladders",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.9554999999999998"
+  },
+  {
+    "code": "SSCHQ",
+    "description": " Structural Chequered Plates",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.6972017434000009"
+  },
+  {
+    "code": "SSGRT",
+    "description": " Structural Gratings",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "8.0807749999999992"
+  },
+  {
+    "code": "SSDCK",
+    "description": " Structural Decking",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "6.1468499999999997"
+  },
+  {
+    "code": "SSCFZS",
+    "description": " Cold-Formed Zee Sections",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.7652249999999992"
+  },
+  {
+    "code": "SSCFCS",
+    "description": " Cold-Formed Cee Sections",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.4432624999999994"
+  },
+  {
+    "code": "SSCFAS",
+    "description": " Cold-Formed Angle Sections",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "5.4432624999999994"
+  },
+  {
+    "code": "SHSSTRS",
+    "description": " Sheeting Trims - Steel",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "6.3731374999999995"
+  },
+  {
+    "code": "SHSSFS",
+    "description": " Sheeting Trims - Aluminum",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "14.481862499999998"
+  },
+  {
+    "code": "SHSSAC",
+    "description": " Sheeting Accessories",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "29.413612499999999"
+  },
+  {
+    "code": "SSSR12",
+    "description": " Sag Rods - 12mm",
+    "unit": "No",
+    "weight": "1.2310000000000001",
+    "price": "13.501620310000002"
+  },
+  {
+    "code": "SSSR16",
+    "description": " Sag Rods - 16mm",
+    "unit": "No",
+    "weight": "2.2949999999999999",
+    "price": "22.193318992499997"
+  },
+  {
+    "code": "SSMFG",
+    "description": " Special Manufacturing ",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "0.145125"
+  },
+  {
+    "code": "SSWELD",
+    "description": " Special Welding ",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "0.23650000000000004"
+  },
+  {
+    "code": "SSMCR",
+    "description": " Structural Member Curving",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "2.6875"
+  },
+  {
+    "code": "SSMSL",
+    "description": " Structural Member Splicing",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "2.15"
+  },
+  {
+    "code": "SSMBP",
+    "description": " Milling of Base Plates",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "1.9350000000000001"
+  },
+  {
+    "code": "SSMMS",
+    "description": " Milling of Members",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "1.9350000000000001"
+  },
+  {
+    "code": "SSGAL",
+    "description": "Galvanizing - 85 \u03bc average thickness",
+    "unit": "kg",
+    "weight": "1",
+    "price": "1.548"
+  },
+  {
+    "code": "SSSHB",
+    "description": " Shot Blasting ",
+    "unit": "LM",
+    "weight": "1",
+    "price": "5.8050000000000006"
+  },
+  {
+    "code": "SSSWB",
+    "description": " Sweep Blasting",
+    "unit": "LM",
+    "weight": "1",
+    "price": "2.3650000000000002"
+  },
+  {
+    "code": "SSSNB",
+    "description": " Sand Blasting",
+    "unit": "LM",
+    "weight": "1",
+    "price": "5.8050000000000006"
+  },
+  {
+    "code": "SSSPP",
+    "description": "1 Coat 50 \u03bc: Quick Dry Alkyd Primer (Red Oxide) ",
+    "unit": "M2",
+    "weight": "1",
+    "price": "5.54"
+  },
+  {
+    "code": "SSFC1",
+    "description": "1 Coat 50 \u03bc: Quick Dry Alkyd Primer (Grey Oxide) ",
+    "unit": "M2",
+    "weight": "1",
+    "price": "5.87"
+  },
+  {
+    "code": "SSFC2",
+    "description": "1 Coat 65 \u03bc: Alkyd Paint System with Self Primer (Any RAL Colors Except Metallic)",
+    "unit": "M2",
+    "weight": "1",
+    "price": "11.379999999999999"
+  },
+  {
+    "code": "SSFC3",
+    "description": "2 Coat 100 \u03bc: Alkyd Primer (50\u03bc) + Paint System (50\u03bc) (Any RAL Colors Except Metallic) ",
+    "unit": "M2",
+    "weight": "1",
+    "price": "14.1"
+  },
+  {
+    "code": "SSFC4",
+    "description": "1 Coat 75 \u03bc: Epoxy Primer (Grey Oxide) ",
+    "unit": "M2",
+    "weight": "1",
+    "price": "10.184000000000001"
+  },
+  {
+    "code": "SSFC5",
+    "description": "1 Coat 125 \u03bc: High Build Epoxy Primer (Grey Oxide) ",
+    "unit": "M2",
+    "weight": "1",
+    "price": "13.263999999999999"
+  },
+  {
+    "code": "SSSPS",
+    "description": "1 Coat 125 \u03bc: Epoxy Paint System with Self Primer (Any RAL Colors Except Metallic) ",
+    "unit": "M2",
+    "weight": "1",
+    "price": "14.496"
+  },
+  {
+    "code": "SSFC6",
+    "description": "2 Coat 250 \u03bc: Epoxy Primer (125\u03bc) + Paint System (125\u03bc) (Any RAL Colors Except Metallic) ",
+    "unit": "M2",
+    "weight": "1",
+    "price": "21.667999999999999"
+  },
+  {
+    "code": "SSPCK",
+    "description": " Packing & Loading",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "0.11824999999999999"
+  },
+  {
+    "code": "SSTRAN",
+    "description": " Local Transport",
+    "unit": "No",
+    "weight": "1",
+    "price": "894.4"
+  },
+  {
+    "code": "SSSKD",
+    "description": " Container Skid",
+    "unit": "No",
+    "weight": "0",
+    "price": "1935"
+  },
+  {
+    "code": "SSHRSCR1",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "3.7625000000000002"
+  },
+  {
+    "code": "SSHRSCR2",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "3.7625000000000002"
+  },
+  {
+    "code": "SSHRSCR3",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "3.7625000000000002"
+  },
+  {
+    "code": "SSHRSCR4",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "3.7625000000000002"
+  },
+  {
+    "code": "SSHRSCR5",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "3.7625000000000002"
+  },
+  {
+    "code": "SSHRSCW2",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "3.7625000000000002"
+  },
+  {
+    "code": "SSHRSCU2",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "3.7625000000000002"
+  },
+  {
+    "code": "SSHRSCH2",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "3.7625000000000002"
+  },
+  {
+    "code": "SSHRSCA2",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "3.7625000000000002"
+  },
+  {
+    "code": "SSHRSCP2",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "3.7625000000000002"
+  },
+  {
+    "code": "SSTUSCR1",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "4.3763249999999996"
+  },
+  {
+    "code": "SSTUSCR2",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "4.3763249999999996"
+  },
+  {
+    "code": "SSTUSCR3",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "4.3763249999999996"
+  },
+  {
+    "code": "SSHRLSCR1",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "4.4074999999999998"
+  },
+  {
+    "code": "SSHRLSCR2",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "4.0205000000000002"
+  },
+  {
+    "code": "SSHRLSCR3",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "4.4074999999999998"
+  },
+  {
+    "code": "SSTRSCR1",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "4.0205000000000002"
+  },
+  {
+    "code": "SSTRSCR2",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "3.7625000000000002"
+  },
+  {
+    "code": "SSTRSCR3",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "4.3763249999999996"
+  },
+  {
+    "code": "SSTRSCR4",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "4.0205000000000002"
+  },
+  {
+    "code": "SSTRSCR5",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "3.7625000000000002"
+  },
+  {
+    "code": "SSTRSCR6",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "4.3763249999999996"
+  },
+  {
+    "code": "SSHPLCSCR",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "3.7743250000000002"
+  },
+  {
+    "code": "SSSTRSCR",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "4.1978749999999998"
+  },
+  {
+    "code": "SSTRDSCR",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "4.1978749999999998"
+  },
+  {
+    "code": "SSLADSCR",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "4.0205000000000002"
+  },
+  {
+    "code": "SSCHQSCR",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "3.7622017434000004"
+  },
+  {
+    "code": "SSGRTSCR",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "6.1457749999999995"
+  },
+  {
+    "code": "SSDCKSCR",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "4.2118500000000001"
+  },
+  {
+    "code": "SSBUSCR1",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "4.0291000000000006"
+  },
+  {
+    "code": "SSBUSCR2",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "4.0291000000000006"
+  },
+  {
+    "code": "SSBUSCR3",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "4.0301749999999998"
+  },
+  {
+    "code": "SSBUSCR4",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "4.0291000000000006"
+  },
+  {
+    "code": "SSBUSCR5",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "4.0291000000000006"
+  },
+  {
+    "code": "SSPLSCR1",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "3.7743250000000002"
+  },
+  {
+    "code": "SSPLSCR2",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "3.7743250000000002"
+  },
+  {
+    "code": "SSPLSCR3",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "3.7743250000000002"
+  },
+  {
+    "code": "SSPLSCR4",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "3.7743250000000002"
+  },
+  {
+    "code": "SSPLSCR5",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "3.7743250000000002"
+  },
+  {
+    "code": "SSCFZSSCR",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "4.0599999999999996",
+    "price": "16.423613499999998"
+  },
+  {
+    "code": "SSCFCSSCR",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "4.0452250000000003"
+  },
+  {
+    "code": "SSCFASSCR",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "2.0299999999999998",
+    "price": "8.2118067499999992"
+  },
+  {
+    "code": "SHSSTRSSCR",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "0.33305988515176377",
+    "price": "1.6570062346185399"
+  },
+  {
+    "code": "SHSSFSSCR",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "0.33305988515176377",
+    "price": "4.3576972518457762"
+  },
+  {
+    "code": "SHSSACSCR",
+    "description": "   Scrap",
+    "unit": "Kg",
+    "weight": "0.05",
+    "price": "3.01"
+  },
+  {
+    "code": "SSSR12SCR",
+    "description": "   Scrap",
+    "unit": "No",
+    "weight": "1.2310000000000001",
+    "price": "10.384500000000001"
+  },
+  {
+    "code": "SSSR16SCR",
+    "description": "   Scrap",
+    "unit": "No",
+    "weight": "2.2949999999999999",
+    "price": "19.0753375"
+  },
+  {
+    "code": "SSPM",
+    "description": "Project Coordination / Supervision ",
+    "unit": "Kg",
+    "weight": "0",
+    "price": "0.10750000000000001"
+  },
+  {
+    "code": "SSCDMBS",
+    "description": " Connection Design by Mammut",
+    "unit": "Kg",
+    "weight": "0",
+    "price": "0.16125"
+  },
+  {
+    "code": "SSDSNMBS",
+    "description": "Steel Structure Design / Review By Mammut",
+    "unit": "Kg",
+    "weight": "0",
+    "price": "0.21500000000000002"
+  },
+  {
+    "code": "SSCD",
+    "description": "GCC Customs Duties",
+    "unit": "",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "SSLCC",
+    "description": "LC Confirmation Charges",
+    "unit": "",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "SSOC",
+    "description": "Other",
+    "unit": "",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "SS3PI",
+    "description": " 3rd Party NDT Testing ",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "0.25800000000000001"
+  },
+  {
+    "code": "SSTLA",
+    "description": " Trail Assembly",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "1.333"
+  },
+  {
+    "code": "SSRTT",
+    "description": " 3rd Party RT Testing ",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "2.9025000000000003"
+  },
+  {
+    "code": "SSUTT",
+    "description": " 3rd Party UT Testing ",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "0.25800000000000001"
+  },
+  {
+    "code": "SSWLI",
+    "description": " 3rd Party Fabrication Inspection ",
+    "unit": "Kg",
+    "weight": "1",
+    "price": "0.25800000000000001"
+  },
+  {
+    "code": "PPLSSL",
+    "description": "PPL - Structural steel Members",
+    "unit": "Kg",
+    "weight": "0",
+    "price": "0.11"
+  },
+  {
+    "code": "ssTcust",
+    "description": "Customer Pickup on Flat Bed Truck",
+    "unit": "Load",
+    "weight": "0",
+    "price": "1075"
+  },
+  {
+    "code": "ssThamUAE",
+    "description": "Freight in Hamiriyah Free Zone, UAE, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "238.65"
+  },
+  {
+    "code": "ssTshjUAE",
+    "description": "Freight to Sharjah, UAE, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "536.96249999999998"
+  },
+  {
+    "code": "ssTAjUAE",
+    "description": "Freight to Ajman, UAQ, UAE, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "477.3"
+  },
+  {
+    "code": "ssTdxbUAE",
+    "description": "Freight to Dubai, UAE, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "715.95"
+  },
+  {
+    "code": "ssTrakUAE",
+    "description": "Freight to Ras Al-Khaimah, UAE, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "715.95"
+  },
+  {
+    "code": "ssTJebUAE",
+    "description": "Freight to Jebel Ali, UAE, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "835.27499999999998"
+  },
+  {
+    "code": "ssTfujUAE",
+    "description": "Freight to Fujairah, UAE, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "894.9375"
+  },
+  {
+    "code": "ssTADUAE",
+    "description": "Freight to Abu Dhabi city & Mussafah, UAE, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "1073.925"
+  },
+  {
+    "code": "ssTruwUAE",
+    "description": "Freight to Sela, Ruwais, UAE, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "1789.875"
+  },
+  {
+    "code": "ssTbidUAE",
+    "description": "Freight to Bida Zayed, UAE, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "2088.1875"
+  },
+  {
+    "code": "ssTainUAE",
+    "description": "Freight to Al Ain, UAE, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "1551.2249999999999"
+  },
+  {
+    "code": "ssTqatar",
+    "description": "Freight to Doha, Qatar, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "4134.6112499999999"
+  },
+  {
+    "code": "ssTlasqatar",
+    "description": "Freight to Ras Lafan, Qatar, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "4313.5987500000001"
+  },
+  {
+    "code": "ssTbahrain",
+    "description": "Freight to Manama, Bahrain, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "4611.9112499999992"
+  },
+  {
+    "code": "ssTkuwait",
+    "description": "Freight to Kuwait, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "5566.5112499999996"
+  },
+  {
+    "code": "ssTmOman",
+    "description": "Freight to Muscat Oman, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "3353.0324999999998"
+  },
+  {
+    "code": "ssTsOman",
+    "description": "Freight to Salalah Oman, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "5023.5825000000004"
+  },
+  {
+    "code": "ssTbOman",
+    "description": "Freight to Buraimi Oman, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "2040.4575"
+  },
+  {
+    "code": "ssTshOman",
+    "description": "Freight to Sohar Oman, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "2398.4324999999999"
+  },
+  {
+    "code": "ssTdSaudi",
+    "description": "Freight to Dammam, SA, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "4176.375"
+  },
+  {
+    "code": "ssTjSaudi",
+    "description": "Freight to Jubail, SA, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "4236.0375000000004"
+  },
+  {
+    "code": "ssTrSaudi",
+    "description": "Freight to Riyadh, SA, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "4355.3625000000002"
+  },
+  {
+    "code": "ssTjdSaudi",
+    "description": "Freight to Jeddah, SA, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "5429.2875000000004"
+  },
+  {
+    "code": "ssTjzanSaudi",
+    "description": "Freight to Jizan, SA, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "7099.8374999999996"
+  },
+  {
+    "code": "ssTnjranSaudi",
+    "description": "Freight to Najran, SA, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "7219.1625000000004"
+  },
+  {
+    "code": "ssTrafhaSaudi",
+    "description": "Freight to Rafha, SA, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "6682.2"
+  },
+  {
+    "code": "ssTTaifSaudi",
+    "description": "Freight to Taif, SA, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "5190.6374999999998"
+  },
+  {
+    "code": "ssTyanSaudi",
+    "description": "Freight to Yanbu, SA, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "5250.3"
+  },
+  {
+    "code": "ssTAmJor",
+    "description": "Freight to Amman, Jordan, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssTaJordan",
+    "description": "Freight to Agaba, Jordan, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssTDamSyr",
+    "description": "Freight to Damascus, Syria, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssTBeiLEB",
+    "description": "Freight to Beirut, Lebanon, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssTsYemen",
+    "description": "Freight to Sanaa, Yemen, Overland",
+    "unit": "Load",
+    "weight": "0",
+    "price": "10214.220000000001"
+  },
+  {
+    "code": "ssCpIran",
+    "description": "Freight to Port Qashim, Iran, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssCBAIran",
+    "description": "Freight to Port Bandar Abbas, Iran, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "4141.7528512500003"
+  },
+  {
+    "code": "ssCaJor",
+    "description": "Freight to Aqaba, Jordan, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssCuIraq",
+    "description": "Freight to Umm Qaser, Iraq, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "8699.8723912499991"
+  },
+  {
+    "code": "ssCmIndia",
+    "description": "Freight to Mumbai, India, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "3659.6440537499998"
+  },
+  {
+    "code": "ssCkIndia",
+    "description": "Freight to Kandla, India, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "3440.5036912499995"
+  },
+  {
+    "code": "ssCcIndia",
+    "description": "Freight to Chennai, India, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "4317.0651412500001"
+  },
+  {
+    "code": "ssCnIndia",
+    "description": "Freight to Port Nhava Sheva, India, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "3440.5036912499995"
+  },
+  {
+    "code": "ssCkPak",
+    "description": "Freight to Karachi, Pakistan, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "3878.78441625"
+  },
+  {
+    "code": "ssCcSri",
+    "description": "Freight to Colombo, Srilanka, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "6508.46876625"
+  },
+  {
+    "code": "ssCdBang",
+    "description": "Freight to Dakka, Bangladesh, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssCcBang",
+    "description": "Freight to Chittagang, Bangladesh, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "6937.9838767500005"
+  },
+  {
+    "code": "ssCmPhilip",
+    "description": "Freight to Manila, Philippines, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssCaYemen",
+    "description": "Freight to Aden, Yemen, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssChYemen",
+    "description": "Freight to Hudaidah,Yemen, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssCpMaleMu",
+    "description": "Freight to Port Male, Maldives, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssCpAckNewZealand",
+    "description": "Freight to Auckland, New Zeland, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssCdeGiboti",
+    "description": "Freight to Dhjibouti, Ocean (by Ethiopian shipping line)",
+    "unit": "Load",
+    "weight": "0",
+    "price": "12455.938204499998"
+  },
+  {
+    "code": "ssCdrGiboti",
+    "description": "Freight to Dhjibouti, Ocean (by Regular shipping line)",
+    "unit": "Load",
+    "weight": "0",
+    "price": "9387.9731295000001"
+  },
+  {
+    "code": "ssCpSudan",
+    "description": "Freight to Port Sudan, Sudan, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "9576.4338412500001"
+  },
+  {
+    "code": "ssCdTanz",
+    "description": "Freight to Dar-Es-Salam, Tanzania, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "9576.4338412500001"
+  },
+  {
+    "code": "ssCbMoz",
+    "description": "Freight to Beira, Mozambique, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "13082.679641250001"
+  },
+  {
+    "code": "ssCtMadg",
+    "description": "Freight to Tomasina, Madagascar, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssClAngola",
+    "description": "Freight to Lauanda, Angola, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "32367.031541249999"
+  },
+  {
+    "code": "ssCWNam",
+    "description": "Freight to Walvis Bay, Namibia, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssCTGhan",
+    "description": "Freight to Tema, Ghana, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "18548.040281999998"
+  },
+  {
+    "code": "ssCTkGhan",
+    "description": "Freight to Takoradi, Ghana, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "22514.480843250003"
+  },
+  {
+    "code": "ssCLTogo",
+    "description": "Freight to Lome, Togo, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssCCBenin",
+    "description": "Freight to Contonon, Benin, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssCtLibya",
+    "description": "Freight to Benghazi, Libya, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "13520.960366249999"
+  },
+  {
+    "code": "ssCAAlger",
+    "description": "Freight to Algiers, Algeria, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "11110.41637875"
+  },
+  {
+    "code": "ssCMaheSeyOcean",
+    "description": "Freight to Mahe,Seychelles, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssCpLouisMu",
+    "description": "Freight to Port Louis, Mauritus, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssCLagosNigeria",
+    "description": "Freight to Lagos, Nigeria, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "20095.171241250002"
+  },
+  {
+    "code": "ssChZimbabwe",
+    "description": "Freight to Harare, Zimbabwe, via Durban, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssCIlychUkraine",
+    "description": "Freight to Port Ilychevsk and Odessa, Ukraine, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "10680.90126825"
+  },
+  {
+    "code": "ssCBakuAzerbeijan",
+    "description": "Freight to Baku, Azerbeijan, via Bander Abbas, Ocean & Land",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssCCasaMorocco",
+    "description": "Freight to Port Casablanka, Morocco, Ocean",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssCashgabat",
+    "description": "Freight to Ashgat Turkmenistan via Bandar Abbas,  Ocean & Land",
+    "unit": "Load",
+    "weight": "0",
+    "price": "0"
+  },
+  {
+    "code": "ssCethopia",
+    "description": "FOB to Dubai Port for Ethiopean Jobs only",
+    "unit": "Load",
+    "weight": "0",
+    "price": "3002.2229662499999"
+  },
+  {
+    "code": "ssCcust",
+    "description": "Customer Pickup in Containers",
+    "unit": "Load",
+    "weight": "0",
+    "price": "596.625"
+  },
+  {
+    "code": "misc",
+    "description": "#REF!",
+    "unit": "Load",
+    "weight": "0",
+    "price": "#REF!"
+  }
+]

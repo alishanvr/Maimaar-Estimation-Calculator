@@ -468,26 +468,54 @@ it('logs estimation deletion activity', function () {
     ]);
 });
 
-// ── Export Stubs ──────────────────────────────────────────────────────
+// ── Edge Cases ──────────────────────────────────────────────────────
 
-it('returns 501 for boq export', function () {
+it('handles estimation with empty results_data gracefully for sheet endpoints', function () {
     $user = User::factory()->create();
     $token = $user->createToken('test-token')->plainTextToken;
-    $estimation = Estimation::factory()->create(['user_id' => $user->id]);
+    $estimation = Estimation::factory()->calculated()->create([
+        'user_id' => $user->id,
+        'results_data' => [],
+    ]);
 
-    $response = $this->withHeader('Authorization', "Bearer {$token}")
-        ->getJson("/api/estimations/{$estimation->id}/export/boq");
+    $sheets = ['detail', 'recap', 'fcpbs', 'sal', 'boq', 'jaf'];
 
-    $response->assertStatus(501);
+    foreach ($sheets as $sheet) {
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson("/api/estimations/{$estimation->id}/{$sheet}");
+
+        $response->assertSuccessful();
+        expect($response->json('data'))->toBeNull();
+    }
 });
 
-it('returns 501 for jaf export', function () {
+it('returns pagination metadata for estimations list', function () {
     $user = User::factory()->create();
     $token = $user->createToken('test-token')->plainTextToken;
-    $estimation = Estimation::factory()->create(['user_id' => $user->id]);
+    Estimation::factory()->count(3)->create(['user_id' => $user->id]);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-        ->getJson("/api/estimations/{$estimation->id}/export/jaf");
+        ->getJson('/api/estimations');
 
-    $response->assertStatus(501);
+    $response->assertSuccessful()
+        ->assertJsonStructure([
+            'data',
+            'links',
+            'meta' => ['current_page', 'last_page', 'per_page', 'total'],
+        ]);
+});
+
+it('can filter estimations by finalized status', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('test-token')->plainTextToken;
+
+    Estimation::factory()->create(['user_id' => $user->id, 'status' => 'draft']);
+    Estimation::factory()->finalized()->create(['user_id' => $user->id]);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+        ->getJson('/api/estimations?status=finalized');
+
+    $response->assertSuccessful();
+    expect($response->json('data'))->toHaveCount(1);
+    expect($response->json('data.0.status'))->toBe('finalized');
 });

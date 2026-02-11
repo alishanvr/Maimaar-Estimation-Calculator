@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class DesignConfiguration extends Model
 {
@@ -37,9 +38,11 @@ class DesignConfiguration extends Model
      */
     public static function getOptionsForCategory(string $category): array
     {
-        return static::query()
-            ->byCategory($category)
-            ->pluck('label', 'value')
-            ->toArray();
+        return Cache::remember("design_opts:{$category}", 86400, function () use ($category) {
+            return static::query()
+                ->byCategory($category)
+                ->pluck('label', 'value')
+                ->toArray();
+        });
     }
 }

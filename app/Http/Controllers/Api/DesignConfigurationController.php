@@ -7,6 +7,7 @@ use App\Http\Resources\Api\DesignConfigurationResource;
 use App\Models\DesignConfiguration;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Cache;
 
 class DesignConfigurationController extends Controller
 {
@@ -19,9 +20,13 @@ class DesignConfigurationController extends Controller
             'category' => ['required', 'string'],
         ]);
 
-        $configurations = DesignConfiguration::query()
-            ->byCategory($request->query('category'))
-            ->get();
+        $category = $request->query('category');
+
+        $configurations = Cache::remember("design_config:{$category}", 86400, function () use ($category) {
+            return DesignConfiguration::query()
+                ->byCategory($category)
+                ->get();
+        });
 
         return DesignConfigurationResource::collection($configurations);
     }
@@ -31,9 +36,11 @@ class DesignConfigurationController extends Controller
      */
     public function freightCodes(): AnonymousResourceCollection
     {
-        $configurations = DesignConfiguration::query()
-            ->byCategory('freight_code')
-            ->get();
+        $configurations = Cache::remember('design_config:freight_code', 86400, function () {
+            return DesignConfiguration::query()
+                ->byCategory('freight_code')
+                ->get();
+        });
 
         return DesignConfigurationResource::collection($configurations);
     }
@@ -43,9 +50,11 @@ class DesignConfigurationController extends Controller
      */
     public function paintSystems(): AnonymousResourceCollection
     {
-        $configurations = DesignConfiguration::query()
-            ->byCategory('paint_system')
-            ->get();
+        $configurations = Cache::remember('design_config:paint_system', 86400, function () {
+            return DesignConfiguration::query()
+                ->byCategory('paint_system')
+                ->get();
+        });
 
         return DesignConfigurationResource::collection($configurations);
     }

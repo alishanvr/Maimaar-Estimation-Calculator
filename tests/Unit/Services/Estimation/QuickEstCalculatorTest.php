@@ -1,9 +1,10 @@
 <?php
 
+use App\Services\Estimation\CachingService;
 use App\Services\Estimation\QuickEstCalculator;
 
 beforeEach(function () {
-    $this->calculator = new QuickEstCalculator;
+    $this->calculator = new QuickEstCalculator(new CachingService);
 });
 
 describe('lookupPurlinCode', function () {
