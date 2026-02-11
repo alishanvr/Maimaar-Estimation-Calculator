@@ -50,37 +50,126 @@ export interface DesignConfiguration {
 // ── Input Data (fields sent inside estimation.input_data) ──────────
 
 export interface InputData {
-  // Project info (stored at top level on estimation, but also in input_data for calc)
+  // Building Dimensions
   bay_spacing?: string;
   span_widths?: string;
   back_eave_height?: number;
   front_eave_height?: number;
   left_roof_slope?: number;
   right_roof_slope?: number;
-  dead_load?: number;
-  live_load?: number;
-  wind_speed?: number;
-  collateral_load?: number;
+
+  // Structural Design
   frame_type?: string;
   base_type?: string;
   cf_finish?: number;
   panel_profile?: string;
   outer_skin_material?: string;
+
+  // Frame Configuration
+  min_thickness?: number;
+  double_weld?: string;
+
+  // Endwall Configuration
+  left_endwall_columns?: string;
+  left_endwall_type?: string;
+  left_endwall_portal?: string;
+  right_endwall_columns?: string;
+  right_endwall_type?: string;
+  right_endwall_portal?: string;
+
+  // Secondary Members
+  purlin_depth?: string;
+  roof_sag_rods?: string;
+  wall_sag_rods?: string;
+  roof_sag_rod_dia?: string;
+  wall_sag_rod_dia?: string;
+  bracing_type?: string;
+
+  // Loads
+  dead_load?: number;
+  live_load?: number;
+  wind_speed?: number;
+  collateral_load?: number;
+  live_load_permanent?: number;
+  live_load_floor?: number;
+  additional_load?: number;
+
+  // Panel & Materials
   roof_panel_code?: string;
   wall_panel_code?: string;
   core_thickness?: number;
   paint_system?: string;
+
+  // Roof Sheeting
+  roof_top_skin?: string;
+  roof_core?: string;
+  roof_bottom_skin?: string;
+  roof_insulation?: string;
+
+  // Wall Sheeting
+  wall_top_skin?: string;
+  wall_core?: string;
+  wall_bottom_skin?: string;
+  wall_insulation?: string;
+
+  // Trims & Flashings
+  trim_size?: string;
+  back_eave_condition?: string;
+  front_eave_condition?: string;
+
+  // Insulation
+  wwm_option?: string;
+
+  // Finishes
+  bu_finish?: string;
+
+  // Roof Monitor
   monitor_type?: string;
   monitor_width?: number;
   monitor_height?: number;
   monitor_length?: number;
+
+  // Freight
+  freight_type?: string;
+  freight_rate?: number;
+  container_count?: number;
+  container_rate?: number;
+
+  // Sales Codes
+  area_sales_code?: number;
+  area_description?: string;
+  acc_sales_code?: number;
+  acc_description?: string;
+
+  // Project / Pricing
+  sales_office?: string;
+  num_buildings?: number;
+  erection_price?: number;
+
+  // Markups
+  markup_steel?: number;
+  markup_panels?: number;
+  markup_ssl?: number;
+  markup_finance?: number;
+
+  // Complex fields
   openings?: Opening[];
+  accessories?: Accessory[];
+
   [key: string]: unknown;
 }
 
 export interface Opening {
   location: string;
   size: string;
+  qty: number;
+  purlin_support?: number;
+  bracing?: number;
+}
+
+export interface Accessory {
+  description: string;
+  code: string;
   qty: number;
 }
 

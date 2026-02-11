@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useMemo, useCallback, useState } from "react";
+import { useRef, useEffect, useMemo, useCallback } from "react";
 import { HotTable } from "@handsontable/react-wrapper";
 import { registerAllModules } from "handsontable/registry";
 import type { CellChange, ChangeSource } from "handsontable/common";
@@ -9,7 +9,9 @@ import "handsontable/styles/ht-theme-main.min.css";
 
 import { INPUT_ROWS, type InputRowDef } from "./InputSheetConfig";
 import { useDesignConfigurations } from "@/hooks/useDesignConfigurations";
-import type { Estimation, InputData } from "@/types";
+import OpeningsTable from "./OpeningsTable";
+import AccessoriesTable from "./AccessoriesTable";
+import type { Estimation, InputData, Opening, Accessory } from "@/types";
 
 registerAllModules();
 
@@ -58,7 +60,6 @@ export default function InputSheet({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const hotRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containerHeight, setContainerHeight] = useState(0);
   const dropdowns = useAllDropdowns();
   const isUpdatingRef = useRef(false);
 
@@ -95,20 +96,7 @@ export default function InputSheet({
     }
   }, [estimation.input_data, onInputDataChange]);
 
-  /** Measure the container height so we can give HotTable an explicit pixel value. */
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        setContainerHeight(entry.contentRect.height);
-      }
-    });
-    observer.observe(el);
-    setContainerHeight(el.clientHeight);
-    return () => observer.disconnect();
-  }, []);
+  /** No-op: containerRef is still used for the scrollable wrapper. */
 
   /** Get the current value for a row from the estimation data. */
   const getValueForRow = useCallback(
@@ -307,9 +295,33 @@ export default function InputSheet({
     [dropdowns]
   );
 
+  const handleOpeningsChange = useCallback(
+    (openings: Opening[]) => {
+      onInputDataChange({
+        ...estimation.input_data,
+        openings,
+      } as InputData);
+    },
+    [estimation.input_data, onInputDataChange]
+  );
+
+  const handleAccessoriesChange = useCallback(
+    (accessories: Accessory[]) => {
+      onInputDataChange({
+        ...estimation.input_data,
+        accessories,
+      } as InputData);
+    },
+    [estimation.input_data, onInputDataChange]
+  );
+
+  // Fixed height for the main grid based on row count
+  const mainGridHeight = INPUT_ROWS.length * 23 + 30;
+
   return (
-    <div ref={containerRef} className="flex-1 overflow-hidden">
-      {containerHeight > 0 && (
+    <div ref={containerRef} className="flex-1 overflow-auto">
+      {/* Main input grid */}
+      <div style={{ minHeight: mainGridHeight }}>
         <HotTable
           ref={hotRef}
           data={tableData}
@@ -330,7 +342,7 @@ export default function InputSheet({
           stretchH="all"
           autoWrapRow={false}
           autoWrapCol={false}
-          height={containerHeight}
+          height={mainGridHeight}
           licenseKey="non-commercial-and-evaluation"
           className="htLeft htMiddle text-sm"
           manualRowResize={false}
@@ -339,7 +351,29 @@ export default function InputSheet({
           fillHandle={false}
           undo={true}
         />
-      )}
+      </div>
+
+      {/* Openings sub-table */}
+      <div className="mt-4 px-1">
+        <h3 className="text-xs font-bold text-gray-700 bg-gray-200 px-2 py-1.5 uppercase tracking-wider">
+          Openings
+        </h3>
+        <OpeningsTable
+          openings={estimation.input_data?.openings ?? []}
+          onChange={handleOpeningsChange}
+        />
+      </div>
+
+      {/* Accessories sub-table */}
+      <div className="mt-4 px-1 pb-4">
+        <h3 className="text-xs font-bold text-gray-700 bg-gray-200 px-2 py-1.5 uppercase tracking-wider">
+          Accessories
+        </h3>
+        <AccessoriesTable
+          accessories={estimation.input_data?.accessories ?? []}
+          onChange={handleAccessoriesChange}
+        />
+      </div>
     </div>
   );
 }
