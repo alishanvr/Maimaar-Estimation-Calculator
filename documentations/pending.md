@@ -1,4 +1,3 @@
--> on it -> Remaining Input Fields (~55+) — Openings, endwall configurations, sag rods, gutter details, etc. were deferred. These would make the calculator feature-complete vs the Excel file.
 
 Production Deployment — CORS lockdown, HTTPS enforcement, Sanctum token expiry, MySQL config, .env.production, queue worker setup.
 
@@ -10,7 +9,11 @@ Dashboard Enhancements — Charts over time (estimations per week/month), user a
 
 Data Import/Export — Import estimation data from Excel, export all estimation data as CSV/Excel.
 
-What would you like to tackle next?
+5. I wan to implement pagination in frontend and 10 records per page with search option from database. May be use datatables or any other package. Please suggest.
+
+6. i want to display fill test data ONLY if a specific query parameter is present in the URL.
+7. Can we add hints and other helpful information in the form of tooltips or popovers in the frontend to guide users through the application?
+18. I request you to review documentations/web-php directory and compare it with our current implementation. Don't implement anything. just give me a table what's missing in our laravel app but available in web-php.
 
 
 ---
@@ -18,9 +21,6 @@ What would you like to tackle next?
 5. how to host Laravel and frontend securely on the same domain with SSL on shared domain?
 2. Do we need to set reverse proxy for Laravel to work on shared hosting?
 3. What are the best practices for securing Laravel applications on shared hosting?
-4. i want to display fill test data ONLY if a specific query parameter is present in the URL.
-5. I wan to implement pagination in frontend and 10 records per page with search option from database. May be use datatables or any other package. Please suggest.
-6. Can we add hints and other helpful information in the form of tooltips or popovers in the frontend to guide users through the application?
 7. Admin can set settings for company logo, fav icons etc. and these settings should be reflected in the frontend. 
 8. I want to add robust/rich reporting features in the application, allowing users to generate and export reports based on various criteria. What are some recommended approaches or packages for implementing this functionality in Laravel?
 9. I need more details on recent activity widget. What kind of activities should be logged and displayed? Should it include user actions, system events, or both? How should the data be presented (e.g., table, list, etc.)?
@@ -32,4 +32,3 @@ What would you like to tackle next?
 15. I want to give dynamic and robust feature for currency to admin. So, they can set a default currency. when they set then all prices available in database should be converted to that currency and displayed in frontend. Please suggest how to implement this functionality in Laravel. For conversion, we have to ask the rate from admin or we can use any API for that.
 16. We need to display all inventory items and other details to admin and they can set, add, remove etc. 
 17. I can not see add crane, mezzanine, etc. options in the estimation form. Please add these options to the form and ensure that they are properly saved in the database and displayed in the estimation details.
-18. I request you to review documentations/we-php directory and compare it with our current implementation. Don't implement anything. just give me a table what's missing in our laravel app but available in web-php.

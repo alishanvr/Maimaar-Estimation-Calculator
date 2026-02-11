@@ -13,14 +13,7 @@ function buildDefaultInputData(): Record<string, unknown> {
   for (const row of INPUT_ROWS) {
     if (row.type === "header" || !row.field || row.isTopLevel) continue;
     if (row.defaultValue !== undefined) {
-      if (row.field === "cf_finish") {
-        defaults[row.field] =
-          row.defaultValue === "Painted"
-            ? 3
-            : row.defaultValue === "Galvanized"
-              ? 1
-              : row.defaultValue;
-      } else {
+      {
         defaults[row.field] = row.defaultValue;
       }
     }

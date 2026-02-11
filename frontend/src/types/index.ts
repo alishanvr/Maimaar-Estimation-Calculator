@@ -61,7 +61,7 @@ export interface InputData {
   // Structural Design
   frame_type?: string;
   base_type?: string;
-  cf_finish?: number;
+  cf_finish?: string;
   panel_profile?: string;
   outer_skin_material?: string;
 

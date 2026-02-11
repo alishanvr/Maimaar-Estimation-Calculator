@@ -76,11 +76,12 @@ class FCPBSGenerator
     public function generate(array $detailItems, array $markups = []): array
     {
         // Default markups from the Excel sample.
-        // A value of 0 (or empty) means "use default", not "multiply by zero".
-        $steelMarkup = ! empty($markups['steel']) ? (float) $markups['steel'] : 0.80885358250258;
-        $panelsMarkup = ! empty($markups['panels']) ? (float) $markups['panels'] : 1.0;
-        $sslMarkup = ! empty($markups['ssl']) ? (float) $markups['ssl'] : 1.0;
-        $financeMarkup = ! empty($markups['finance']) ? (float) $markups['finance'] : 1.0;
+        // Use isset() instead of !empty() so that an explicit 0 is honoured (not treated as "use default").
+        $steelMarkup = isset($markups['steel']) && $markups['steel'] !== '' ? (float) $markups['steel'] : 0.80885358250258;
+        $panelsMarkup = isset($markups['panels']) && $markups['panels'] !== '' ? (float) $markups['panels'] : 1.0;
+        // TODO: $sslMarkup and $financeMarkup are reserved for future SSL/Finance category calculations.
+        $sslMarkup = isset($markups['ssl']) && $markups['ssl'] !== '' ? (float) $markups['ssl'] : 1.0;
+        $financeMarkup = isset($markups['finance']) && $markups['finance'] !== '' ? (float) $markups['finance'] : 1.0;
 
         $categories = [];
         $totalWeight = 0.0;

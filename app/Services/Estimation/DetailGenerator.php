@@ -29,6 +29,10 @@ class DetailGenerator
 
         $this->generateAreaItems($input);
         $this->generateAccessoryItems($input);
+        $this->generateCraneItems($input);
+        $this->generateMezzanineItems($input);
+        $this->generatePartitionItems($input);
+        $this->generateCanopyItems($input);
 
         return $this->items;
     }
@@ -136,6 +140,8 @@ class DetailGenerator
         $cfFinishCode = (in_array($cfFinish, ['Alu/Zinc', 'Galvanized'])) ? 4 : 3;
 
         // Calculate loads
+        // Note: `collateral_load` from input is stored for reference/reporting only.
+        // The `additional_load` field is the one used in structural design calculations.
         $totalLoadPermanent = $deadLoad + $livePermanent + $additionalLoad;
         $totalLoadFloor = $deadLoad + $liveFloor + $additionalLoad;
         $wind = $windSpeed ** 2 / 20000;
@@ -1576,6 +1582,337 @@ class DetailGenerator
             if ($description !== '' && $qty > 0 && $code !== '') {
                 $this->insertCode($accDes, $code, $salesCode, 1, $qty);
                 $accDes = '';
+            }
+        }
+    }
+
+    /**
+     * Generate crane system items.
+     * VBA: AddCrane_Click() — crane beam, bracket, rail, and stoppers.
+     *
+     * @param  array<string, mixed>  $input
+     */
+    private function generateCraneItems(array $input): void
+    {
+        $cranes = $input['cranes'] ?? [];
+        if (empty($cranes)) {
+            return;
+        }
+
+        foreach ($cranes as $crane) {
+            $description = $crane['description'] ?? 'Crane System';
+            $salesCode = (int) ($crane['sales_code'] ?? 4);
+            $capacity = (float) ($crane['capacity'] ?? 0);
+            $duty = (string) ($crane['duty'] ?? 'M');
+            $railCenters = (float) ($crane['rail_centers'] ?? 0);
+            $craneRun = (string) ($crane['crane_run'] ?? '');
+
+            if ($railCenters <= 0) {
+                continue;
+            }
+
+            // Parse crane run bay notation to get total length and bay count
+            $runBays = 0;
+            $runLength = 0.0;
+            if ($craneRun !== '') {
+                $runList = $this->parser->getList($craneRun);
+                $runBays = $this->parser->calculateCountFromList($runList);
+                $runLength = $this->parser->calculateTotalFromList($runList);
+            }
+
+            // Select crane beam code based on capacity
+            $beamCode = match (true) {
+                $capacity <= 5 => 'BUCRB1',
+                $capacity <= 10 => 'BUCRB2',
+                $capacity <= 20 => 'BUCRB3',
+                $capacity <= 32 => 'BUCRB4',
+                default => 'BUCRB5',
+            };
+
+            // Select crane bracket code based on capacity
+            $bracketCode = match (true) {
+                $capacity <= 10 => 'BUCRBr3',
+                $capacity <= 20 => 'BUCRBr5',
+                default => 'BUCRBr6',
+            };
+
+            // Select crane rail channel based on capacity and duty
+            $railCode = match (true) {
+                $capacity <= 10 => 'CRC2',
+                $capacity <= 20 => 'CRC3',
+                default => 'CRC4',
+            };
+
+            // Header row
+            $des = $description;
+
+            // Crane beams (one per bay frame)
+            $beamQty = $runBays > 0 ? $runBays + 1 : 2;
+            $this->insertCode($des, $beamCode, $salesCode, $railCenters, $beamQty);
+            $des = '';
+
+            // Crane brackets (2 per beam)
+            $this->insertCode($des, $bracketCode, $salesCode, 1, $beamQty * 2);
+
+            // Crane rail (continuous along run length)
+            if ($runLength > 0) {
+                $this->insertCode($des, $railCode, $salesCode, $runLength, 2);
+            }
+
+            // Crane stoppers (one set per crane)
+            $this->insertCode($des, 'CRS', $salesCode, 1, 2);
+        }
+    }
+
+    /**
+     * Generate mezzanine structure items.
+     * VBA: AddMezz_Click() — columns, beams, joists, deck, stairs, handrail.
+     *
+     * @param  array<string, mixed>  $input
+     */
+    private function generateMezzanineItems(array $input): void
+    {
+        $mezzanines = $input['mezzanines'] ?? [];
+        if (empty($mezzanines)) {
+            return;
+        }
+
+        foreach ($mezzanines as $mezz) {
+            $description = $mezz['description'] ?? 'Mezzanine Structure';
+            $salesCode = (int) ($mezz['sales_code'] ?? 2);
+            $clearHeight = (float) ($mezz['clear_height'] ?? 4.0);
+            $nStairs = (int) ($mezz['n_stairs'] ?? 0);
+            $colSpacing = (string) ($mezz['col_spacing'] ?? '');
+            $beamSpacing = (string) ($mezz['beam_spacing'] ?? '');
+            $joistSpacing = (string) ($mezz['joist_spacing'] ?? '');
+
+            // Parse spacing notations
+            $colTotal = 0.0;
+            $colCount = 0;
+            if ($colSpacing !== '') {
+                $colList = $this->parser->getList($colSpacing);
+                $colTotal = $this->parser->calculateTotalFromList($colList);
+                $colCount = $this->parser->calculateCountFromList($colList);
+            }
+
+            $beamTotal = 0.0;
+            $beamCount = 0;
+            if ($beamSpacing !== '') {
+                $beamList = $this->parser->getList($beamSpacing);
+                $beamTotal = $this->parser->calculateTotalFromList($beamList);
+                $beamCount = $this->parser->calculateCountFromList($beamList);
+            }
+
+            $joistTotal = 0.0;
+            $joistCount = 0;
+            if ($joistSpacing !== '') {
+                $joistList = $this->parser->getList($joistSpacing);
+                $joistTotal = $this->parser->calculateTotalFromList($joistList);
+                $joistCount = $this->parser->calculateCountFromList($joistList);
+            }
+
+            if ($colTotal <= 0 && $beamTotal <= 0) {
+                continue;
+            }
+
+            // Header row
+            $des = $description;
+
+            // Mezzanine columns: BU sections at clear_height
+            $numColumns = ($colCount + 1) * ($beamCount + 1);
+            if ($numColumns > 0) {
+                $this->insertCode($des, 'BU', $salesCode, $clearHeight, $numColumns);
+                $des = '';
+            }
+
+            // Mezzanine beams: BU sections spanning beam direction
+            $beamSpan = $beamCount > 0 ? $beamTotal / $beamCount : $beamTotal;
+            $numBeams = ($colCount + 1) * $beamCount;
+            if ($numBeams > 0) {
+                $this->insertCode($des, 'BU', $salesCode, $beamSpan, $numBeams);
+                $des = '';
+            }
+
+            // Mezzanine joists: BU sections spanning joist direction
+            $joistSpan = $joistCount > 0 ? $joistTotal / $joistCount : $joistTotal;
+            $numJoists = ($beamCount + 1) * $joistCount;
+            if ($numJoists > 0 && $joistSpan > 0) {
+                $this->insertCode($des, 'BU', $salesCode, $joistSpan, $numJoists);
+                $des = '';
+            }
+
+            // Mezzanine deck
+            $deckArea = $colTotal * $beamTotal;
+            if ($deckArea > 0) {
+                $this->insertCode($des, 'MD7G', $salesCode, $deckArea, 1);
+                $des = '';
+                // Deck fasteners
+                $this->insertCode($des, 'MDF', $salesCode, $deckArea, 1);
+            }
+
+            // Edge angle
+            $perimeter = 2 * ($colTotal + $beamTotal);
+            if ($perimeter > 0) {
+                $this->insertCode($des, 'MEA', $salesCode, $perimeter, 1);
+            }
+
+            // Stairs
+            if ($nStairs > 0) {
+                $this->insertCode($des, 'DSP', $salesCode, 1, $nStairs);
+            }
+
+            // Handrail along perimeter (minus stair openings)
+            $hrailLength = $perimeter - ($nStairs * 1.2);
+            if ($hrailLength > 0) {
+                $this->insertCode($des, 'HRAIL', $salesCode, $hrailLength, 1);
+            }
+        }
+    }
+
+    /**
+     * Generate partition items.
+     * VBA: AddPartition_Click() — columns, girts, sheeting.
+     *
+     * @param  array<string, mixed>  $input
+     */
+    private function generatePartitionItems(array $input): void
+    {
+        $partitions = $input['partitions'] ?? [];
+        if (empty($partitions)) {
+            return;
+        }
+
+        foreach ($partitions as $part) {
+            $description = $part['description'] ?? 'Internal Partition';
+            $salesCode = (int) ($part['sales_code'] ?? 11);
+            $height = (float) ($part['height'] ?? 0);
+            $colSpacing = (string) ($part['col_spacing'] ?? '');
+            $frontSheeting = (string) ($part['front_sheeting'] ?? '');
+            $backSheeting = (string) ($part['back_sheeting'] ?? '');
+            $insulation = (string) ($part['insulation'] ?? '');
+
+            if ($height <= 0) {
+                continue;
+            }
+
+            // Parse column spacing notation
+            $totalLength = 0.0;
+            $colCount = 0;
+            if ($colSpacing !== '') {
+                $colList = $this->parser->getList($colSpacing);
+                $totalLength = $this->parser->calculateTotalFromList($colList);
+                $colCount = $this->parser->calculateCountFromList($colList);
+            }
+
+            if ($totalLength <= 0) {
+                continue;
+            }
+
+            // Header row
+            $des = $description;
+
+            // Partition columns: BU sections at partition height
+            $numColumns = $colCount + 1;
+            $this->insertCode($des, 'BU', $salesCode, $height, $numColumns);
+            $des = '';
+
+            // Partition girts: Z purlins spanning between columns
+            $girtSpan = $colCount > 0 ? $totalLength / $colCount : $totalLength;
+            $girtRows = max(1, (int) floor($height / 1.5));
+            $this->insertCode($des, 'Z20G', $salesCode, $girtSpan, $girtRows * $colCount);
+
+            // Front sheeting
+            $wallArea = $totalLength * $height;
+            if ($frontSheeting !== '' && $frontSheeting !== 'None') {
+                $this->insertCode($des, $frontSheeting, $salesCode, $wallArea, 1);
+            }
+
+            // Back sheeting
+            if ($backSheeting !== '' && $backSheeting !== 'None') {
+                $this->insertCode($des, $backSheeting, $salesCode, $wallArea, 1);
+            }
+
+            // Insulation
+            if ($insulation !== '' && $insulation !== 'None') {
+                $this->insertCode($des, $insulation, $salesCode, $wallArea, 1);
+            }
+        }
+    }
+
+    /**
+     * Generate canopy structure items.
+     * VBA: AddCanopy_Click() — rafters, purlins, sheeting, drainage.
+     *
+     * @param  array<string, mixed>  $input
+     */
+    private function generateCanopyItems(array $input): void
+    {
+        $canopies = $input['canopies'] ?? [];
+        if (empty($canopies)) {
+            return;
+        }
+
+        foreach ($canopies as $canopy) {
+            $description = $canopy['description'] ?? 'Canopy Structure';
+            $salesCode = (int) ($canopy['sales_code'] ?? 3);
+            $width = (float) ($canopy['width'] ?? 0);
+            $height = (float) ($canopy['height'] ?? 0);
+            $colSpacing = (string) ($canopy['col_spacing'] ?? '');
+            $roofSheeting = (string) ($canopy['roof_sheeting'] ?? '');
+            $wallSheeting = (string) ($canopy['wall_sheeting'] ?? '');
+            $soffit = (string) ($canopy['soffit'] ?? '');
+            $drainage = (string) ($canopy['drainage'] ?? '');
+
+            if ($width <= 0) {
+                continue;
+            }
+
+            // Parse column spacing notation
+            $totalLength = 0.0;
+            $colCount = 0;
+            if ($colSpacing !== '') {
+                $colList = $this->parser->getList($colSpacing);
+                $totalLength = $this->parser->calculateTotalFromList($colList);
+                $colCount = $this->parser->calculateCountFromList($colList);
+            }
+
+            if ($totalLength <= 0) {
+                continue;
+            }
+
+            // Header row
+            $des = $description;
+
+            // Canopy rafters: BU sections at canopy width
+            $numRafters = $colCount + 1;
+            $this->insertCode($des, 'BU', $salesCode, $width, $numRafters);
+            $des = '';
+
+            // Canopy purlins: Z sections spanning between columns
+            $baySpan = $colCount > 0 ? $totalLength / $colCount : $totalLength;
+            $purlinRows = max(1, (int) ceil($width / 1.5));
+            $this->insertCode($des, 'Z15G', $salesCode, $baySpan, $purlinRows * $colCount);
+
+            // Roof sheeting
+            $roofArea = $width * $totalLength;
+            if ($roofSheeting !== '' && $roofSheeting !== 'None') {
+                $this->insertCode($des, $roofSheeting, $salesCode, $roofArea, 1);
+            }
+
+            // Wall sheeting (if canopy has side closure)
+            if ($wallSheeting !== '' && $wallSheeting !== 'None' && $height > 0) {
+                $wallArea = $totalLength * $height;
+                $this->insertCode($des, $wallSheeting, $salesCode, $wallArea, 1);
+            }
+
+            // Soffit
+            if ($soffit !== '' && $soffit !== 'None') {
+                $this->insertCode($des, $soffit, $salesCode, $roofArea, 1);
+            }
+
+            // Drainage (eave gutter along canopy length)
+            if ($drainage !== '' && $drainage !== 'None') {
+                $this->insertCode($des, $drainage, $salesCode, $totalLength, 1);
             }
         }
     }

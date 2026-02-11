@@ -17,8 +17,7 @@ class ActivityLogsTable
                     ->limit(50),
                 TextColumn::make('causer.name')
                     ->label('User')
-                    ->searchable()
-                    ->sortable(),
+                    ->default('-'),
                 TextColumn::make('subject_type')
                     ->label('Subject')
                     ->formatStateUsing(fn (?string $state): string => $state ? class_basename($state) : '-')

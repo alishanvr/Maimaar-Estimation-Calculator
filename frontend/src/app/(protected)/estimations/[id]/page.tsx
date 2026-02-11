@@ -110,7 +110,7 @@ export default function EstimationEditorPage() {
       // Structural Design
       frame_type: "Clear Span",
       base_type: "Pinned Base",
-      cf_finish: 3,
+      cf_finish: "Painted",
       panel_profile: "M45-250",
       outer_skin_material: "AZ Steel",
 

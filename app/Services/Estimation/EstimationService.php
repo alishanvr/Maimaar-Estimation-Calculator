@@ -277,7 +277,9 @@ class EstimationService
 
         // Endwall column code
         $ewcIndex = ($parsed['dead_load'] + $parsed['live_load']) * pow($parsed['building_width'] / 4, 2);
-        $cfFinish = (int) ($input['cf_finish'] ?? 3);
+        // CF Finish: frontend stores string ("Painted"/"Galvanized"), map to int (3=Painted, 4=Galvanized)
+        $cfFinishRaw = $input['cf_finish'] ?? 'Painted';
+        $cfFinish = in_array($cfFinishRaw, ['Galvanized', 'Alu/Zinc', 4, '4'], true) ? 4 : 3;
         $parsed['ewc_code'] = $this->calculator->lookupEndwallColumnCode($ewcIndex, $cfFinish);
 
         // Sheeting codes

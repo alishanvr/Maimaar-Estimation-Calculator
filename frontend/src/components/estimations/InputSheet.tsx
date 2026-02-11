@@ -82,16 +82,7 @@ export default function InputSheet({
       if (row.type === "header" || !row.field || row.isTopLevel) continue;
       if (row.defaultValue !== undefined && !(row.field in currentData)) {
         hasMissing = true;
-        if (row.field === "cf_finish") {
-          merged[row.field] =
-            row.defaultValue === "Painted"
-              ? 3
-              : row.defaultValue === "Galvanized"
-                ? 1
-                : row.defaultValue;
-        } else {
-          merged[row.field] = row.defaultValue;
-        }
+        merged[row.field] = row.defaultValue;
       }
     }
 
@@ -110,14 +101,6 @@ export default function InputSheet({
       if (row.isTopLevel) {
         const val = estimation[row.field as keyof Estimation];
         return val !== null && val !== undefined ? String(val) : "";
-      }
-
-      // Handle CF Finish mapping: stored as number, shown as label
-      if (row.field === "cf_finish") {
-        const val = estimation.input_data?.[row.field];
-        if (Number(val) === 3) return "Painted";
-        if (Number(val) === 1) return "Galvanized";
-        return row.defaultValue !== undefined ? String(row.defaultValue) : "";
       }
 
       const val = estimation.input_data?.[row.field];
@@ -163,12 +146,6 @@ export default function InputSheet({
         // Convert numeric fields
         if (rowDef.type === "numeric" && newVal !== "" && newVal !== null) {
           processedValue = Number(newVal);
-        }
-
-        // Convert CF Finish from label to stored value
-        if (rowDef.field === "cf_finish") {
-          processedValue =
-            newVal === "Painted" ? 3 : newVal === "Galvanized" ? 1 : newVal;
         }
 
         if (rowDef.isTopLevel) {
