@@ -283,6 +283,10 @@ class QuickEstCalculator
      */
     public function calculateEndwallGirtLines(float $endwallArea, float $width): int
     {
+        if ($width <= 0) {
+            return 0;
+        }
+
         $avgHeight = $endwallArea / $width;
 
         return (int) round($avgHeight / 1.7);

@@ -80,6 +80,7 @@ class DetailGenerator
                 'weight_per_unit' => $product['weight_per_unit'] ?? 0,
                 'rate' => $product['rate'] ?? 0,
                 'unit' => $product['unit'] ?? '',
+                'surface_area' => ($product['surface_area'] ?? 0) * $size * $qty,
             ];
         }
     }
@@ -110,11 +111,13 @@ class DetailGenerator
             return $cache[$code];
         }
 
+        $metadata = $product->metadata ?? [];
         $cache[$code] = [
             'description' => $product->description ?? $code,
             'unit' => $product->unit ?? '',
-            'weight_per_unit' => (float) ($product->rate ?? 0),
+            'weight_per_unit' => (float) ($metadata['weight_per_unit'] ?? $product->rate ?? 0),
             'rate' => (float) ($product->rate ?? 0),
+            'surface_area' => (float) ($metadata['surface_area'] ?? 0),
         ];
 
         return $cache[$code];

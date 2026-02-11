@@ -66,11 +66,23 @@ class SALGenerator
         $otherChargesTotal = $fcpbsData['categories']['Q']['total_cost'] ?? 0;
         $otherChargesSellingPrice = $fcpbsData['categories']['Q']['selling_price'] ?? 0;
 
+        // Build a map of FCPBS category key → markup factor so we can derive offer prices
+        $categoryMarkups = [];
+        foreach ($fcpbsData['categories'] ?? [] as $catKey => $catData) {
+            $catCost = (float) ($catData['total_cost'] ?? 0);
+            $catSelling = (float) ($catData['selling_price'] ?? 0);
+            $categoryMarkups[$catKey] = ($catCost > 0) ? $catSelling / $catCost : 1.0;
+        }
+
         // Sum all book prices from Detail (Detail!O208 equivalent)
+        // Compute total_weight and book_price_total from detail item fields inline
         $totalBookPrice = 0;
         foreach ($detailItems as $item) {
             if (! ($item['is_header'] ?? false)) {
-                $totalBookPrice += (float) ($item['book_price_total'] ?? 0);
+                $size = (float) ($item['size'] ?? 0);
+                $qty = (float) ($item['qty'] ?? 0);
+                $rate = (float) ($item['rate'] ?? 0);
+                $totalBookPrice += $rate * $size * $qty;
             }
         }
 
@@ -86,8 +98,8 @@ class SALGenerator
         foreach ($salesCodes as $code) {
             $aggregated[$code] = [
                 'weight' => 0,
-                'prices_sum' => 0,       // Sum of book_price_total (Detail col P)
-                'prices_mdup_sum' => 0,  // Sum of offer_price_total (Detail col R — after FCPBS markup)
+                'prices_sum' => 0,       // Sum of book_price_total (rate * size * qty)
+                'prices_mdup_sum' => 0,  // Sum of offer_price_total (book_price * category markup)
             ];
         }
 
@@ -101,9 +113,23 @@ class SALGenerator
                 $aggregated[$sc] = ['weight' => 0, 'prices_sum' => 0, 'prices_mdup_sum' => 0];
             }
 
-            $aggregated[$sc]['weight'] += (float) ($item['total_weight'] ?? 0);
-            $aggregated[$sc]['prices_sum'] += (float) ($item['book_price_total'] ?? 0);
-            $aggregated[$sc]['prices_mdup_sum'] += (float) ($item['offer_price_total'] ?? 0);
+            $size = (float) ($item['size'] ?? 0);
+            $qty = (float) ($item['qty'] ?? 0);
+            $weightPerUnit = (float) ($item['weight_per_unit'] ?? 0);
+            $rate = (float) ($item['rate'] ?? 0);
+
+            $itemWeight = $weightPerUnit * $size * $qty;
+            $itemBookPrice = $rate * $size * $qty;
+
+            // Determine this item's FCPBS category to get the markup
+            $costCode = (string) ($item['cost_code'] ?? '');
+            $catKey = $this->guessFcpbsCategory($costCode, (string) ($item['item_code'] ?? ''));
+            $markup = $categoryMarkups[$catKey] ?? 1.0;
+            $itemOfferPrice = $itemBookPrice * $markup;
+
+            $aggregated[$sc]['weight'] += $itemWeight;
+            $aggregated[$sc]['prices_sum'] += $itemBookPrice;
+            $aggregated[$sc]['prices_mdup_sum'] += $itemOfferPrice;
         }
 
         // Calculate E36 (total cost across all codes) for proportional other-charges allocation
@@ -167,5 +193,94 @@ class SALGenerator
             'markup_ratio' => round($overallMarkup, 6),
             'price_per_mt' => round($overallPricePerMt, 2),
         ];
+    }
+
+    /**
+     * FCPBS category definitions with cost code mappings.
+     * Mirrors FCPBSGenerator::CATEGORIES so SAL can determine which
+     * FCPBS category a detail item belongs to for markup lookup.
+     *
+     * @var array<string, array<int, int>>
+     */
+    private const CATEGORY_COST_CODES = [
+        'A' => [10111, 10211, 10212, 10311, 10312, 10313, 10314, 10315, 10316, 10317, 10318, 10411, 10511, 10512],
+        'B' => [10601, 10602, 10603, 10604, 10605],
+        'C' => [11111, 11211, 11212, 11213, 11214, 11215, 11216, 11217, 11218],
+        'D' => [12111, 12211, 12212, 12213, 12311, 12312, 12411, 12412, 12413, 12414],
+        'F' => [20111, 20112, 20113, 20121, 20131, 20141, 20151, 20161],
+        'G' => [20211, 20311, 20411, 20511, 20512],
+        'H' => [21111, 21211, 21311, 21411, 21511, 21611],
+        'I' => [22111, 22211, 22212, 22311, 22312, 22321],
+        'J' => [23111, 23112, 23121, 23122, 23211, 23212, 23213, 23214, 23215, 23216, 23217, 23218, 23311, 23312, 23313, 23314],
+        'M' => [30111, 30112],
+        'O' => [40111, 40112, 40113, 40114, 40115, 40116, 40211, 40212, 40213, 40214, 40215, 40216],
+        'Q' => [50111, 50112, 50113, 50114, 50115, 50211, 50212, 50311],
+        'T' => [60111],
+    ];
+
+    /**
+     * Fallback product-code → FCPBS category mapping.
+     * Mirrors FCPBSGenerator::PRODUCT_CATEGORY_MAP.
+     *
+     * @var array<string, string>
+     */
+    private const PRODUCT_CATEGORY_MAP = [
+        'BU' => 'A', 'BuLeng' => 'A', 'DSW' => 'A', 'ConPlates' => 'A', 'BUPortal' => 'A',
+        'Z15G' => 'C', 'Z18G' => 'C', 'Z20G' => 'C', 'Z25G' => 'C',
+        'Gang' => 'C', 'Bang' => 'C', 'CFClip' => 'C', 'CFClip1' => 'C', 'CFClip2' => 'C',
+        'EWC' => 'C', 'T200' => 'C', 'T150' => 'C', 'T125' => 'C', 'BrGu' => 'C',
+        'HSB12' => 'D', 'HSB16' => 'D', 'HSB20' => 'D', 'HSB1250' => 'D',
+        'HSB2060' => 'D', 'HSB2480' => 'D', 'AB16' => 'D', 'AB24' => 'D',
+        'MFC1' => 'D', 'MFC2' => 'D', 'MFC3' => 'D', 'FMC1' => 'D', 'FMC2' => 'D',
+        'SR12' => 'D', 'SR16' => 'D',
+        'CBR' => 'D', 'RBR22' => 'D', 'FBA' => 'D', 'FBA2' => 'D', 'FBA3' => 'D', 'CRA' => 'D',
+        'GT' => 'H', 'RP' => 'H', 'ET' => 'H', 'CP' => 'H', 'EG' => 'H',
+        'CT' => 'H', 'DS' => 'H', 'RS' => 'H', 'GSTR' => 'H',
+        'VGG' => 'H', 'VGS' => 'H', 'VGEC' => 'H', 'PB' => 'H',
+        'BM1' => 'I', 'BM2' => 'I',
+        'ContSkid' => 'M',
+        'Freight' => 'O',
+    ];
+
+    /**
+     * Determine which FCPBS category a detail item belongs to.
+     *
+     * Uses the same matching logic as FCPBSGenerator:
+     *   1. If item has a cost_code, match against CATEGORY_COST_CODES
+     *   2. Otherwise, fall back to PRODUCT_CATEGORY_MAP by item_code
+     *
+     * @param  string  $costCode  The item's cost_code (e.g. "10111")
+     * @param  string  $itemCode  The item's product/item code (e.g. "BU", "Z20G")
+     * @return string FCPBS category key (e.g. "A", "C", "D") or "A" as default
+     */
+    private function guessFcpbsCategory(string $costCode, string $itemCode): string
+    {
+        // Match by cost code first
+        if ($costCode !== '') {
+            $numericCode = (int) $costCode;
+            foreach (self::CATEGORY_COST_CODES as $catKey => $codes) {
+                if (in_array($numericCode, $codes)) {
+                    return $catKey;
+                }
+            }
+        }
+
+        // Fall back to product code mapping
+        if ($itemCode !== '' && $itemCode !== '-') {
+            // Exact match
+            if (isset(self::PRODUCT_CATEGORY_MAP[$itemCode])) {
+                return self::PRODUCT_CATEGORY_MAP[$itemCode];
+            }
+
+            // Prefix match (e.g. 'GTS' matches 'GT')
+            foreach (self::PRODUCT_CATEGORY_MAP as $prefix => $cat) {
+                if (strlen($prefix) >= 2 && str_starts_with($itemCode, $prefix)) {
+                    return $cat;
+                }
+            }
+        }
+
+        // Default to 'A' (Main Frames) when no match found
+        return 'A';
     }
 }

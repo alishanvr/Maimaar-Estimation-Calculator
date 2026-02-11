@@ -163,13 +163,25 @@ class BOQGenerator
     /**
      * Build transport cost breakdown proportionally distributed.
      * Excel: BOQ rows 11-20, columns J-L
-     * Transport cost is distributed proportionally based on freight loads.
+     *
+     * Transport cost uses FCPBS categories M (Container & Skids) + O (Freight)
+     * selling prices so BOQ totals align with the FCPBS total.
      *
      * @return array<int, array{loads: float, price: float}>
      */
     private function buildTransportBreakdown(array $freightData, array $priceBreakdown): array
     {
-        $totalFreight = ($freightData['total_freight_cost'] ?? 0) + ($freightData['container_cost'] ?? 0);
+        // Use FCPBS selling prices for M+O so BOQ total matches FCPBS total
+        $categories = $freightData['_fcpbs_categories'] ?? [];
+        $totalTransport = (float) ($categories['M']['selling_price'] ?? 0)
+            + (float) ($categories['O']['selling_price'] ?? 0);
+
+        // Fallback to raw freight data if FCPBS categories not passed
+        if ($totalTransport <= 0) {
+            $totalTransport = ($freightData['total_freight_cost'] ?? 0)
+                + ($freightData['container_cost'] ?? 0);
+        }
+
         $totalMaterialPrice = 0;
         foreach ($priceBreakdown as $pb) {
             $totalMaterialPrice += $pb['price'];
@@ -180,7 +192,7 @@ class BOQGenerator
             $proportion = ($totalMaterialPrice > 0) ? ($priceBreakdown[$i]['price'] ?? 0) / $totalMaterialPrice : 0;
             $breakdown[$i] = [
                 'loads' => 0,
-                'price' => round($totalFreight * $proportion, 2),
+                'price' => round($totalTransport * $proportion, 2),
             ];
         }
 

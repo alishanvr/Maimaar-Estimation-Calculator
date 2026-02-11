@@ -144,6 +144,148 @@ export interface Markups {
   finance?: number;
 }
 
+// ── Sheet Data Types (Iteration 5 — Output Sheets) ────────────────
+
+/** Recap sheet data (from results_data['summary']) */
+export interface RecapData {
+  total_weight_kg: number;
+  total_weight_mt: number;
+  total_price_aed: number;
+  price_per_mt: number;
+  fob_price_aed: number;
+  steel_weight_kg: number;
+  panels_weight_kg: number;
+}
+
+/** A single row in the Detail sheet */
+export interface DetailItem {
+  description: string;
+  code: string;
+  sales_code: number | string;
+  cost_code: string;
+  size: number | string;
+  qty: number;
+  is_header: boolean;
+  sort_order: number;
+  weight_per_unit: number;
+  rate: number;
+  unit: string;
+}
+
+/** A single FCPBS category */
+export interface FCPBSCategory {
+  key: string;
+  name: string;
+  quantity: number;
+  weight_kg: number;
+  weight_pct: number;
+  material_cost: number;
+  manufacturing_cost: number;
+  overhead_cost: number;
+  total_cost: number;
+  markup: number;
+  selling_price: number;
+  selling_price_pct: number;
+  price_per_mt: number;
+  value_added: number;
+  va_per_mt: number;
+}
+
+/** FCPBS subtotal structure */
+export interface FCPBSSubtotal {
+  weight_kg: number;
+  material_cost: number;
+  manufacturing_cost: number;
+  overhead_cost: number;
+  total_cost: number;
+  selling_price: number;
+  value_added: number;
+}
+
+/** FCPBS sheet data */
+export interface FCPBSData {
+  categories: Record<string, FCPBSCategory>;
+  steel_subtotal: FCPBSSubtotal;
+  panels_subtotal: FCPBSSubtotal;
+  fob_price: number;
+  total_price: number;
+  total_weight_kg: number;
+  total_weight_mt: number;
+}
+
+/** A single SAL line item */
+export interface SALLine {
+  code: number | string;
+  description: string;
+  weight_kg: number;
+  cost: number;
+  markup: number;
+  price: number;
+  price_per_mt: number;
+}
+
+/** SAL sheet data */
+export interface SALData {
+  lines: SALLine[];
+  total_weight_kg: number;
+  total_cost: number;
+  total_price: number;
+  markup_ratio: number;
+  price_per_mt: number;
+}
+
+/** A single BOQ item */
+export interface BOQItem {
+  sl_no: number;
+  description: string;
+  unit: string;
+  quantity: number;
+  unit_rate: number;
+  total_price: number;
+}
+
+/** BOQ sheet data */
+export interface BOQData {
+  items: BOQItem[];
+  total_weight_mt: number;
+  total_price: number;
+}
+
+/** JAF sheet data */
+export interface JAFData {
+  project_info: {
+    quote_number: string;
+    building_name: string;
+    building_number: number;
+    project_name: string;
+    customer_name: string;
+    salesperson_code: string;
+    revision_number: number;
+    date: string;
+    sales_office: string;
+  };
+  pricing: {
+    bottom_line_markup: number;
+    value_added_l: number;
+    value_added_r: number;
+    total_weight_mt: number;
+    primary_weight_mt: number;
+    supply_price_aed: number;
+    erection_price_aed: number;
+    total_contract_aed: number;
+    contract_value_usd: number;
+    price_per_mt: number;
+    min_delivery_weeks: number;
+  };
+  building_info: {
+    num_non_identical_buildings: number;
+    num_all_buildings: number;
+    scope: string;
+  };
+  special_requirements: Record<string, string>;
+  revision_history: unknown[];
+}
+
 // ── Tab Definitions ────────────────────────────────────────────────
 
 export type SheetTab =

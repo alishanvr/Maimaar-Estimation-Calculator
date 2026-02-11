@@ -4,7 +4,29 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEstimations } from "@/hooks/useEstimations";
 import { createEstimation, deleteEstimation } from "@/lib/estimations";
+import { INPUT_ROWS } from "@/components/estimations/InputSheetConfig";
 import type { EstimationStatus } from "@/types";
+
+/** Build default input_data from InputSheetConfig so all fields are persisted on creation. */
+function buildDefaultInputData(): Record<string, unknown> {
+  const defaults: Record<string, unknown> = {};
+  for (const row of INPUT_ROWS) {
+    if (row.type === "header" || !row.field || row.isTopLevel) continue;
+    if (row.defaultValue !== undefined) {
+      if (row.field === "cf_finish") {
+        defaults[row.field] =
+          row.defaultValue === "Painted"
+            ? 3
+            : row.defaultValue === "Galvanized"
+              ? 1
+              : row.defaultValue;
+      } else {
+        defaults[row.field] = row.defaultValue;
+      }
+    }
+  }
+  return defaults;
+}
 
 const STATUS_FILTERS: { label: string; value: string }[] = [
   { label: "All", value: "" },
@@ -32,6 +54,7 @@ export default function EstimationsPage() {
       const estimation = await createEstimation({
         building_name: "New Building",
         status: "draft" as EstimationStatus,
+        input_data: buildDefaultInputData(),
       });
       router.push(`/estimations/${estimation.id}`);
     } catch {

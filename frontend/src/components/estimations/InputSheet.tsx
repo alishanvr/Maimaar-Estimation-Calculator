@@ -62,6 +62,39 @@ export default function InputSheet({
   const dropdowns = useAllDropdowns();
   const isUpdatingRef = useRef(false);
 
+  /** On first load, merge defaults into input_data for any missing keys so
+   *  the backend gets all required fields for calculation. */
+  const defaultsMergedRef = useRef(false);
+  useEffect(() => {
+    if (defaultsMergedRef.current || !estimation.input_data) return;
+    defaultsMergedRef.current = true;
+
+    const currentData = estimation.input_data ?? {};
+    const merged: Record<string, unknown> = { ...currentData };
+    let hasMissing = false;
+
+    for (const row of INPUT_ROWS) {
+      if (row.type === "header" || !row.field || row.isTopLevel) continue;
+      if (row.defaultValue !== undefined && !(row.field in currentData)) {
+        hasMissing = true;
+        if (row.field === "cf_finish") {
+          merged[row.field] =
+            row.defaultValue === "Painted"
+              ? 3
+              : row.defaultValue === "Galvanized"
+                ? 1
+                : row.defaultValue;
+        } else {
+          merged[row.field] = row.defaultValue;
+        }
+      }
+    }
+
+    if (hasMissing) {
+      onInputDataChange(merged as InputData);
+    }
+  }, [estimation.input_data, onInputDataChange]);
+
   /** Measure the container height so we can give HotTable an explicit pixel value. */
   useEffect(() => {
     const el = containerRef.current;
@@ -169,6 +202,58 @@ export default function InputSheet({
     [estimation.input_data, onFieldsChange, onInputDataChange]
   );
 
+  /**
+   * After Tab/Enter lands on a header row, skip to the next editable row.
+   * Mouse clicks on any column are allowed — only keyboard navigation forces column B.
+   */
+  const isKeyNavRef = useRef(false);
+
+  const handleBeforeKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === "Tab" || e.key === "Enter") {
+      isKeyNavRef.current = true;
+    }
+  }, []);
+
+  const handleAfterSelection = useCallback(
+    (row: number, col: number) => {
+      const hot = hotRef.current?.hotInstance;
+      if (!hot) return;
+
+      const rowDef = INPUT_ROWS[row];
+      if (!rowDef) return;
+
+      // Only auto-redirect when navigating via Tab/Enter (not mouse clicks)
+      if (isKeyNavRef.current) {
+        isKeyNavRef.current = false;
+
+        if (rowDef.type === "header") {
+          // Skip header row — move to next non-header row in column B
+          let nextRow = row + 1;
+          while (nextRow < INPUT_ROWS.length) {
+            if (INPUT_ROWS[nextRow].type !== "header") {
+              hot.selectCell(nextRow, 1);
+              return;
+            }
+            nextRow++;
+          }
+          // If nothing below, try above
+          let prevRow = row - 1;
+          while (prevRow >= 0) {
+            if (INPUT_ROWS[prevRow].type !== "header") {
+              hot.selectCell(prevRow, 1);
+              return;
+            }
+            prevRow--;
+          }
+        } else if (col !== 1) {
+          // Tab/Enter should always land in Value column (B)
+          hot.selectCell(row, 1);
+        }
+      }
+    },
+    []
+  );
+
   /** Per-cell configuration: readOnly, type, source for dropdowns. */
   const cellsCallback = useCallback(
     (row: number, col: number) => {
@@ -238,6 +323,10 @@ export default function InputSheet({
           ]}
           cells={cellsCallback}
           afterChange={handleAfterChange}
+          beforeKeyDown={handleBeforeKeyDown}
+          afterSelection={handleAfterSelection}
+          tabMoves={{ row: 1, col: 0 }}
+          enterMoves={{ row: 1, col: 0 }}
           stretchH="all"
           autoWrapRow={false}
           autoWrapCol={false}

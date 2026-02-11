@@ -14,7 +14,7 @@ export default function TabBar({
   isCalculated,
 }: TabBarProps) {
   return (
-    <div className="flex items-center gap-0.5 bg-gray-200 border-t border-gray-300 px-2 py-1">
+    <div className="no-print flex items-center gap-0.5 bg-gray-200 border-t border-gray-300 px-2 py-1">
       {SHEET_TABS.map((tab) => {
         const isActive = activeTab === tab.key;
         const isDisabled = tab.key !== "input" && !isCalculated;

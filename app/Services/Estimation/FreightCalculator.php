@@ -88,14 +88,17 @@ class FreightCalculator
         $totalFreightCost = $loads[10] * $freightRate;
         $containerCost = $containerCount * $containerRate;
 
-        // Build freight detail items for injection into Detail sheet
+        // Build freight detail items for injection into Detail sheet.
+        // Cost codes must match FCPBS category codes so FCPBS can aggregate them:
+        //   40111 → FCPBS O (Freight)
+        //   30111 → FCPBS M (Container & Skids)
         $freightItems = [];
         if ($freightType !== 'Customer Pickup') {
             $freightItems[] = [
                 'description' => 'Freight',
                 'code' => 'Freight',
                 'sales_code' => 'S',
-                'cost_code' => '60711',
+                'cost_code' => '40111',
                 'size' => 1,
                 'qty' => $loads[10],
                 'rate' => $freightRate,
@@ -110,7 +113,7 @@ class FreightCalculator
                 'description' => 'Container Skids',
                 'code' => 'ContSkid',
                 'sales_code' => 'P',
-                'cost_code' => '50811',
+                'cost_code' => '30111',
                 'size' => 1,
                 'qty' => $containerCount,
                 'rate' => $containerRate,

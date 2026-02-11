@@ -1,3 +1,87 @@
 @import "tailwindcss";
 @import "handsontable/styles/handsontable.min.css";
 @import "handsontable/styles/ht-theme-main.min.css";
+
+/* ===== Print Styles ===== */
+
+/* Hidden on screen, visible only in print */
+.print-only {
+  display: none !important;
+}
+
+@media print {
+  /* Show print-only elements */
+  .print-only {
+    display: block !important;
+  }
+
+  /* Hide interactive / chrome elements */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Reset the fixed full-viewport layout to normal document flow */
+  body {
+    overflow: visible !important;
+  }
+
+  .fixed {
+    position: static !important;
+  }
+
+  /* Allow content to flow and not be clipped */
+  .overflow-hidden {
+    overflow: visible !important;
+  }
+
+  .overflow-auto {
+    overflow: visible !important;
+  }
+
+  /* Flex containers should allow natural height */
+  .flex-1 {
+    flex: none !important;
+  }
+
+  .flex-col {
+    height: auto !important;
+  }
+
+  /* Handsontable: render all rows, not just the visible viewport */
+  .ht_master .wtHolder {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  .ht_master .wtHider {
+    height: auto !important;
+    width: auto !important;
+  }
+
+  .handsontable {
+    overflow: visible !important;
+  }
+
+  .handsontable table {
+    width: 100% !important;
+  }
+
+  .handsontable td,
+  .handsontable th {
+    font-size: 9pt !important;
+    padding: 2px 4px !important;
+  }
+
+  /* Force background colors to print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Page margins */
+  @page {
+    margin: 10mm 8mm;
+  }
+}

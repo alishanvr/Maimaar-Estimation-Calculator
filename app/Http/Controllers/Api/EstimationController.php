@@ -132,7 +132,13 @@ class EstimationController extends Controller
 
         $markups = $request->validated('markups', []);
 
-        $estimation = $this->estimationService->calculateAndSave($estimation, $markups);
+        try {
+            $estimation = $this->estimationService->calculateAndSave($estimation, $markups);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => 'Calculation failed: '.$e->getMessage(),
+            ], 422);
+        }
 
         activity()
             ->causedBy($request->user())

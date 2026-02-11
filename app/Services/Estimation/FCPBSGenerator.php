@@ -5,6 +5,39 @@ namespace App\Services\Estimation;
 class FCPBSGenerator
 {
     /**
+     * Fallback mapping: product code → FCPBS category when cost_code is empty.
+     * Based on VBA Excel structure where each product belongs to a specific category.
+     *
+     * @var array<string, string>
+     */
+    private const PRODUCT_CATEGORY_MAP = [
+        // A - Main Frames
+        'BU' => 'A', 'BuLeng' => 'A', 'DSW' => 'A', 'ConPlates' => 'A',
+        'BUPortal' => 'A',
+        // C - Secondary Members (purlins, girts, bracing)
+        'Z15G' => 'C', 'Z18G' => 'C', 'Z20G' => 'C', 'Z25G' => 'C',
+        'Gang' => 'C', 'Bang' => 'C', 'CFClip' => 'C', 'CFClip1' => 'C', 'CFClip2' => 'C',
+        'EWC' => 'C', 'T200' => 'C', 'T150' => 'C', 'T125' => 'C',
+        'BrGu' => 'C',
+        // D - Steel Standard Buyouts (bolts, sag rods, bracing hardware)
+        'HSB12' => 'D', 'HSB16' => 'D', 'HSB20' => 'D', 'HSB1250' => 'D',
+        'HSB2060' => 'D', 'HSB2480' => 'D', 'AB16' => 'D', 'AB24' => 'D',
+        'MFC1' => 'D', 'MFC2' => 'D', 'MFC3' => 'D', 'FMC1' => 'D', 'FMC2' => 'D',
+        'SR12' => 'D', 'SR16' => 'D',
+        'CBR' => 'D', 'RBR22' => 'D', 'FBA' => 'D', 'FBA2' => 'D', 'FBA3' => 'D', 'CRA' => 'D',
+        // H - Trims
+        'GT' => 'H', 'RP' => 'H', 'ET' => 'H', 'CP' => 'H', 'EG' => 'H',
+        'CT' => 'H', 'DS' => 'H', 'RS' => 'H', 'GSTR' => 'H',
+        'VGG' => 'H', 'VGS' => 'H', 'VGEC' => 'H', 'PB' => 'H',
+        // I - Panels Standard Buyouts (screws, sealants, fasteners)
+        'BM1' => 'I', 'BM2' => 'I',
+        // M - Container & Skids
+        'ContSkid' => 'M',
+        // O - Freight
+        'Freight' => 'O',
+    ];
+
+    /**
      * FCPBS category definitions with cost code mappings.
      * Each category aggregates Detail items by their cost/breakdown codes.
      *
@@ -42,11 +75,12 @@ class FCPBSGenerator
      */
     public function generate(array $detailItems, array $markups = []): array
     {
-        // Default markups from the Excel sample
-        $steelMarkup = $markups['steel'] ?? 0.80885358250258;
-        $panelsMarkup = $markups['panels'] ?? 1.0;
-        $sslMarkup = $markups['ssl'] ?? 1.0;
-        $financeMarkup = $markups['finance'] ?? 1.0;
+        // Default markups from the Excel sample.
+        // A value of 0 (or empty) means "use default", not "multiply by zero".
+        $steelMarkup = ! empty($markups['steel']) ? (float) $markups['steel'] : 0.80885358250258;
+        $panelsMarkup = ! empty($markups['panels']) ? (float) $markups['panels'] : 1.0;
+        $sslMarkup = ! empty($markups['ssl']) ? (float) $markups['ssl'] : 1.0;
+        $financeMarkup = ! empty($markups['finance']) ? (float) $markups['finance'] : 1.0;
 
         $categories = [];
         $totalWeight = 0.0;
@@ -77,10 +111,13 @@ class FCPBSGenerator
                 }
 
                 $itemCostCode = $item['cost_code'] ?? '';
-                $itemSalesCode = $item['sales_code'] ?? 0;
+                $itemCode = $item['code'] ?? '';
 
-                // Match by cost code
-                if (in_array((int) $itemCostCode, $catDef['codes'])) {
+                // Match by cost code, or fall back to product code mapping
+                $matchesByCostCode = $itemCostCode !== '' && in_array((int) $itemCostCode, $catDef['codes']);
+                $matchesByProductCode = $itemCostCode === '' && $this->getProductCategory($itemCode) === $catKey;
+
+                if ($matchesByCostCode || $matchesByProductCode) {
                     $weight = (float) ($item['weight_per_unit'] ?? 0) * (float) ($item['size'] ?? 1) * (float) ($item['qty'] ?? 0);
                     $cost = (float) ($item['rate'] ?? 0) * (float) ($item['size'] ?? 1) * (float) ($item['qty'] ?? 0);
 
@@ -185,5 +222,30 @@ class FCPBSGenerator
         }
 
         return array_map(fn ($v) => round($v, 2), $subtotal);
+    }
+
+    /**
+     * Resolve FCPBS category from product code.
+     * Handles exact matches and prefix matches (e.g. 'GTS' matches 'GT' prefix).
+     */
+    private function getProductCategory(string $productCode): ?string
+    {
+        if ($productCode === '' || $productCode === '-') {
+            return null;
+        }
+
+        // Exact match first
+        if (isset(self::PRODUCT_CATEGORY_MAP[$productCode])) {
+            return self::PRODUCT_CATEGORY_MAP[$productCode];
+        }
+
+        // Prefix match for trim codes with suffixes (e.g. GTS, RPS, ETA, CPS, etc.)
+        foreach (self::PRODUCT_CATEGORY_MAP as $prefix => $cat) {
+            if (strlen($prefix) >= 2 && str_starts_with($productCode, $prefix)) {
+                return $cat;
+            }
+        }
+
+        return null;
     }
 }

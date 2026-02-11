@@ -73,7 +73,9 @@ class EstimationService
         // Step 8: Generate SAL sales summary
         $salResult = $this->salGenerator->generate($detailItems, $fcpbsResult);
 
-        // Step 9: Generate BOQ
+        // Step 9: Generate BOQ — attach FCPBS categories to freight so BOQ
+        // can use M+O selling prices and align its total with the FCPBS total.
+        $freightResult['_fcpbs_categories'] = $fcpbsResult['categories'] ?? [];
         $boqResult = $this->boqGenerator->generate($fcpbsResult, $freightResult, $parsedInput);
 
         // Step 10: Generate JAF
@@ -111,6 +113,18 @@ class EstimationService
     public function calculateAndSave(Estimation $estimation, array $markups = []): Estimation
     {
         $input = $estimation->input_data ?? [];
+
+        // Merge top-level estimation fields into input so downstream generators
+        // (JAF, SAL, BOQ) can access quote_number, customer_name, etc.
+        $input['quote_number'] = $estimation->quote_number ?? '';
+        $input['building_name'] = $estimation->building_name ?? '';
+        $input['project_name'] = $estimation->project_name ?? '';
+        $input['customer_name'] = $estimation->customer_name ?? '';
+        $input['revision_number'] = (int) ($estimation->revision_no ?? 0);
+        $input['building_number'] = $estimation->building_no ?? '';
+        $input['salesperson_code'] = $estimation->salesperson_code ?? '';
+        $input['date'] = $estimation->estimation_date ?? now()->format('Y-m-d');
+
         $results = $this->calculate($input, $markups);
 
         $estimation->update([
@@ -135,6 +149,22 @@ class EstimationService
     private function parseInput(array $input): array
     {
         $parsed = $input;
+
+        // Map frontend field names to DetailGenerator's expected keys
+        $parsed['spans'] = $input['span_widths'] ?? $input['spans'] ?? '1@28.5';
+        $parsed['bays'] = $input['bay_spacing'] ?? $input['bays'] ?? '1@6';
+
+        // Build slopes string from left/right roof slope values
+        $leftSlope = (float) ($input['left_roof_slope'] ?? 1.0);
+        $rightSlope = (float) ($input['right_roof_slope'] ?? $leftSlope);
+        if (! isset($input['slopes'])) {
+            $slopeRise = $leftSlope / 10;
+            $parsed['slopes'] = "1@{$slopeRise}";
+        }
+
+        // Map live_load to the permanent/floor keys the DetailGenerator expects
+        $parsed['live_load_permanent'] = $parsed['live_load_permanent'] ?? $input['live_load'] ?? 0.57;
+        $parsed['live_load_floor'] = $parsed['live_load_floor'] ?? $input['live_load'] ?? 0.57;
 
         // Parse bay spacing
         $baySpacingStr = $input['bay_spacing'] ?? '1@6';

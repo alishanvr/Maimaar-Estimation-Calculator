@@ -102,8 +102,11 @@ class JAFGenerator
         return [
             'project_info' => [
                 'quote_number' => $input['quote_number'] ?? '',
+                'building_name' => $input['building_name'] ?? '',
                 'building_number' => $input['building_number'] ?? 1,
+                'project_name' => $input['project_name'] ?? '',
                 'customer_name' => $input['customer_name'] ?? '',
+                'salesperson_code' => $input['salesperson_code'] ?? '',
                 'revision_number' => $input['revision_number'] ?? 0,
                 'date' => $input['date'] ?? now()->format('Y-m-d'),
                 'sales_office' => $input['sales_office'] ?? '',

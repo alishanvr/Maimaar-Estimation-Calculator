@@ -42,8 +42,13 @@ export function useEstimation(id: number) {
       try {
         const data = await updateEstimation(estimation.id, updates);
         setEstimation(data);
-      } catch {
-        setError("Failed to save estimation.");
+      } catch (err: unknown) {
+        let message = "Failed to save estimation.";
+        if (err && typeof err === "object" && "response" in err) {
+          const axiosErr = err as { response?: { data?: { message?: string } } };
+          message = axiosErr.response?.data?.message || message;
+        }
+        setError(message);
       } finally {
         setIsSaving(false);
       }
@@ -82,8 +87,13 @@ export function useEstimation(id: number) {
         const data = await calculateEstimation(estimation.id, markups);
         setEstimation(data);
       } catch (err: unknown) {
-        const message =
-          err instanceof Error ? err.message : "Calculation failed.";
+        let message = "Calculation failed.";
+        if (err && typeof err === "object" && "response" in err) {
+          const axiosErr = err as { response?: { data?: { message?: string } } };
+          message = axiosErr.response?.data?.message || message;
+        } else if (err instanceof Error) {
+          message = err.message;
+        }
         setError(message);
       } finally {
         setIsCalculating(false);
@@ -100,6 +110,69 @@ export function useEstimation(id: number) {
       debouncedSave(fields);
     },
     [estimation, debouncedSave]
+  );
+
+  /**
+   * Save all fields immediately (no debounce) and then calculate.
+   * Used by "Fill Test Data" to avoid race conditions between debounced saves and calculate.
+   */
+  const saveAndCalculate = useCallback(
+    async (
+      fields: Partial<Estimation>,
+      inputData: InputData,
+      markups?: Markups
+    ) => {
+      if (!estimation) return;
+
+      // Cancel any pending debounced saves
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+
+      // Update local state immediately
+      setEstimation((prev) =>
+        prev
+          ? { ...prev, ...fields, input_data: inputData, status: "draft" }
+          : prev
+      );
+
+      // Single immediate save with ALL data
+      setIsSaving(true);
+      setError(null);
+      try {
+        await updateEstimation(estimation.id, {
+          ...fields,
+          input_data: inputData,
+        });
+      } catch (err: unknown) {
+        let message = "Failed to save estimation.";
+        if (err && typeof err === "object" && "response" in err) {
+          const axiosErr = err as { response?: { data?: { message?: string } } };
+          message = axiosErr.response?.data?.message || message;
+        }
+        setError(message);
+        setIsSaving(false);
+        return;
+      }
+      setIsSaving(false);
+
+      // Now calculate — data is persisted in DB
+      setIsCalculating(true);
+      try {
+        const data = await calculateEstimation(estimation.id, markups);
+        setEstimation(data);
+      } catch (err: unknown) {
+        let message = "Calculation failed.";
+        if (err && typeof err === "object" && "response" in err) {
+          const axiosErr = err as { response?: { data?: { message?: string } } };
+          message = axiosErr.response?.data?.message || message;
+        } else if (err instanceof Error) {
+          message = err.message;
+        }
+        setError(message);
+      } finally {
+        setIsCalculating(false);
+      }
+    },
+    [estimation]
   );
 
   // Cleanup timer on unmount
@@ -119,6 +192,7 @@ export function useEstimation(id: number) {
     updateInputData,
     updateFields,
     calculate,
+    saveAndCalculate,
     refetch: fetch,
   };
 }

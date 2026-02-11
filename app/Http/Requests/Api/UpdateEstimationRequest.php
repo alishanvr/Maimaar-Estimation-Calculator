@@ -46,6 +46,18 @@ class UpdateEstimationRequest extends FormRequest
             'input_data.wall_panel_code' => ['nullable', 'string'],
             'input_data.paint_system' => ['nullable', 'string'],
             'input_data.collateral_load' => ['nullable', 'numeric', 'min:0'],
+            'input_data.cf_finish' => ['nullable'],
+            'input_data.panel_profile' => ['nullable', 'string'],
+            'input_data.outer_skin_material' => ['nullable', 'string'],
+            'input_data.core_thickness' => ['nullable', 'numeric', 'min:0'],
+            'input_data.monitor_type' => ['nullable', 'string'],
+            'input_data.monitor_width' => ['nullable', 'numeric', 'min:0'],
+            'input_data.monitor_height' => ['nullable', 'numeric', 'min:0'],
+            'input_data.monitor_length' => ['nullable', 'numeric', 'min:0'],
+            'input_data.markup_steel' => ['nullable', 'numeric', 'min:0', 'max:5'],
+            'input_data.markup_panels' => ['nullable', 'numeric', 'min:0', 'max:5'],
+            'input_data.markup_ssl' => ['nullable', 'numeric', 'min:0', 'max:5'],
+            'input_data.markup_finance' => ['nullable', 'numeric', 'min:0', 'max:5'],
         ];
     }
 
