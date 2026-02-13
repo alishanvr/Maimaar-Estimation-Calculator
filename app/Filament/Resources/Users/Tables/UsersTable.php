@@ -3,15 +3,18 @@
 namespace App\Filament\Resources\Users\Tables;
 
 use App\Models\User;
+use App\Notifications\PasswordChangedNotification;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Password;
 
 class UsersTable
 {
@@ -69,7 +72,7 @@ class UsersTable
                     ->icon('heroicon-o-no-symbol')
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->visible(fn (User $record): bool => $record->status === 'active')
+                    ->visible(fn (User $record): bool => $record->status === 'active' && $record->id !== auth()->id())
                     ->action(fn (User $record) => $record->update(['status' => 'revoked'])),
                 Action::make('activate')
                     ->label('Activate')
@@ -78,27 +81,89 @@ class UsersTable
                     ->requiresConfirmation()
                     ->visible(fn (User $record): bool => $record->status === 'revoked')
                     ->action(fn (User $record) => $record->update(['status' => 'active'])),
-                Action::make('resetPassword')
-                    ->label('Reset Password')
+                Action::make('managePassword')
+                    ->label('Manage Password')
                     ->icon('heroicon-o-key')
                     ->color('warning')
-                    ->requiresConfirmation()
-                    ->modalDescription('This will generate a new random password for the user.')
-                    ->action(function (User $record): void {
-                        $newPassword = Str::random(16);
-                        $record->update(['password' => Hash::make($newPassword)]);
-
-                        activity()
-                            ->causedBy(auth()->user())
-                            ->performedOn($record)
-                            ->log('reset user password');
+                    ->modalHeading('Manage User Password')
+                    ->modalDescription('Choose how to handle the password for this user.')
+                    ->form([
+                        Radio::make('action_type')
+                            ->label('Action')
+                            ->options([
+                                'set_password' => 'Set a specific password',
+                                'set_password_and_notify' => 'Set password & email user',
+                                'send_reset_link' => 'Send password reset link',
+                            ])
+                            ->default('set_password')
+                            ->required()
+                            ->live(),
+                        TextInput::make('new_password')
+                            ->label('New Password')
+                            ->password()
+                            ->minLength(8)
+                            ->confirmed()
+                            ->visible(fn ($get): bool => in_array($get('action_type'), ['set_password', 'set_password_and_notify']))
+                            ->required(fn ($get): bool => in_array($get('action_type'), ['set_password', 'set_password_and_notify'])),
+                        TextInput::make('new_password_confirmation')
+                            ->label('Confirm Password')
+                            ->password()
+                            ->visible(fn ($get): bool => in_array($get('action_type'), ['set_password', 'set_password_and_notify'])),
+                    ])
+                    ->action(function (User $record, array $data): void {
+                        match ($data['action_type']) {
+                            'set_password' => static::handleSetPassword($record, $data['new_password']),
+                            'set_password_and_notify' => static::handleSetPasswordAndNotify($record, $data['new_password']),
+                            'send_reset_link' => static::handleSendResetLink($record),
+                        };
                     })
-                    ->successNotificationTitle('Password has been reset.'),
+                    ->successNotificationTitle('Password action completed successfully.'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    private static function handleSetPassword(User $record, string $password): void
+    {
+        $record->update(['password' => $password]);
+
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($record)
+            ->log('set user password manually');
+    }
+
+    private static function handleSetPasswordAndNotify(User $record, string $password): void
+    {
+        $record->update(['password' => $password]);
+        $record->notify(new PasswordChangedNotification($password));
+
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($record)
+            ->log('set user password and sent email notification');
+    }
+
+    private static function handleSendResetLink(User $record): void
+    {
+        $status = Password::sendResetLink(['email' => $record->email]);
+
+        if ($status !== Password::RESET_LINK_SENT) {
+            Notification::make()
+                ->title('Failed to send reset link')
+                ->body(__($status))
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($record)
+            ->log('sent password reset link');
     }
 }

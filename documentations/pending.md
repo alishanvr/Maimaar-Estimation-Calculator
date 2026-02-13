@@ -1,3 +1,13 @@
+**check file 15. missing features gap** and build that.
+
+
+
+
+
+
+
+
+
 ~~Branding & PDF Polish — Company logo in PDF headers, letterhead styling, custom fonts for the generated BOQ/JAF PDFs.~~
 ~~User Experience Polish — Estimation duplication/clone, version history/revision tracking, estimation comparison, bulk export.~~ DONE (Iteration 12)
 ~~Dashboard Enhancements — Charts over time (estimations per week/month), user activity heatmap, estimation value trends.~~
@@ -8,12 +18,12 @@
 ~~18. I request you to review documentations/web-php directory and compare it with our current implementation. Don't implement anything. just give me a table what's missing in our laravel app but available in web-php.~~
 ~~7. Admin can set settings for company logo, fav icons etc. and these settings should be reflected in the frontend.~~
 ~~8. I want to add robust/rich reporting features in the application, allowing users to generate and export reports based on various criteria. What are some recommended approaches or packages for implementing this functionality in Laravel?~~
-12. There is no option to change and set a password for a user. please fix this.
-13. Admin should not be able to revoke himself. Please add a check to prevent this action.
-14. I want to implement a feature that allows users to reset their passwords from front end.
+~~12. There is no option to change and set a password for a user. please fix this.~~
+    ~~14. I want to implement a feature that allows users to reset their passwords from front end.~~
+~~13. Admin should not be able to revoke himself. Please add a check to prevent this action.~~
+~~14. admin should be able to reset/change password for any user.~~
 
-
-**check file 15. missing features gap** and build that. 
+ 
 
 ---
 
