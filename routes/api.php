@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AppSettingsController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DesignConfigurationController;
 use App\Http\Controllers\Api\EstimationController;
+use App\Http\Controllers\Api\ReportController;
 use Illuminate\Support\Facades\Route;
 
 // Public endpoints (no auth required)
@@ -24,6 +25,17 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('freight-codes.index');
     Route::get('/paint-systems', [DesignConfigurationController::class, 'paintSystems'])
         ->name('paint-systems.index');
+
+    // Reports
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/dashboard', [ReportController::class, 'dashboard'])->name('dashboard');
+        Route::get('/export/csv', [ReportController::class, 'exportCsv'])
+            ->name('export.csv')
+            ->middleware('throttle:exports');
+        Route::get('/export/pdf', [ReportController::class, 'exportPdf'])
+            ->name('export.pdf')
+            ->middleware('throttle:exports');
+    });
 
     // Collection-level estimation actions (BEFORE apiResource to avoid route conflicts)
     Route::post('/estimations/compare', [EstimationController::class, 'compare'])
