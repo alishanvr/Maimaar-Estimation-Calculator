@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { useBranding } from "@/contexts/BrandingContext";
 import { useEstimations } from "@/hooks/useEstimations";
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const { branding } = useBranding();
   const { estimations, isLoading } = useEstimations();
 
   const draftCount = estimations.filter((e) => e.status === "draft").length;
@@ -20,7 +22,7 @@ export default function DashboardPage() {
           Welcome back, {user?.name}
         </h2>
         <p className="text-gray-500 mt-1">
-          Maimaar Estimation Calculator Dashboard
+          {branding.app_name} Dashboard
         </p>
       </div>
 
@@ -49,7 +51,7 @@ export default function DashboardPage() {
           <div className="mt-3 flex flex-col gap-2">
             <Link
               href="/estimations"
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium transition"
+              className="text-sm text-primary hover:text-primary/80 font-medium transition"
             >
               View Estimations &rarr;
             </Link>

@@ -1,13 +1,16 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useBranding } from "@/contexts/BrandingContext";
 import { createEstimation } from "@/lib/estimations";
 import { useState } from "react";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const { branding } = useBranding();
   const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
 
@@ -34,8 +37,21 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-6">
-            <Link href="/" className="text-xl font-bold text-gray-900">
-              Maimaar
+            <Link href="/" className="flex items-center gap-2">
+              {branding.logo_url ? (
+                <Image
+                  src={branding.logo_url}
+                  alt={branding.company_name}
+                  width={120}
+                  height={32}
+                  className="h-8 w-auto object-contain"
+                  unoptimized
+                />
+              ) : (
+                <span className="text-xl font-bold text-gray-900">
+                  {branding.company_name}
+                </span>
+              )}
             </Link>
             <div className="hidden sm:flex items-center gap-4">
               <Link
@@ -57,7 +73,7 @@ export default function Navbar() {
             <button
               onClick={handleNewEstimation}
               disabled={isCreating}
-              className="hidden sm:block bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition disabled:opacity-50"
+              className="hidden sm:block bg-primary text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-primary/80 transition disabled:opacity-50"
             >
               {isCreating ? "Creating..." : "+ New"}
             </button>

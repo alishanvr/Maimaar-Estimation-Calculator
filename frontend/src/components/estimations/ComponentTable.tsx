@@ -91,6 +91,16 @@ export default function ComponentTable({
     [items, columns, maxRows, onChange]
   );
 
+  const handleAfterGetColHeader = useCallback(
+    (col: number, TH: HTMLTableCellElement) => {
+      const colDef = columns[col];
+      if (colDef?.hint) {
+        TH.title = colDef.hint;
+      }
+    },
+    [columns]
+  );
+
   const cellsCallback = useCallback(
     (_row: number, col: number) => {
       const colDef = columns[col];
@@ -121,6 +131,7 @@ export default function ComponentTable({
       columns={columns.map((_, i) => ({ data: i }))}
       cells={cellsCallback}
       afterChange={handleAfterChange}
+      afterGetColHeader={handleAfterGetColHeader}
       stretchH="all"
       height="auto"
       rowHeaders={false}

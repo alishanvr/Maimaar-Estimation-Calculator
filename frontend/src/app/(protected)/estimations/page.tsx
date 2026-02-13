@@ -37,7 +37,7 @@ const STATUS_FILTERS: { label: string; value: string }[] = [
 const STATUS_BADGE: Record<EstimationStatus, string> = {
   draft: "bg-gray-100 text-gray-700",
   calculated: "bg-green-100 text-green-700",
-  finalized: "bg-blue-100 text-blue-700",
+  finalized: "bg-primary/15 text-primary",
 };
 
 export default function EstimationsPage() {
@@ -155,7 +155,7 @@ export default function EstimationsPage() {
         <button
           onClick={handleCreate}
           disabled={isCreating}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition disabled:opacity-50"
+          className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/80 transition disabled:opacity-50"
         >
           {isCreating ? "Creating..." : "+ New Estimation"}
         </button>
@@ -183,22 +183,22 @@ export default function EstimationsPage() {
 
       {/* Selection Toolbar */}
       {selectedIds.size > 0 && (
-        <div className="flex items-center gap-3 mb-4 bg-blue-50 border border-blue-200 rounded-lg px-4 py-2">
-          <span className="text-sm font-medium text-blue-700">
+        <div className="flex items-center gap-3 mb-4 bg-primary/10 border border-primary/25 rounded-lg px-4 py-2">
+          <span className="text-sm font-medium text-primary">
             {selectedIds.size} selected
           </span>
-          <div className="h-4 w-px bg-blue-200" />
+          <div className="h-4 w-px bg-primary/25" />
           <button
             onClick={handleCompare}
             disabled={selectedIds.size !== 2}
-            className="text-sm font-medium text-blue-600 hover:text-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed transition"
+            className="text-sm font-medium text-primary hover:text-primary/80 disabled:text-gray-400 disabled:cursor-not-allowed transition"
           >
             Compare
           </button>
           <button
             onClick={handleBulkExport}
             disabled={isExporting}
-            className="text-sm font-medium text-blue-600 hover:text-blue-800 disabled:text-gray-400 transition"
+            className="text-sm font-medium text-primary hover:text-primary/80 disabled:text-gray-400 transition"
           >
             {isExporting ? "Exporting..." : "Export ZIP"}
           </button>
@@ -239,7 +239,7 @@ export default function EstimationsPage() {
           <button
             onClick={handleCreate}
             disabled={isCreating}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition disabled:opacity-50"
+            className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/80 transition disabled:opacity-50"
           >
             + New Estimation
           </button>
@@ -260,7 +260,7 @@ export default function EstimationsPage() {
                       selectedIds.size === estimations.length
                     }
                     onChange={toggleAll}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="rounded border-gray-300 text-primary focus:ring-primary"
                   />
                 </th>
                 <th className="text-left px-4 py-3 font-medium text-gray-500">
@@ -294,7 +294,7 @@ export default function EstimationsPage() {
                 <tr
                   key={est.id}
                   className={`hover:bg-gray-50 cursor-pointer transition ${
-                    selectedIds.has(est.id) ? "bg-blue-50" : ""
+                    selectedIds.has(est.id) ? "bg-primary/10" : ""
                   }`}
                   onClick={() => router.push(`/estimations/${est.id}`)}
                 >
@@ -307,7 +307,7 @@ export default function EstimationsPage() {
                         toggleSelection(est.id);
                       }}
                       onClick={(e) => e.stopPropagation()}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-gray-300 text-primary focus:ring-primary"
                     />
                   </td>
                   <td className="px-4 py-3 font-mono text-xs">
@@ -342,7 +342,7 @@ export default function EstimationsPage() {
                           e.stopPropagation();
                           handleClone(est.id);
                         }}
-                        className="text-blue-500 hover:text-blue-700 text-xs font-medium transition"
+                        className="text-primary hover:text-primary/80 text-xs font-medium transition"
                       >
                         Clone
                       </button>

@@ -4,14 +4,16 @@
 ~~6. i want to display "fill test data" button ONLY if a specific query parameter is present in the URL. For example, if the URL contains `?fill_test_data=true`, then the button should be visible; otherwise, it should be hidden. Please implement this functionality in the frontend using JavaScript or any frontend framework we are using.~~
 
 
-10. Can we add hints and other helpful information in the form of tooltips or popovers in the frontend to guide users through the application?
-18. I request you to review documentations/web-php directory and compare it with our current implementation. Don't implement anything. just give me a table what's missing in our laravel app but available in web-php.
+~~10. Can we add hints and other helpful information in the form of tooltips or popovers in the frontend to guide users through the application?~~
+~~18. I request you to review documentations/web-php directory and compare it with our current implementation. Don't implement anything. just give me a table what's missing in our laravel app but available in web-php.~~
 7. Admin can set settings for company logo, fav icons etc. and these settings should be reflected in the frontend.
 8. I want to add robust/rich reporting features in the application, allowing users to generate and export reports based on various criteria. What are some recommended approaches or packages for implementing this functionality in Laravel?
 12. There is no option to change and set a password for a user. please fix this.
 13. Admin should not be able to revoke himself. Please add a check to prevent this action.
 14. I want to implement a feature that allows users to reset their passwords from front end.
 
+
+**check file 15. missing features gap** and build that. 
 
 ---
 

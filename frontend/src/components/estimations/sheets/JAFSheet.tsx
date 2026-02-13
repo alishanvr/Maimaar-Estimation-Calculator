@@ -62,7 +62,7 @@ export default function JAFSheet({ estimationId, version }: JAFSheetProps) {
             <button
               onClick={handleDownloadPdf}
               disabled={downloading}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary rounded-md hover:bg-primary/80 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg
                 className="w-3.5 h-3.5"
@@ -85,9 +85,9 @@ export default function JAFSheet({ estimationId, version }: JAFSheetProps) {
           </div>
 
           {/* Header */}
-          <div className="bg-blue-600 text-white rounded-lg px-6 py-4">
+          <div className="bg-primary text-white rounded-lg px-6 py-4">
             <h3 className="text-lg font-bold">Job Acceptance Form</h3>
-            <p className="text-blue-100 text-sm mt-1">
+            <p className="text-white/70 text-sm mt-1">
               Quote: {data.project_info.quote_number || "\u2014"} &middot;
               Rev {data.project_info.revision_number}
             </p>

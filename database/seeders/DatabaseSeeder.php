@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ReferenceDataSeeder::class,
             PdfSettingsSeeder::class,
+            AppSettingsSeeder::class,
         ]);
     }
 }

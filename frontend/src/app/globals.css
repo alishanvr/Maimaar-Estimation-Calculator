@@ -2,6 +2,36 @@
 @import "handsontable/styles/handsontable.min.css";
 @import "handsontable/styles/ht-theme-main.min.css";
 
+@theme inline {
+  --color-primary: var(--color-primary-runtime, #3B82F6);
+}
+
+/* Named utility classes for HotTable cell backgrounds (slash in bg-primary/10 breaks HotTable className strings) */
+.bg-primary-subtle {
+  background-color: color-mix(in srgb, var(--color-primary-runtime, #3B82F6) 10%, white);
+}
+.bg-primary-light {
+  background-color: color-mix(in srgb, var(--color-primary-runtime, #3B82F6) 20%, white);
+}
+
+/* Hint indicator — small indigo triangle on label cells with tooltips */
+.handsontable .htCommentCell::after {
+  border-top-color: #6366f1 !important;
+}
+
+/* Hint tooltip styling */
+.htCommentsContainer .htCommentTextArea {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  font-size: 12px;
+  line-height: 1.4;
+  resize: none;
+  cursor: default;
+  width: 260px;
+  min-height: 32px;
+}
+
 /* Ensure Handsontable frozen overlays stay below header dropdowns (z-50) */
 .ht_clone_top,
 .ht_clone_left,
@@ -87,6 +117,10 @@
     print-color-adjust: exact !important;
     color-adjust: exact !important;
   }
+
+  /* Hide hint tooltips in print */
+  .htCommentsContainer { display: none !important; }
+  .handsontable .htCommentCell::after { display: none !important; }
 
   /* Page margins */
   @page {

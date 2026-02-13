@@ -7,7 +7,7 @@ import type { Estimation, EstimationStatus } from "@/types";
 const STATUS_BADGE: Record<EstimationStatus, string> = {
   draft: "bg-gray-100 text-gray-700",
   calculated: "bg-green-100 text-green-700",
-  finalized: "bg-blue-100 text-blue-700",
+  finalized: "bg-primary/15 text-primary",
 };
 
 interface EstimationHeaderProps {
@@ -145,7 +145,7 @@ export default function EstimationHeader({
             <button
               onClick={onCalculate}
               disabled={isCalculating}
-              className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50"
+              className="px-3 py-1.5 text-sm bg-primary text-white rounded-lg font-medium hover:bg-primary/80 transition disabled:opacity-50"
             >
               {isCalculating ? "Calculating..." : "Calculate"}
             </button>
@@ -153,7 +153,7 @@ export default function EstimationHeader({
           {onFinalize && estimation.status === "calculated" && (
             <button
               onClick={onFinalize}
-              className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition"
+              className="px-3 py-1.5 text-sm bg-primary text-white rounded-lg font-medium hover:bg-primary/80 transition"
             >
               Finalize
             </button>

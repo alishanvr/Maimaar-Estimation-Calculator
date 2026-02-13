@@ -234,12 +234,17 @@ export default function InputSheet({
       // Column A (label) and Column C (unit) are always read-only
       if (col === 0 || col === 2) {
         const isHeaderRow = rowDef.type === "header";
-        return {
+        const cellProps: Record<string, unknown> = {
           readOnly: true,
           className: isHeaderRow
             ? "htMiddle font-bold bg-gray-200 text-gray-800 text-xs"
             : "htMiddle text-gray-600 text-xs",
         };
+        // Add hint tooltip on label cells
+        if (col === 0 && rowDef.hint) {
+          cellProps.comment = { value: rowDef.hint, readOnly: true };
+        }
+        return cellProps;
       }
 
       // Column B (value)
@@ -403,6 +408,7 @@ export default function InputSheet({
           contextMenu={false}
           fillHandle={false}
           undo={true}
+          comments={{ displayDelay: 300 }}
         />
       </div>
 

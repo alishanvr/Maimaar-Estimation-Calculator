@@ -10,6 +10,8 @@ export interface ComponentColumnDef {
   type: "text" | "numeric" | "dropdown";
   width: number;
   dropdownOptions?: string[];
+  /** Tooltip hint shown on column header hover */
+  hint?: string;
 }
 
 // ── Openings (5 fields, max 9 rows) ──────────────────────────────
@@ -34,8 +36,9 @@ export const OPENINGS_COLUMNS: ComponentColumnDef[] = [
     label: "Purlin Support",
     type: "numeric",
     width: 100,
+    hint: "Number of purlins supporting the opening header",
   },
-  { key: "bracing", label: "Bracing", type: "numeric", width: 80 },
+  { key: "bracing", label: "Bracing", type: "numeric", width: 80, hint: "Number of bracing bays affected by this opening" },
 ];
 
 export const OPENINGS_MAX_ROWS = 9;
@@ -62,14 +65,16 @@ export const CRANE_COLUMNS: ComponentColumnDef[] = [
     type: "dropdown",
     width: 70,
     dropdownOptions: ["L", "M", "H"],
+    hint: "L = Light, M = Medium, H = Heavy duty cycle",
   },
   {
     key: "rail_centers",
     label: "Rail Centers (m)",
     type: "numeric",
     width: 110,
+    hint: "Distance between crane rail centerlines",
   },
-  { key: "crane_run", label: "Crane Run", type: "text", width: 140 },
+  { key: "crane_run", label: "Crane Run", type: "text", width: 140, hint: "Crane travel path. Format: count@spacing, e.g. 3@9.144" },
 ];
 
 export const CRANE_MAX_ROWS = 3;
@@ -79,9 +84,9 @@ export const CRANE_MAX_ROWS = 3;
 export const MEZZANINE_COLUMNS: ComponentColumnDef[] = [
   { key: "description", label: "Description", type: "text", width: 160 },
   { key: "sales_code", label: "Sales Code", type: "numeric", width: 80 },
-  { key: "col_spacing", label: "Col Spacing", type: "text", width: 110 },
-  { key: "beam_spacing", label: "Beam Spacing", type: "text", width: 110 },
-  { key: "joist_spacing", label: "Joist Spacing", type: "text", width: 110 },
+  { key: "col_spacing", label: "Col Spacing", type: "text", width: 110, hint: "Spacing pattern: count@distance, e.g. 2@6" },
+  { key: "beam_spacing", label: "Beam Spacing", type: "text", width: 110, hint: "Spacing pattern: count@distance, e.g. 1@6" },
+  { key: "joist_spacing", label: "Joist Spacing", type: "text", width: 110, hint: "Spacing pattern: count@distance, e.g. 1@3" },
   {
     key: "clear_height",
     label: "Clear Height (m)",
@@ -128,6 +133,7 @@ export const PARTITION_COLUMNS: ComponentColumnDef[] = [
     type: "dropdown",
     width: 120,
     dropdownOptions: ["Longitudinal", "Transverse"],
+    hint: "Longitudinal = along building length, Transverse = across width",
   },
   { key: "bu_finish", label: "BU Finish", type: "text", width: 90 },
   { key: "cf_finish", label: "CF Finish", type: "text", width: 90 },
@@ -168,6 +174,7 @@ export const CANOPY_COLUMNS: ComponentColumnDef[] = [
     type: "dropdown",
     width: 130,
     dropdownOptions: ["Roof Extension", "Lean-To"],
+    hint: "Roof Extension = extends main roof. Lean-To = separate structure",
   },
   {
     key: "location",

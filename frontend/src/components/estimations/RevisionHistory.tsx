@@ -8,7 +8,7 @@ import type { RevisionEntry, EstimationStatus } from "@/types";
 const STATUS_BADGE: Record<EstimationStatus, string> = {
   draft: "bg-gray-100 text-gray-700",
   calculated: "bg-green-100 text-green-700",
-  finalized: "bg-blue-100 text-blue-700",
+  finalized: "bg-primary/15 text-primary",
 };
 
 interface RevisionHistoryProps {

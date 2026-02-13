@@ -1,6 +1,7 @@
 "use client";
 
 import type { SheetTab } from "@/types";
+import { useBranding } from "@/contexts/BrandingContext";
 
 const SHEET_TITLES: Record<SheetTab, string> = {
   input: "Input Sheet",
@@ -25,6 +26,7 @@ export default function PrintHeader({
   revision,
   activeTab,
 }: PrintHeaderProps) {
+  const { branding } = useBranding();
   const today = new Date().toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
@@ -36,7 +38,7 @@ export default function PrintHeader({
       <div className="flex justify-between items-end border-b-2 border-gray-800 pb-2 mb-4">
         <div>
           <h1 className="text-base font-bold text-gray-900">
-            Maimaar Estimation Calculator
+            {branding.app_name}
           </h1>
           <p className="text-sm text-gray-600 mt-0.5">
             Quote: <span className="font-mono font-medium">{quoteNumber || "\u2014"}</span>

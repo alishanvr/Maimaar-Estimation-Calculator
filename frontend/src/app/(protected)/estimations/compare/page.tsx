@@ -9,7 +9,7 @@ import type { ComparisonEstimation, EstimationStatus } from "@/types";
 const STATUS_BADGE: Record<EstimationStatus, string> = {
   draft: "bg-gray-100 text-gray-700",
   calculated: "bg-green-100 text-green-700",
-  finalized: "bg-blue-100 text-blue-700",
+  finalized: "bg-primary/15 text-primary",
 };
 
 interface MetricRow {
@@ -141,7 +141,7 @@ export default function ComparePage() {
         </div>
         <Link
           href="/estimations"
-          className="text-blue-600 hover:underline text-sm"
+          className="text-primary hover:underline text-sm"
         >
           &larr; Back to Estimations
         </Link>

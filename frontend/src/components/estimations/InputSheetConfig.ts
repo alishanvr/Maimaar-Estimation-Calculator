@@ -25,6 +25,8 @@ export interface InputRowDef {
   dropdownOptions?: string[];
   /** Default value for new estimations */
   defaultValue?: string | number;
+  /** Tooltip hint shown on hover over the field label */
+  hint?: string;
 }
 
 export const INPUT_ROWS: InputRowDef[] = [
@@ -95,6 +97,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     type: "text",
     unit: "e.g. 1@6.865+1@9.104",
     defaultValue: "1@6",
+    hint: "Format: count@length. e.g. 2@6+1@9.1 = two 6m bays then one 9.1m bay",
   },
   {
     label: "Span Widths",
@@ -102,6 +105,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     type: "text",
     unit: "e.g. 1@28.5",
     defaultValue: "1@28.5",
+    hint: "Format: count@width. e.g. 1@28.5 = single span 28.5m wide",
   },
   {
     label: "Back Eave Height",
@@ -123,6 +127,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     type: "numeric",
     unit: "\u00d710 (e.g. 10 = 1:10)",
     defaultValue: 1.0,
+    hint: "Multiplied by 10. e.g. enter 10 for 1:10 slope. Lower value = steeper pitch",
   },
   {
     label: "Right Roof Slope",
@@ -130,6 +135,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     type: "numeric",
     unit: "\u00d710 (e.g. 10 = 1:10)",
     defaultValue: 1.0,
+    hint: "Multiplied by 10. e.g. enter 10 for 1:10 slope. Lower value = steeper pitch",
   },
 
   // ── STRUCTURAL DESIGN ────────────────────────────────────────────
@@ -141,6 +147,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     dropdownCategory: "frame_type",
     unit: "",
     defaultValue: "Clear Span",
+    hint: "Clear Span = no interior columns. Multi-Span = interior columns divide width",
   },
   {
     label: "Base Type",
@@ -149,6 +156,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     dropdownOptions: ["Pinned Base", "Fixed Base"],
     unit: "",
     defaultValue: "Pinned Base",
+    hint: "Pinned = smaller footings, more steel. Fixed = larger footings, less steel",
   },
   {
     label: "CF Finish",
@@ -157,6 +165,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     dropdownOptions: ["Painted", "Galvanized"],
     unit: "",
     defaultValue: "Painted",
+    hint: "Cold-formed member finish. Affects pricing and corrosion resistance",
   },
   {
     label: "Panel Profile",
@@ -182,6 +191,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     type: "numeric",
     unit: "mm",
     defaultValue: 6,
+    hint: "Minimum web/flange plate thickness for main frame members",
   },
   {
     label: "Double Side Welding",
@@ -190,6 +200,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     dropdownOptions: ["Yes", "No"],
     unit: "",
     defaultValue: "No",
+    hint: "Double-sided welding on connections. Yes increases fabrication cost",
   },
 
   // ── ENDWALL CONFIGURATION ────────────────────────────────────────
@@ -199,6 +210,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     field: "left_endwall_columns",
     type: "text",
     unit: "e.g. 1@4.5+1@5",
+    hint: "Column spacing pattern along endwall. Same notation as bay spacing",
   },
   {
     label: "Left Endwall Type",
@@ -212,6 +224,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     ],
     unit: "",
     defaultValue: "Bearing Frame",
+    hint: "Bearing = lighter columns. Main Frame = full rigid frame at endwall",
   },
   {
     label: "Left Endwall Portal",
@@ -220,12 +233,14 @@ export const INPUT_ROWS: InputRowDef[] = [
     dropdownOptions: ["None", "Portal"],
     unit: "",
     defaultValue: "None",
+    hint: "Portal frame for large openings without intermediate columns",
   },
   {
     label: "Right Endwall Columns",
     field: "right_endwall_columns",
     type: "text",
     unit: "e.g. 1@4.5+1@5",
+    hint: "Column spacing pattern along endwall. Same notation as bay spacing",
   },
   {
     label: "Right Endwall Type",
@@ -239,6 +254,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     ],
     unit: "",
     defaultValue: "Bearing Frame",
+    hint: "Bearing = lighter columns. Main Frame = full rigid frame at endwall",
   },
   {
     label: "Right Endwall Portal",
@@ -247,6 +263,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     dropdownOptions: ["None", "Portal"],
     unit: "",
     defaultValue: "None",
+    hint: "Portal frame for large openings without intermediate columns",
   },
 
   // ── SECONDARY MEMBERS ────────────────────────────────────────────
@@ -265,6 +282,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     type: "text",
     unit: "0 or A (auto)",
     defaultValue: "0",
+    hint: "Number of sag rod lines. Enter 0 for none or A for automatic calculation",
   },
   {
     label: "Wall Sag Rods",
@@ -272,6 +290,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     type: "text",
     unit: "0 or A (auto)",
     defaultValue: "0",
+    hint: "Number of sag rod lines. Enter 0 for none or A for automatic calculation",
   },
   {
     label: "Roof Sag Rod Dia",
@@ -296,6 +315,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     dropdownOptions: ["Cables", "Rods", "Angles"],
     unit: "",
     defaultValue: "Cables",
+    hint: "Cables = lightest/cheapest. Rods = mid. Angles = heaviest",
   },
 
   // ── LOADS ────────────────────────────────────────────────────────
@@ -327,6 +347,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     type: "numeric",
     unit: "kN/m\u00b2",
     defaultValue: 0,
+    hint: "Additional permanent loads: HVAC, sprinklers, ceilings",
   },
   {
     label: "Live Load Permanent",
@@ -334,6 +355,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     type: "numeric",
     unit: "kN/m\u00b2",
     defaultValue: 0,
+    hint: "Portion of live load treated as permanent for deflection checks",
   },
   {
     label: "Live Load Floor",
@@ -341,6 +363,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     type: "numeric",
     unit: "kN/m\u00b2",
     defaultValue: 0,
+    hint: "Floor live load for mezzanine design if applicable",
   },
   {
     label: "Additional Load",
@@ -348,6 +371,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     type: "numeric",
     unit: "kN/m\u00b2",
     defaultValue: 0,
+    hint: "Any extra load not captured by other categories",
   },
 
   // ── PANEL & MATERIALS ────────────────────────────────────────────
@@ -357,12 +381,14 @@ export const INPUT_ROWS: InputRowDef[] = [
     field: "roof_panel_code",
     type: "text",
     unit: "SSDB code",
+    hint: "SSDB product code for roof sandwich panel. Leave blank for single-skin",
   },
   {
     label: "Wall Panel Code",
     field: "wall_panel_code",
     type: "text",
     unit: "SSDB code",
+    hint: "SSDB product code for wall sandwich panel. Leave blank for single-skin",
   },
   {
     label: "Core Thickness",
@@ -387,6 +413,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     type: "text",
     unit: "product code",
     defaultValue: "None",
+    hint: "Outer skin product code. 'None' = no sheeting on this face",
   },
   {
     label: "Roof Core",
@@ -394,6 +421,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     type: "text",
     unit: "product code",
     defaultValue: "-",
+    hint: "Insulation core product code. '-' = no core (single-skin)",
   },
   {
     label: "Roof Bottom Skin",
@@ -418,6 +446,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     type: "text",
     unit: "product code",
     defaultValue: "None",
+    hint: "Outer skin product code. 'None' = no sheeting on this face",
   },
   {
     label: "Wall Core",
@@ -425,6 +454,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     type: "text",
     unit: "product code",
     defaultValue: "-",
+    hint: "Insulation core product code. '-' = no core (single-skin)",
   },
   {
     label: "Wall Bottom Skin",
@@ -462,6 +492,7 @@ export const INPUT_ROWS: InputRowDef[] = [
       "Eave Trim",
     ],
     unit: "",
+    hint: "Gutter+Dwnspts = standard drainage. Curved = architectural. Eave Trim = no gutter",
   },
   {
     label: "Front Eave Condition",
@@ -474,6 +505,7 @@ export const INPUT_ROWS: InputRowDef[] = [
       "Eave Trim",
     ],
     unit: "",
+    hint: "Gutter+Dwnspts = standard drainage. Curved = architectural. Eave Trim = no gutter",
   },
 
   // ── INSULATION ───────────────────────────────────────────────────
@@ -485,6 +517,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     dropdownOptions: ["None", "Roof Only", "Wall Only", "Roof+Wall"],
     unit: "",
     defaultValue: "None",
+    hint: "Welded Wire Mesh for insulation support under cladding",
   },
 
   // ── FINISHES ─────────────────────────────────────────────────────
@@ -511,6 +544,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     ],
     unit: "",
     defaultValue: "None",
+    hint: "Raised roof section for ventilation/light. CF = cold-formed, HR = hot-rolled",
   },
   {
     label: "Monitor Width",
@@ -540,6 +574,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     dropdownOptions: ["By Mammut", "By Customer", "FOB"],
     unit: "",
     defaultValue: "By Mammut",
+    hint: "By Mammut = included in price. By Customer = excluded. FOB = factory gate",
   },
   {
     label: "Freight Rate",
@@ -547,6 +582,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     type: "numeric",
     unit: "AED/MT",
     defaultValue: 0,
+    hint: "Cost per metric ton. Only applies when Freight Type = By Mammut",
   },
   {
     label: "Container Count",
@@ -625,6 +661,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     type: "numeric",
     unit: "0-5",
     defaultValue: 0,
+    hint: "Price adjustment multiplier for steel (0 = base price, higher = premium)",
   },
   {
     label: "Panels Markup",
@@ -632,6 +669,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     type: "numeric",
     unit: "0-5",
     defaultValue: 0,
+    hint: "Price adjustment multiplier for panels (0 = base price, higher = premium)",
   },
   {
     label: "SSL Markup",
@@ -639,6 +677,7 @@ export const INPUT_ROWS: InputRowDef[] = [
     type: "numeric",
     unit: "0-5",
     defaultValue: 0,
+    hint: "Price adjustment multiplier for SSL items (0 = base price, higher = premium)",
   },
   {
     label: "Finance Markup",
@@ -646,5 +685,6 @@ export const INPUT_ROWS: InputRowDef[] = [
     type: "numeric",
     unit: "0-5",
     defaultValue: 0,
+    hint: "Finance/overhead markup factor (0 = base price, higher = premium)",
   },
 ];

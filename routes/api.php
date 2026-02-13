@@ -1,9 +1,13 @@
 <?php
 
+use App\Http\Controllers\Api\AppSettingsController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DesignConfigurationController;
 use App\Http\Controllers\Api\EstimationController;
 use Illuminate\Support\Facades\Route;
+
+// Public endpoints (no auth required)
+Route::get('/app-settings', AppSettingsController::class)->name('app-settings');
 
 Route::post('/login', [AuthController::class, 'login'])
     ->middleware('throttle:login');
