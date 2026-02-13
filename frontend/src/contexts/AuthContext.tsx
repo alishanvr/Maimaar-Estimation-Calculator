@@ -10,10 +10,14 @@ import {
 } from "react";
 import api from "@/lib/api";
 
-interface User {
+export interface User {
   id: number;
   name: string;
   email: string;
+  role?: string;
+  status?: string;
+  company_name?: string | null;
+  phone?: string | null;
 }
 
 interface AuthContextType {
@@ -21,6 +25,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -68,8 +73,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const refreshUser = async (): Promise<void> => {
+    const response = await api.get("/user");
+    setUser(response.data);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, isLoading, login, logout, refreshUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

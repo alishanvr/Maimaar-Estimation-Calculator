@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\ChangePasswordRequest;
 use App\Http\Requests\Api\LoginRequest;
+use App\Http\Requests\Api\UpdateProfileRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -72,6 +75,50 @@ class AuthController extends Controller
             'status' => $user->status,
             'company_name' => $user->company_name,
             'phone' => $user->phone,
+        ]);
+    }
+
+    public function changePassword(ChangePasswordRequest $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $user->update([
+            'password' => Hash::make($request->validated('password')),
+        ]);
+
+        activity()
+            ->causedBy($user)
+            ->performedOn($user)
+            ->log('changed password');
+
+        return response()->json([
+            'message' => 'Password changed successfully.',
+        ]);
+    }
+
+    public function updateProfile(UpdateProfileRequest $request): JsonResponse
+    {
+        $user = $request->user();
+        $validated = $request->validated();
+
+        $user->update($validated);
+
+        activity()
+            ->causedBy($user)
+            ->performedOn($user)
+            ->log('updated profile');
+
+        return response()->json([
+            'message' => 'Profile updated successfully.',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'status' => $user->status,
+                'company_name' => $user->company_name,
+                'phone' => $user->phone,
+            ],
         ]);
     }
 }

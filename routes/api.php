@@ -14,9 +14,11 @@ Route::post('/login', [AuthController::class, 'login'])
     ->middleware('throttle:login');
 
 Route::middleware('auth:sanctum')->group(function () {
-    // Authentication
+    // Authentication & Profile
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'me']);
+    Route::put('/user/profile', [AuthController::class, 'updateProfile']);
+    Route::put('/user/password', [AuthController::class, 'changePassword']);
 
     // Design configurations (dropdown data)
     Route::get('/design-configurations', [DesignConfigurationController::class, 'index'])
