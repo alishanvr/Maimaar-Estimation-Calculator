@@ -16,6 +16,9 @@ export interface BrandingSettings {
   favicon_url: string | null;
   primary_color: string;
   enable_fill_test_data: boolean;
+  display_currency: string;
+  currency_symbol: string;
+  exchange_rate: number;
 }
 
 const DEFAULTS: BrandingSettings = {
@@ -25,6 +28,9 @@ const DEFAULTS: BrandingSettings = {
   favicon_url: null,
   primary_color: "#3B82F6",
   enable_fill_test_data: false,
+  display_currency: "AED",
+  currency_symbol: "AED",
+  exchange_rate: 1,
 };
 
 interface BrandingContextType {

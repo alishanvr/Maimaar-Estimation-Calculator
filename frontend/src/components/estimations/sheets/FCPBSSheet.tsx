@@ -7,6 +7,7 @@ import "handsontable/styles/handsontable.min.css";
 import "handsontable/styles/ht-theme-main.min.css";
 
 import { useSheetData } from "@/hooks/useSheetData";
+import { useCurrency } from "@/hooks/useCurrency";
 import { formatNumber, formatPct } from "@/lib/formatters";
 import { exportFcpbsPdf } from "@/lib/estimations";
 import { downloadBlob } from "@/lib/download";
@@ -71,6 +72,7 @@ export default function FCPBSSheet({
   estimationId,
   version,
 }: FCPBSSheetProps) {
+  const { symbol } = useCurrency();
   const { data, isLoading, error } = useSheetData<FCPBSData>(
     estimationId,
     "fcpbs",
@@ -265,7 +267,7 @@ export default function FCPBSSheet({
                 "Markup",
                 "Selling Price",
                 "Sell %",
-                "AED/MT",
+                `${symbol}/MT`,
                 "Value Added",
                 "VA/MT",
               ]}

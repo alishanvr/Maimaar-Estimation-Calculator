@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useSheetData } from "@/hooks/useSheetData";
+import { useCurrency } from "@/hooks/useCurrency";
 import { formatNumber } from "@/lib/formatters";
 import { exportJafPdf } from "@/lib/estimations";
 import { downloadBlob } from "@/lib/download";
@@ -25,6 +26,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 }
 
 export default function JAFSheet({ estimationId, version }: JAFSheetProps) {
+  const { format, formatPerMT } = useCurrency();
   const { data, isLoading, error } = useSheetData<JAFData>(
     estimationId,
     "jaf",
@@ -146,11 +148,11 @@ export default function JAFSheet({ estimationId, version }: JAFSheetProps) {
             />
             <InfoRow
               label="Value Added (L)"
-              value={formatNumber(data.pricing.value_added_l, 2) + " AED/MT"}
+              value={formatPerMT(data.pricing.value_added_l, 2)}
             />
             <InfoRow
               label="Value Added (R)"
-              value={formatNumber(data.pricing.value_added_r, 2) + " AED/MT"}
+              value={formatPerMT(data.pricing.value_added_r, 2)}
             />
             <InfoRow
               label="Total Weight"
@@ -164,33 +166,23 @@ export default function JAFSheet({ estimationId, version }: JAFSheetProps) {
             />
             <InfoRow
               label="Supply Price"
-              value={
-                formatNumber(data.pricing.supply_price_aed, 2) + " AED"
-              }
+              value={format(data.pricing.supply_price_aed, 2)}
             />
             <InfoRow
               label="Erection Price"
-              value={
-                formatNumber(data.pricing.erection_price_aed, 2) + " AED"
-              }
+              value={format(data.pricing.erection_price_aed, 2)}
             />
             <InfoRow
               label="Total Contract"
-              value={
-                formatNumber(data.pricing.total_contract_aed, 2) + " AED"
-              }
+              value={format(data.pricing.total_contract_aed, 2)}
             />
             <InfoRow
-              label="Contract Value"
-              value={
-                formatNumber(data.pricing.contract_value_usd, 0) + " USD"
-              }
+              label="Contract Value (USD)"
+              value={formatNumber(data.pricing.contract_value_usd, 0) + " USD"}
             />
             <InfoRow
               label="Price per MT"
-              value={
-                formatNumber(data.pricing.price_per_mt, 2) + " AED/MT"
-              }
+              value={formatPerMT(data.pricing.price_per_mt, 2)}
             />
             <InfoRow
               label="Min Delivery"

@@ -1,3 +1,4 @@
+@php $cur = $currencyCode ?? 'AED'; $xr = $exchangeRate ?? 1.0; @endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -124,12 +125,12 @@
                     <div class="kpi-label">Total Weight (MT)</div>
                 </td>
                 <td style="border: 1px solid #e0e0e0;">
-                    <div class="kpi-value">{{ number_format($data['kpis']['total_revenue_aed'], 0) }}</div>
-                    <div class="kpi-label">Total Revenue (AED)</div>
+                    <div class="kpi-value">{{ number_format($data['kpis']['total_revenue_aed'] * $xr, 0) }}</div>
+                    <div class="kpi-label">Total Revenue ({{ $cur }})</div>
                 </td>
                 <td style="border: 1px solid #e0e0e0;">
-                    <div class="kpi-value">{{ number_format($data['kpis']['avg_price_per_mt'], 2) }}</div>
-                    <div class="kpi-label">Avg Price / MT (AED)</div>
+                    <div class="kpi-value">{{ number_format($data['kpis']['avg_price_per_mt'] * $xr, 2) }}</div>
+                    <div class="kpi-label">Avg Price / MT ({{ $cur }})</div>
                 </td>
             </tr>
         </table>
@@ -188,7 +189,7 @@
                 <thead>
                     <tr>
                         <th style="text-align: left;">Customer</th>
-                        <th style="text-align: right;">Revenue (AED)</th>
+                        <th style="text-align: right;">Revenue ({{ $cur }})</th>
                         <th style="text-align: right;">Estimations</th>
                     </tr>
                 </thead>
@@ -196,7 +197,7 @@
                     @foreach($data['customer_revenue'] as $customer)
                         <tr>
                             <td>{{ $customer['customer_name'] }}</td>
-                            <td class="value-cell">{{ number_format($customer['total_price_aed'], 0) }}</td>
+                            <td class="value-cell">{{ number_format($customer['total_price_aed'] * $xr, 0) }}</td>
                             <td class="value-cell">{{ $customer['estimation_count'] }}</td>
                         </tr>
                     @endforeach
@@ -214,7 +215,7 @@
                     <tr>
                         <th style="text-align: left;">Month</th>
                         <th style="text-align: right;">Count</th>
-                        <th style="text-align: right;">Revenue (AED)</th>
+                        <th style="text-align: right;">Revenue ({{ $cur }})</th>
                         <th style="text-align: right;">Weight (MT)</th>
                     </tr>
                 </thead>
@@ -223,7 +224,7 @@
                         <tr>
                             <td>{{ $trend['label'] }}</td>
                             <td class="value-cell">{{ $trend['count'] }}</td>
-                            <td class="value-cell">{{ number_format($trend['revenue'], 0) }}</td>
+                            <td class="value-cell">{{ number_format($trend['revenue'] * $xr, 0) }}</td>
                             <td class="value-cell">{{ number_format($trend['weight_mt'], 2) }}</td>
                         </tr>
                     @endforeach

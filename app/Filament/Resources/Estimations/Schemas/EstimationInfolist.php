@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Estimations\Schemas;
 
 use App\Models\Estimation;
+use App\Services\CurrencyService;
 use Filament\Infolists\Components\KeyValueEntry;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\RepeatableEntry\TableColumn;
@@ -14,6 +15,9 @@ class EstimationInfolist
 {
     public static function configure(Schema $schema): Schema
     {
+        $cur = app(CurrencyService::class)->getDisplayCurrency();
+        $xr = app(CurrencyService::class)->getExchangeRate();
+
         return $schema
             ->components([
                 Section::make('Project Information')
@@ -58,16 +62,16 @@ class EstimationInfolist
                             ->numeric(decimalPlaces: 4)
                             ->placeholder('-'),
                         TextEntry::make('total_price_aed')
-                            ->label('Total Price (AED)')
-                            ->numeric(decimalPlaces: 2)
+                            ->label("Total Price ({$cur})")
+                            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state * $xr, 2) : null)
                             ->placeholder('-'),
                         TextEntry::make('results_data.summary.price_per_mt')
-                            ->label('Price/MT (AED)')
-                            ->numeric(decimalPlaces: 2)
+                            ->label("Price/MT ({$cur})")
+                            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state * $xr, 2) : null)
                             ->placeholder('-'),
                         TextEntry::make('results_data.summary.fob_price_aed')
-                            ->label('FOB Price (AED)')
-                            ->numeric(decimalPlaces: 2)
+                            ->label("FOB Price ({$cur})")
+                            ->formatStateUsing(fn ($state) => $state !== null ? number_format($state * $xr, 2) : null)
                             ->placeholder('-'),
                         TextEntry::make('results_data.summary.steel_weight_kg')
                             ->label('Steel Weight (kg)')

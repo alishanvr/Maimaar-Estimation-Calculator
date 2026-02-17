@@ -1,3 +1,4 @@
+@php $cur = $currencyCode ?? 'AED'; $xr = $exchangeRate ?? 1.0; @endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -62,7 +63,7 @@
                         $wpu = (float) ($item['weight_per_unit'] ?? 0);
                         $rate = (float) ($item['rate'] ?? 0);
                         $totalWeight = $wpu * $size * $qty;
-                        $totalCost = $rate * $size * $qty;
+                        $totalCost = $rate * $xr * $size * $qty;
                     @endphp
                     <tr>
                         <td>{{ $item['description'] }}</td>
@@ -73,7 +74,7 @@
                         <td class="number">{{ $qty > 0 ? number_format($qty, 0) : '' }}</td>
                         <td class="center">{{ $item['unit'] ?? '' }}</td>
                         <td class="number">{{ $wpu > 0 ? number_format($wpu, 3) : '' }}</td>
-                        <td class="number">{{ $rate > 0 ? number_format($rate, 2) : '' }}</td>
+                        <td class="number">{{ $rate > 0 ? number_format($rate * $xr, 2) : '' }}</td>
                         <td class="number">{{ $totalWeight > 0 ? number_format($totalWeight, 3) : '' }}</td>
                         <td class="number">{{ $totalCost > 0 ? number_format($totalCost, 2) : '' }}</td>
                     </tr>

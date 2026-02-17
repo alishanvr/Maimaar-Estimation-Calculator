@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             ReferenceDataSeeder::class,
             PdfSettingsSeeder::class,
             AppSettingsSeeder::class,
+            EnvironmentSettingsSeeder::class,
         ]);
     }
 }

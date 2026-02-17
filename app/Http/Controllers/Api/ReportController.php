@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\ReportDashboardRequest;
+use App\Services\CurrencyService;
 use App\Services\ExportLogger;
 use App\Services\Pdf\PdfSettingsService;
 use App\Services\ReportService;
@@ -72,6 +73,8 @@ class ReportController extends Controller
 
         $pdfSettings = app(PdfSettingsService::class);
 
+        $currencyService = app(CurrencyService::class);
+
         $pdf = Pdf::loadView('pdf.report-dashboard', [
             'data' => $data,
             'filters' => $request->validated(),
@@ -82,6 +85,8 @@ class ReportController extends Controller
             'headerColor' => $pdfSettings->headerColor(),
             'showPageNumbers' => $pdfSettings->showPageNumbers(),
             'footerText' => $pdfSettings->footerText(),
+            'currencyCode' => $currencyService->getDisplayCurrency(),
+            'exchangeRate' => $currencyService->getExchangeRate(),
         ])->setPaper($pdfSettings->paperSize(), 'portrait');
 
         $filename = 'report-dashboard-'.now()->format('Y-m-d').'.pdf';

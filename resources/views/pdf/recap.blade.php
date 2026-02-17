@@ -1,3 +1,4 @@
+@php $cur = $currencyCode ?? 'AED'; $xr = $exchangeRate ?? 1.0; @endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -64,16 +65,16 @@
         <div class="section-title">Price Breakdown</div>
         <table>
             <tr class="highlight">
-                <td class="label">Total Price (AED)</td>
-                <td class="value">{{ number_format($recapData['total_price_aed'] ?? 0, 2) }}</td>
+                <td class="label">Total Price ({{ $cur }})</td>
+                <td class="value">{{ number_format(($recapData['total_price_aed'] ?? 0) * $xr, 2) }}</td>
             </tr>
             <tr>
-                <td class="label">FOB Price (AED)</td>
-                <td class="value">{{ number_format($recapData['fob_price_aed'] ?? 0, 2) }}</td>
+                <td class="label">FOB Price ({{ $cur }})</td>
+                <td class="value">{{ number_format(($recapData['fob_price_aed'] ?? 0) * $xr, 2) }}</td>
             </tr>
             <tr class="highlight">
-                <td class="label">Price per MT (AED/MT)</td>
-                <td class="value">{{ number_format($recapData['price_per_mt'] ?? 0, 2) }}</td>
+                <td class="label">Price per MT ({{ $cur }}/MT)</td>
+                <td class="value">{{ number_format(($recapData['price_per_mt'] ?? 0) * $xr, 2) }}</td>
             </tr>
         </table>
     </div>

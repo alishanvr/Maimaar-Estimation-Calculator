@@ -17,6 +17,7 @@ import {
 } from "recharts";
 import ChartCard from "./ChartCard";
 import { formatNumber } from "@/lib/formatters";
+import { useCurrency } from "@/hooks/useCurrency";
 import type { ReportDashboardData } from "@/types/reports";
 
 const PRIMARY = "#3B82F6";
@@ -50,6 +51,7 @@ function compactNumber(v: number): string {
 }
 
 export default function ReportCharts({ data }: Props) {
+  const { symbol, rate } = useCurrency();
   // Weight distribution donut data
   const weightData = [
     {
@@ -107,8 +109,8 @@ export default function ReportCharts({ data }: Props) {
               />
               <Tooltip
                 formatter={(value, name) => [
-                  name === "Revenue (AED)"
-                    ? `${formatNumber(Number(value), 0)} AED`
+                  name === `Revenue (${symbol})`
+                    ? `${formatNumber(Number(value) * rate, 0)} ${symbol}`
                     : formatNumber(Number(value), 0),
                   name,
                 ]}
@@ -124,7 +126,7 @@ export default function ReportCharts({ data }: Props) {
               <Bar
                 yAxisId="right"
                 dataKey="revenue"
-                name="Revenue (AED)"
+                name={`Revenue (${symbol})`}
                 fill={GREEN}
                 radius={[4, 4, 0, 0]}
                 opacity={0.7}
@@ -161,7 +163,7 @@ export default function ReportCharts({ data }: Props) {
               />
               <Tooltip
                 formatter={(value) => [
-                  `${formatNumber(Number(value), 0)} AED`,
+                  `${formatNumber(Number(value) * rate, 0)} ${symbol}`,
                   "Revenue",
                 ]}
               />
@@ -235,7 +237,7 @@ export default function ReportCharts({ data }: Props) {
               />
               <Tooltip
                 formatter={(value) => [
-                  `${formatNumber(Number(value), 2)} AED/MT`,
+                  `${formatNumber(Number(value) * rate, 2)} ${symbol}/MT`,
                   "Avg Price/MT",
                 ]}
               />
@@ -308,7 +310,7 @@ export default function ReportCharts({ data }: Props) {
               />
               <Tooltip
                 formatter={(value, name) => [
-                  `${formatNumber(Number(value), 0)} AED`,
+                  `${formatNumber(Number(value) * rate, 0)} ${symbol}`,
                   name,
                 ]}
               />

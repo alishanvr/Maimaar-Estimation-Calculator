@@ -1,3 +1,4 @@
+@php $cur = $currencyCode ?? 'AED'; $xr = $exchangeRate ?? 1.0; @endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,7 +55,7 @@
                 <th style="width: 5%;">Markup</th>
                 <th style="width: 9%;">Selling Price</th>
                 <th style="width: 5%;">Sell%</th>
-                <th style="width: 6%;">AED/MT</th>
+                <th style="width: 6%;">{{ $cur }}/MT</th>
                 <th style="width: 6%;">VA</th>
                 <th style="width: 5%;">VA/MT</th>
             </tr>
@@ -70,16 +71,16 @@
                         <td>{{ number_format($cat['quantity'] ?? 0, 1) }}</td>
                         <td>{{ number_format($cat['weight_kg'] ?? 0, 1) }}</td>
                         <td>{{ number_format($cat['weight_pct'] ?? 0, 1) }}%</td>
-                        <td>{{ number_format($cat['material_cost'] ?? 0, 0) }}</td>
-                        <td>{{ number_format($cat['manufacturing_cost'] ?? 0, 0) }}</td>
-                        <td>{{ number_format($cat['overhead_cost'] ?? 0, 0) }}</td>
-                        <td>{{ number_format($cat['total_cost'] ?? 0, 0) }}</td>
+                        <td>{{ number_format(($cat['material_cost'] ?? 0) * $xr, 0) }}</td>
+                        <td>{{ number_format(($cat['manufacturing_cost'] ?? 0) * $xr, 0) }}</td>
+                        <td>{{ number_format(($cat['overhead_cost'] ?? 0) * $xr, 0) }}</td>
+                        <td>{{ number_format(($cat['total_cost'] ?? 0) * $xr, 0) }}</td>
                         <td>{{ number_format($cat['markup'] ?? 0, 3) }}</td>
-                        <td>{{ number_format($cat['selling_price'] ?? 0, 0) }}</td>
+                        <td>{{ number_format(($cat['selling_price'] ?? 0) * $xr, 0) }}</td>
                         <td>{{ number_format($cat['selling_price_pct'] ?? 0, 1) }}%</td>
-                        <td>{{ number_format($cat['price_per_mt'] ?? 0, 0) }}</td>
-                        <td>{{ number_format($cat['value_added'] ?? 0, 0) }}</td>
-                        <td>{{ number_format($cat['va_per_mt'] ?? 0, 0) }}</td>
+                        <td>{{ number_format(($cat['price_per_mt'] ?? 0) * $xr, 0) }}</td>
+                        <td>{{ number_format(($cat['value_added'] ?? 0) * $xr, 0) }}</td>
+                        <td>{{ number_format(($cat['va_per_mt'] ?? 0) * $xr, 0) }}</td>
                     </tr>
                 @endif
             @endforeach
@@ -92,15 +93,15 @@
                     <td></td>
                     <td>{{ number_format($steelSub['weight_kg'] ?? 0, 1) }}</td>
                     <td></td>
-                    <td>{{ number_format($steelSub['material_cost'] ?? 0, 0) }}</td>
-                    <td>{{ number_format($steelSub['manufacturing_cost'] ?? 0, 0) }}</td>
-                    <td>{{ number_format($steelSub['overhead_cost'] ?? 0, 0) }}</td>
-                    <td>{{ number_format($steelSub['total_cost'] ?? 0, 0) }}</td>
+                    <td>{{ number_format(($steelSub['material_cost'] ?? 0) * $xr, 0) }}</td>
+                    <td>{{ number_format(($steelSub['manufacturing_cost'] ?? 0) * $xr, 0) }}</td>
+                    <td>{{ number_format(($steelSub['overhead_cost'] ?? 0) * $xr, 0) }}</td>
+                    <td>{{ number_format(($steelSub['total_cost'] ?? 0) * $xr, 0) }}</td>
                     <td></td>
-                    <td>{{ number_format($steelSub['selling_price'] ?? 0, 0) }}</td>
+                    <td>{{ number_format(($steelSub['selling_price'] ?? 0) * $xr, 0) }}</td>
                     <td></td>
                     <td></td>
-                    <td>{{ number_format($steelSub['value_added'] ?? 0, 0) }}</td>
+                    <td>{{ number_format(($steelSub['value_added'] ?? 0) * $xr, 0) }}</td>
                     <td></td>
                 </tr>
             @endif
@@ -115,16 +116,16 @@
                         <td>{{ number_format($cat['quantity'] ?? 0, 1) }}</td>
                         <td>{{ number_format($cat['weight_kg'] ?? 0, 1) }}</td>
                         <td>{{ number_format($cat['weight_pct'] ?? 0, 1) }}%</td>
-                        <td>{{ number_format($cat['material_cost'] ?? 0, 0) }}</td>
-                        <td>{{ number_format($cat['manufacturing_cost'] ?? 0, 0) }}</td>
-                        <td>{{ number_format($cat['overhead_cost'] ?? 0, 0) }}</td>
-                        <td>{{ number_format($cat['total_cost'] ?? 0, 0) }}</td>
+                        <td>{{ number_format(($cat['material_cost'] ?? 0) * $xr, 0) }}</td>
+                        <td>{{ number_format(($cat['manufacturing_cost'] ?? 0) * $xr, 0) }}</td>
+                        <td>{{ number_format(($cat['overhead_cost'] ?? 0) * $xr, 0) }}</td>
+                        <td>{{ number_format(($cat['total_cost'] ?? 0) * $xr, 0) }}</td>
                         <td>{{ number_format($cat['markup'] ?? 0, 3) }}</td>
-                        <td>{{ number_format($cat['selling_price'] ?? 0, 0) }}</td>
+                        <td>{{ number_format(($cat['selling_price'] ?? 0) * $xr, 0) }}</td>
                         <td>{{ number_format($cat['selling_price_pct'] ?? 0, 1) }}%</td>
-                        <td>{{ number_format($cat['price_per_mt'] ?? 0, 0) }}</td>
-                        <td>{{ number_format($cat['value_added'] ?? 0, 0) }}</td>
-                        <td>{{ number_format($cat['va_per_mt'] ?? 0, 0) }}</td>
+                        <td>{{ number_format(($cat['price_per_mt'] ?? 0) * $xr, 0) }}</td>
+                        <td>{{ number_format(($cat['value_added'] ?? 0) * $xr, 0) }}</td>
+                        <td>{{ number_format(($cat['va_per_mt'] ?? 0) * $xr, 0) }}</td>
                     </tr>
                 @endif
             @endforeach
@@ -137,15 +138,15 @@
                     <td></td>
                     <td>{{ number_format($panelsSub['weight_kg'] ?? 0, 1) }}</td>
                     <td></td>
-                    <td>{{ number_format($panelsSub['material_cost'] ?? 0, 0) }}</td>
-                    <td>{{ number_format($panelsSub['manufacturing_cost'] ?? 0, 0) }}</td>
-                    <td>{{ number_format($panelsSub['overhead_cost'] ?? 0, 0) }}</td>
-                    <td>{{ number_format($panelsSub['total_cost'] ?? 0, 0) }}</td>
+                    <td>{{ number_format(($panelsSub['material_cost'] ?? 0) * $xr, 0) }}</td>
+                    <td>{{ number_format(($panelsSub['manufacturing_cost'] ?? 0) * $xr, 0) }}</td>
+                    <td>{{ number_format(($panelsSub['overhead_cost'] ?? 0) * $xr, 0) }}</td>
+                    <td>{{ number_format(($panelsSub['total_cost'] ?? 0) * $xr, 0) }}</td>
                     <td></td>
-                    <td>{{ number_format($panelsSub['selling_price'] ?? 0, 0) }}</td>
+                    <td>{{ number_format(($panelsSub['selling_price'] ?? 0) * $xr, 0) }}</td>
                     <td></td>
                     <td></td>
-                    <td>{{ number_format($panelsSub['value_added'] ?? 0, 0) }}</td>
+                    <td>{{ number_format(($panelsSub['value_added'] ?? 0) * $xr, 0) }}</td>
                     <td></td>
                 </tr>
             @endif
@@ -155,7 +156,7 @@
                 <td class="center"></td>
                 <td class="left">FOB Price</td>
                 <td colspan="8"></td>
-                <td>{{ number_format($fcpbsData['fob_price'] ?? 0, 0) }}</td>
+                <td>{{ number_format(($fcpbsData['fob_price'] ?? 0) * $xr, 0) }}</td>
                 <td colspan="4"></td>
             </tr>
 
@@ -169,16 +170,16 @@
                         <td>{{ number_format($cat['quantity'] ?? 0, 1) }}</td>
                         <td>{{ number_format($cat['weight_kg'] ?? 0, 1) }}</td>
                         <td>{{ number_format($cat['weight_pct'] ?? 0, 1) }}%</td>
-                        <td>{{ number_format($cat['material_cost'] ?? 0, 0) }}</td>
-                        <td>{{ number_format($cat['manufacturing_cost'] ?? 0, 0) }}</td>
-                        <td>{{ number_format($cat['overhead_cost'] ?? 0, 0) }}</td>
-                        <td>{{ number_format($cat['total_cost'] ?? 0, 0) }}</td>
+                        <td>{{ number_format(($cat['material_cost'] ?? 0) * $xr, 0) }}</td>
+                        <td>{{ number_format(($cat['manufacturing_cost'] ?? 0) * $xr, 0) }}</td>
+                        <td>{{ number_format(($cat['overhead_cost'] ?? 0) * $xr, 0) }}</td>
+                        <td>{{ number_format(($cat['total_cost'] ?? 0) * $xr, 0) }}</td>
                         <td>{{ number_format($cat['markup'] ?? 0, 3) }}</td>
-                        <td>{{ number_format($cat['selling_price'] ?? 0, 0) }}</td>
+                        <td>{{ number_format(($cat['selling_price'] ?? 0) * $xr, 0) }}</td>
                         <td>{{ number_format($cat['selling_price_pct'] ?? 0, 1) }}%</td>
-                        <td>{{ number_format($cat['price_per_mt'] ?? 0, 0) }}</td>
-                        <td>{{ number_format($cat['value_added'] ?? 0, 0) }}</td>
-                        <td>{{ number_format($cat['va_per_mt'] ?? 0, 0) }}</td>
+                        <td>{{ number_format(($cat['price_per_mt'] ?? 0) * $xr, 0) }}</td>
+                        <td>{{ number_format(($cat['value_added'] ?? 0) * $xr, 0) }}</td>
+                        <td>{{ number_format(($cat['va_per_mt'] ?? 0) * $xr, 0) }}</td>
                     </tr>
                 @endif
             @endforeach
@@ -190,7 +191,7 @@
                 <td></td>
                 <td>{{ number_format($fcpbsData['total_weight_kg'] ?? 0, 1) }}</td>
                 <td colspan="6"></td>
-                <td>{{ number_format($fcpbsData['total_price'] ?? 0, 0) }}</td>
+                <td>{{ number_format(($fcpbsData['total_price'] ?? 0) * $xr, 0) }}</td>
                 <td colspan="4"></td>
             </tr>
 
@@ -203,23 +204,23 @@
                     <td>{{ number_format($cat['quantity'] ?? 0, 1) }}</td>
                     <td>{{ number_format($cat['weight_kg'] ?? 0, 1) }}</td>
                     <td>{{ number_format($cat['weight_pct'] ?? 0, 1) }}%</td>
-                    <td>{{ number_format($cat['material_cost'] ?? 0, 0) }}</td>
-                    <td>{{ number_format($cat['manufacturing_cost'] ?? 0, 0) }}</td>
-                    <td>{{ number_format($cat['overhead_cost'] ?? 0, 0) }}</td>
-                    <td>{{ number_format($cat['total_cost'] ?? 0, 0) }}</td>
+                    <td>{{ number_format(($cat['material_cost'] ?? 0) * $xr, 0) }}</td>
+                    <td>{{ number_format(($cat['manufacturing_cost'] ?? 0) * $xr, 0) }}</td>
+                    <td>{{ number_format(($cat['overhead_cost'] ?? 0) * $xr, 0) }}</td>
+                    <td>{{ number_format(($cat['total_cost'] ?? 0) * $xr, 0) }}</td>
                     <td>{{ number_format($cat['markup'] ?? 0, 3) }}</td>
-                    <td>{{ number_format($cat['selling_price'] ?? 0, 0) }}</td>
+                    <td>{{ number_format(($cat['selling_price'] ?? 0) * $xr, 0) }}</td>
                     <td>{{ number_format($cat['selling_price_pct'] ?? 0, 1) }}%</td>
-                    <td>{{ number_format($cat['price_per_mt'] ?? 0, 0) }}</td>
-                    <td>{{ number_format($cat['value_added'] ?? 0, 0) }}</td>
-                    <td>{{ number_format($cat['va_per_mt'] ?? 0, 0) }}</td>
+                    <td>{{ number_format(($cat['price_per_mt'] ?? 0) * $xr, 0) }}</td>
+                    <td>{{ number_format(($cat['value_added'] ?? 0) * $xr, 0) }}</td>
+                    <td>{{ number_format(($cat['va_per_mt'] ?? 0) * $xr, 0) }}</td>
                 </tr>
             @endif
 
             {{-- Total Contract --}}
             @php
                 $totalWeightKg = $fcpbsData['total_weight_kg'] ?? 0;
-                $totalPrice = $fcpbsData['total_price'] ?? 0;
+                $totalPrice = ($fcpbsData['total_price'] ?? 0) * $xr;
                 $pricePerMt = $totalWeightKg > 0 ? ($totalPrice / $totalWeightKg) * 1000 : 0;
             @endphp
             <tr class="total-row">

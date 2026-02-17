@@ -10,6 +10,7 @@ use App\Http\Requests\Api\UpdateEstimationRequest;
 use App\Http\Resources\Api\EstimationCollection;
 use App\Http\Resources\Api\EstimationResource;
 use App\Models\Estimation;
+use App\Services\CurrencyService;
 use App\Services\Estimation\EstimationService;
 use App\Services\ExportLogger;
 use App\Services\Pdf\PdfSettingsService;
@@ -735,6 +736,7 @@ class EstimationController extends Controller
     private function getPdfViewData(Estimation $estimation, string $sheetVarName, mixed $sheetData): array
     {
         $pdfSettings = app(PdfSettingsService::class);
+        $currencyService = app(CurrencyService::class);
 
         return [
             'estimation' => $estimation,
@@ -745,6 +747,8 @@ class EstimationController extends Controller
             'headerColor' => $pdfSettings->headerColor(),
             'showPageNumbers' => $pdfSettings->showPageNumbers(),
             'footerText' => $pdfSettings->footerText(),
+            'currencyCode' => $currencyService->getDisplayCurrency(),
+            'exchangeRate' => $currencyService->getExchangeRate(),
         ];
     }
 

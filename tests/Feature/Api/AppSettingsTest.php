@@ -19,6 +19,9 @@ it('returns correct json structure', function () {
             'favicon_url',
             'primary_color',
             'enable_fill_test_data',
+            'display_currency',
+            'currency_symbol',
+            'exchange_rate',
         ]);
 });
 
@@ -33,6 +36,9 @@ it('returns defaults when no settings exist', function () {
             'favicon_url' => null,
             'primary_color' => '#3B82F6',
             'enable_fill_test_data' => false,
+            'display_currency' => 'AED',
+            'currency_symbol' => 'AED',
+            'exchange_rate' => 1,
         ]);
 });
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import RevisionHistory from "@/components/estimations/RevisionHistory";
+import { useCurrency } from "@/hooks/useCurrency";
 import type { Estimation, EstimationStatus } from "@/types";
 
 const STATUS_BADGE: Record<EstimationStatus, string> = {
@@ -36,6 +37,7 @@ export default function EstimationHeader({
   onUnlock,
 }: EstimationHeaderProps) {
   const isFinalized = estimation.status === "finalized";
+  const { format } = useCurrency();
 
   const formatNumber = (value: number | null, decimals = 2): string => {
     if (value === null || value === undefined) return "\u2014";
@@ -95,7 +97,7 @@ export default function EstimationHeader({
           <div className="text-center">
             <span className="text-xs text-gray-400">Total Price</span>
             <p className="text-sm font-mono font-semibold text-gray-900">
-              {formatNumber(estimation.total_price_aed, 0)} AED
+              {format(estimation.total_price_aed, 0)}
             </p>
           </div>
         </div>

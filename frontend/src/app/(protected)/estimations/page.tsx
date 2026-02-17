@@ -11,6 +11,7 @@ import {
 } from "@/lib/estimations";
 import { downloadBlob } from "@/lib/download";
 import { INPUT_ROWS } from "@/components/estimations/InputSheetConfig";
+import { useCurrency } from "@/hooks/useCurrency";
 import type { EstimationStatus } from "@/types";
 
 /** Build default input_data from InputSheetConfig so all fields are persisted on creation. */
@@ -48,6 +49,7 @@ export default function EstimationsPage() {
   const [isExporting, setIsExporting] = useState(false);
   const { estimations, meta, isLoading, error, page, setPage, refetch } =
     useEstimations(statusFilter);
+  const { symbol, format } = useCurrency();
 
   const handleCreate = async () => {
     setIsCreating(true);
@@ -279,7 +281,7 @@ export default function EstimationsPage() {
                   Weight (MT)
                 </th>
                 <th className="text-right px-4 py-3 font-medium text-gray-500">
-                  Price (AED)
+                  Price ({symbol})
                 </th>
                 <th className="text-left px-4 py-3 font-medium text-gray-500">
                   Date
@@ -330,7 +332,7 @@ export default function EstimationsPage() {
                     {formatNumber(est.total_weight_mt, 2)}
                   </td>
                   <td className="px-4 py-3 text-right font-mono text-xs">
-                    {formatNumber(est.total_price_aed, 0)}
+                    {format(est.total_price_aed, 0)}
                   </td>
                   <td className="px-4 py-3 text-gray-500 text-xs">
                     {est.estimation_date || est.created_at?.slice(0, 10)}

@@ -1,3 +1,4 @@
+@php $cur = $currencyCode ?? 'AED'; $xr = $exchangeRate ?? 1.0; @endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -112,12 +113,12 @@
                 <td class="value">{{ number_format(($jafData['pricing']['bottom_line_markup'] ?? 0), 4) }}</td>
             </tr>
             <tr>
-                <td class="label">Value Added at "L" Line (AED/MT)</td>
-                <td class="value">{{ number_format(($jafData['pricing']['value_added_l'] ?? 0), 2) }}</td>
+                <td class="label">Value Added at "L" Line ({{ $cur }}/MT)</td>
+                <td class="value">{{ number_format(($jafData['pricing']['value_added_l'] ?? 0) * $xr, 2) }}</td>
             </tr>
             <tr>
-                <td class="label">Value Added at "R" Line (AED/MT)</td>
-                <td class="value">{{ number_format(($jafData['pricing']['value_added_r'] ?? 0), 2) }}</td>
+                <td class="label">Value Added at "R" Line ({{ $cur }}/MT)</td>
+                <td class="value">{{ number_format(($jafData['pricing']['value_added_r'] ?? 0) * $xr, 2) }}</td>
             </tr>
             <tr>
                 <td class="label highlight-cell">Total Weight (MT)</td>
@@ -128,24 +129,24 @@
                 <td class="value">{{ number_format(($jafData['pricing']['primary_weight_mt'] ?? 0), 4) }}</td>
             </tr>
             <tr>
-                <td class="label highlight-cell">Supply Price (AED)</td>
-                <td class="value highlight-cell">{{ number_format(($jafData['pricing']['supply_price_aed'] ?? 0), 2) }}</td>
+                <td class="label highlight-cell">Supply Price ({{ $cur }})</td>
+                <td class="value highlight-cell">{{ number_format(($jafData['pricing']['supply_price_aed'] ?? 0) * $xr, 2) }}</td>
             </tr>
             <tr>
-                <td class="label">Erection Price (AED)</td>
-                <td class="value">{{ number_format(($jafData['pricing']['erection_price_aed'] ?? 0), 2) }}</td>
+                <td class="label">Erection Price ({{ $cur }})</td>
+                <td class="value">{{ number_format(($jafData['pricing']['erection_price_aed'] ?? 0) * $xr, 2) }}</td>
             </tr>
             <tr>
-                <td class="label highlight-cell">Total Contract (AED)</td>
-                <td class="value highlight-cell">{{ number_format(($jafData['pricing']['total_contract_aed'] ?? 0), 2) }}</td>
+                <td class="label highlight-cell">Total Contract ({{ $cur }})</td>
+                <td class="value highlight-cell">{{ number_format(($jafData['pricing']['total_contract_aed'] ?? 0) * $xr, 2) }}</td>
             </tr>
             <tr>
                 <td class="label">Contract Value (USD)</td>
                 <td class="value">{{ number_format(($jafData['pricing']['contract_value_usd'] ?? 0), 0) }}</td>
             </tr>
             <tr>
-                <td class="label">Price Per MT (AED)</td>
-                <td class="value">{{ number_format(($jafData['pricing']['price_per_mt'] ?? 0), 2) }}</td>
+                <td class="label">Price Per MT ({{ $cur }})</td>
+                <td class="value">{{ number_format(($jafData['pricing']['price_per_mt'] ?? 0) * $xr, 2) }}</td>
             </tr>
             <tr>
                 <td class="label">Min Delivery (Weeks)</td>

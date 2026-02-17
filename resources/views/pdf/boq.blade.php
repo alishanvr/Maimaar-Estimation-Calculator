@@ -1,3 +1,4 @@
+@php $cur = $currencyCode ?? 'AED'; $xr = $exchangeRate ?? 1.0; @endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -36,8 +37,8 @@
                 <th style="width: 45%;">Item Description</th>
                 <th style="width: 8%;">Unit</th>
                 <th style="width: 12%;">QTY</th>
-                <th style="width: 15%;">Unit Rate (AED)</th>
-                <th style="width: 15%;">Total Price (AED)</th>
+                <th style="width: 15%;">Unit Rate ({{ $cur }})</th>
+                <th style="width: 15%;">Total Price ({{ $cur }})</th>
             </tr>
         </thead>
         <tbody>
@@ -47,8 +48,8 @@
                     <td>{{ $item['description'] }}</td>
                     <td class="center">{{ $item['unit'] }}</td>
                     <td class="number">{{ number_format($item['quantity'], 4) }}</td>
-                    <td class="number">{{ number_format($item['unit_rate'], 2) }}</td>
-                    <td class="number">{{ number_format($item['total_price'], 2) }}</td>
+                    <td class="number">{{ number_format($item['unit_rate'] * $xr, 2) }}</td>
+                    <td class="number">{{ number_format($item['total_price'] * $xr, 2) }}</td>
                 </tr>
             @endforeach
             <tr class="total-row">
@@ -56,7 +57,7 @@
                 <td class="center">MT</td>
                 <td class="number">{{ number_format($boqData['total_weight_mt'], 4) }}</td>
                 <td></td>
-                <td class="number">{{ number_format($boqData['total_price'], 2) }}</td>
+                <td class="number">{{ number_format($boqData['total_price'] * $xr, 2) }}</td>
             </tr>
         </tbody>
     </table>

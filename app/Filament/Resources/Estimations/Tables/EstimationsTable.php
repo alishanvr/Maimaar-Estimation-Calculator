@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Estimations\Tables;
 
 use App\Models\Estimation;
 use App\Models\User;
+use App\Services\CurrencyService;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -52,8 +53,10 @@ class EstimationsTable
                     ->numeric(decimalPlaces: 4)
                     ->sortable(),
                 TextColumn::make('total_price_aed')
-                    ->label('Price (AED)')
-                    ->numeric(decimalPlaces: 2)
+                    ->label('Price ('.app(CurrencyService::class)->getDisplayCurrency().')')
+                    ->formatStateUsing(fn ($state): ?string => $state !== null
+                        ? number_format($state * app(CurrencyService::class)->getExchangeRate(), 2)
+                        : null)
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()

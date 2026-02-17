@@ -1,3 +1,4 @@
+@php $cur = $currencyCode ?? 'AED'; $xr = $exchangeRate ?? 1.0; @endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,10 +36,10 @@
                 <th style="width: 6%;">Code</th>
                 <th style="width: 32%;">Description</th>
                 <th style="width: 12%;">Weight (kg)</th>
-                <th style="width: 14%;">Cost (AED)</th>
+                <th style="width: 14%;">Cost ({{ $cur }})</th>
                 <th style="width: 8%;">Markup</th>
-                <th style="width: 14%;">Price (AED)</th>
-                <th style="width: 14%;">AED/MT</th>
+                <th style="width: 14%;">Price ({{ $cur }})</th>
+                <th style="width: 14%;">{{ $cur }}/MT</th>
             </tr>
         </thead>
         <tbody>
@@ -50,20 +51,20 @@
                     <td class="center">{{ $line['code'] }}</td>
                     <td>{{ $line['description'] }}</td>
                     <td class="number">{{ number_format($line['weight_kg'] ?? 0, 3) }}</td>
-                    <td class="number">{{ number_format($line['cost'] ?? 0, 2) }}</td>
+                    <td class="number">{{ number_format(($line['cost'] ?? 0) * $xr, 2) }}</td>
                     <td class="number">{{ number_format($line['markup'] ?? 0, 3) }}</td>
-                    <td class="number">{{ number_format($line['price'] ?? 0, 2) }}</td>
-                    <td class="number">{{ number_format($line['price_per_mt'] ?? 0, 2) }}</td>
+                    <td class="number">{{ number_format(($line['price'] ?? 0) * $xr, 2) }}</td>
+                    <td class="number">{{ number_format(($line['price_per_mt'] ?? 0) * $xr, 2) }}</td>
                 </tr>
             @endforeach
             <tr class="total-row">
                 <td class="center"></td>
                 <td>TOTAL</td>
                 <td class="number">{{ number_format($salData['total_weight_kg'] ?? 0, 3) }}</td>
-                <td class="number">{{ number_format($salData['total_cost'] ?? 0, 2) }}</td>
+                <td class="number">{{ number_format(($salData['total_cost'] ?? 0) * $xr, 2) }}</td>
                 <td class="number">{{ number_format($salData['markup_ratio'] ?? 0, 3) }}</td>
-                <td class="number">{{ number_format($salData['total_price'] ?? 0, 2) }}</td>
-                <td class="number">{{ number_format($salData['price_per_mt'] ?? 0, 2) }}</td>
+                <td class="number">{{ number_format(($salData['total_price'] ?? 0) * $xr, 2) }}</td>
+                <td class="number">{{ number_format(($salData['price_per_mt'] ?? 0) * $xr, 2) }}</td>
             </tr>
         </tbody>
     </table>

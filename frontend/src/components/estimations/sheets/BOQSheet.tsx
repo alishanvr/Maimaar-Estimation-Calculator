@@ -7,6 +7,7 @@ import "handsontable/styles/handsontable.min.css";
 import "handsontable/styles/ht-theme-main.min.css";
 
 import { useSheetData } from "@/hooks/useSheetData";
+import { useCurrency } from "@/hooks/useCurrency";
 import { formatNumber } from "@/lib/formatters";
 import { exportBoqPdf } from "@/lib/estimations";
 import { downloadBlob } from "@/lib/download";
@@ -21,6 +22,7 @@ interface BOQSheetProps {
 }
 
 export default function BOQSheet({ estimationId, version }: BOQSheetProps) {
+  const { symbol, rate, format } = useCurrency();
   const { data, isLoading, error } = useSheetData<BOQData>(
     estimationId,
     "boq",
@@ -53,8 +55,8 @@ export default function BOQSheet({ estimationId, version }: BOQSheetProps) {
       item.description,
       item.unit,
       formatNumber(item.quantity, 4),
-      formatNumber(item.unit_rate, 2),
-      formatNumber(item.total_price, 2),
+      format(item.unit_rate, 2),
+      format(item.total_price, 2),
     ]);
 
     // Total row
@@ -65,7 +67,7 @@ export default function BOQSheet({ estimationId, version }: BOQSheetProps) {
       "MT",
       formatNumber(data.total_weight_mt, 4),
       "",
-      formatNumber(data.total_price, 2),
+      format(data.total_price, 2),
     ]);
 
     return { tableData: rows, totalRowIndex: idx };
@@ -130,8 +132,8 @@ export default function BOQSheet({ estimationId, version }: BOQSheetProps) {
                 "Item Description",
                 "Unit",
                 "QTY",
-                "Unit Rate (AED)",
-                "Total Price (AED)",
+                `Unit Rate (${symbol})`,
+                `Total Price (${symbol})`,
               ]}
               colWidths={[60, 400, 60, 90, 120, 140]}
               columns={Array.from({ length: 6 }, (_, i) => ({

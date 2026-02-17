@@ -13,12 +13,36 @@ export function formatNumber(
   });
 }
 
-/** Format a number as currency (AED). */
+/** Format a number as currency (AED). Kept for backward compatibility. */
 export function formatAED(
   value: number | null | undefined,
   decimals = 2
 ): string {
   return formatNumber(value, decimals) + " AED";
+}
+
+/** Format an AED value in the given display currency. */
+export function formatCurrency(
+  value: number | null | undefined,
+  exchangeRate: number,
+  currencySymbol: string,
+  decimals = 2
+): string {
+  if (value === null || value === undefined) return "\u2014";
+  const converted = value * exchangeRate;
+  return formatNumber(converted, decimals) + " " + currencySymbol;
+}
+
+/** Format an AED value as price-per-MT in the given display currency. */
+export function formatCurrencyPerMT(
+  value: number | null | undefined,
+  exchangeRate: number,
+  currencySymbol: string,
+  decimals = 2
+): string {
+  if (value === null || value === undefined) return "\u2014";
+  const converted = value * exchangeRate;
+  return formatNumber(converted, decimals) + " " + currencySymbol + "/MT";
 }
 
 /** Format a number as a percentage. */

@@ -2,6 +2,7 @@
 
 import type { ReportKPIs } from "@/types/reports";
 import { formatNumber } from "@/lib/formatters";
+import { useCurrency } from "@/hooks/useCurrency";
 
 interface KPICardsProps {
   kpis: ReportKPIs;
@@ -14,6 +15,8 @@ interface KPICardConfig {
 }
 
 export default function KPICards({ kpis }: KPICardsProps) {
+  const { format, formatPerMT } = useCurrency();
+
   const cards: KPICardConfig[] = [
     {
       label: "Total Estimations",
@@ -26,11 +29,11 @@ export default function KPICards({ kpis }: KPICardsProps) {
     },
     {
       label: "Total Revenue",
-      value: `${formatNumber(kpis.total_revenue_aed, 0)} AED`,
+      value: format(kpis.total_revenue_aed, 0),
     },
     {
       label: "Avg Price / MT",
-      value: `${formatNumber(kpis.avg_price_per_mt, 2)} AED`,
+      value: formatPerMT(kpis.avg_price_per_mt, 2),
     },
   ];
 

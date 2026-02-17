@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useSheetData } from "@/hooks/useSheetData";
+import { useCurrency } from "@/hooks/useCurrency";
 import { formatNumber } from "@/lib/formatters";
 import { exportRecapPdf } from "@/lib/estimations";
 import { downloadBlob } from "@/lib/download";
@@ -34,6 +35,7 @@ function StatCard({
 }
 
 export default function RecapSheet({ estimationId, version }: RecapSheetProps) {
+  const { symbol, format, formatPerMT } = useCurrency();
   const { data, isLoading, error } = useSheetData<RecapData>(
     estimationId,
     "recap",
@@ -128,18 +130,15 @@ export default function RecapSheet({ estimationId, version }: RecapSheetProps) {
               </h4>
               <StatCard
                 label="Total Price"
-                value={formatNumber(data.total_price_aed, 2)}
-                unit="AED"
+                value={format(data.total_price_aed, 2)}
               />
               <StatCard
                 label="FOB Price"
-                value={formatNumber(data.fob_price_aed, 2)}
-                unit="AED"
+                value={format(data.fob_price_aed, 2)}
               />
               <StatCard
                 label="Price per MT"
-                value={formatNumber(data.price_per_mt, 2)}
-                unit="AED/MT"
+                value={formatPerMT(data.price_per_mt, 2)}
               />
             </div>
           </div>

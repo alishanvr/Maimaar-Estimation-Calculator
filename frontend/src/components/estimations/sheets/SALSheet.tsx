@@ -7,6 +7,7 @@ import "handsontable/styles/handsontable.min.css";
 import "handsontable/styles/ht-theme-main.min.css";
 
 import { useSheetData } from "@/hooks/useSheetData";
+import { useCurrency } from "@/hooks/useCurrency";
 import { formatNumber } from "@/lib/formatters";
 import { exportSalPdf } from "@/lib/estimations";
 import { downloadBlob } from "@/lib/download";
@@ -21,6 +22,7 @@ interface SALSheetProps {
 }
 
 export default function SALSheet({ estimationId, version }: SALSheetProps) {
+  const { symbol, rate, format, formatPerMT } = useCurrency();
   const { data, isLoading, error } = useSheetData<SALData>(
     estimationId,
     "sal",
@@ -58,10 +60,10 @@ export default function SALSheet({ estimationId, version }: SALSheetProps) {
         String(line.code),
         line.description,
         formatNumber(line.weight_kg, 3),
-        formatNumber(line.cost, 2),
+        format(line.cost, 2),
         formatNumber(line.markup, 3),
-        formatNumber(line.price, 2),
-        formatNumber(line.price_per_mt, 2),
+        format(line.price, 2),
+        formatPerMT(line.price_per_mt, 2),
       ]);
     }
 
@@ -71,10 +73,10 @@ export default function SALSheet({ estimationId, version }: SALSheetProps) {
       "",
       "TOTAL",
       formatNumber(data.total_weight_kg, 3),
-      formatNumber(data.total_cost, 2),
+      format(data.total_cost, 2),
       formatNumber(data.markup_ratio, 3),
-      formatNumber(data.total_price, 2),
-      formatNumber(data.price_per_mt, 2),
+      format(data.total_price, 2),
+      formatPerMT(data.price_per_mt, 2),
     ]);
 
     return { tableData: rows, totalRowIndex: idx };
@@ -138,10 +140,10 @@ export default function SALSheet({ estimationId, version }: SALSheetProps) {
                 "Code",
                 "Description",
                 "Weight (kg)",
-                "Cost (AED)",
+                `Cost (${symbol})`,
                 "Markup",
-                "Price (AED)",
-                "AED/MT",
+                `Price (${symbol})`,
+                `${symbol}/MT`,
               ]}
               colWidths={[60, 300, 100, 120, 80, 120, 100]}
               columns={Array.from({ length: 7 }, (_, i) => ({
