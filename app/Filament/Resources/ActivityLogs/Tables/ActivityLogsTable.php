@@ -22,6 +22,31 @@ class ActivityLogsTable
                     ->label('Subject')
                     ->formatStateUsing(fn (?string $state): string => $state ? class_basename($state) : '-')
                     ->sortable(),
+                TextColumn::make('properties')
+                    ->label('Changes')
+                    ->formatStateUsing(function (mixed $state): string {
+                        if (empty($state)) {
+                            return '-';
+                        }
+
+                        $data = is_array($state) ? $state : (array) $state;
+                        $attributes = $data['attributes'] ?? [];
+                        $old = $data['old'] ?? [];
+
+                        if (empty($attributes)) {
+                            return '-';
+                        }
+
+                        $parts = [];
+                        foreach ($attributes as $key => $value) {
+                            $oldValue = $old[$key] ?? 'null';
+                            $parts[] = "{$key}: {$oldValue} → {$value}";
+                        }
+
+                        return implode(', ', $parts);
+                    })
+                    ->wrap()
+                    ->toggleable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),

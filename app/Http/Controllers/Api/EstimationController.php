@@ -100,10 +100,9 @@ class EstimationController extends Controller
 
         $estimation->update($data);
 
-        activity()
-            ->causedBy($request->user())
-            ->performedOn($estimation)
-            ->log('updated estimation');
+        if ($request->has('input_data')) {
+            $estimation->items()->delete();
+        }
 
         return new EstimationResource($estimation->fresh());
     }
@@ -200,6 +199,8 @@ class EstimationController extends Controller
             'total_weight_mt' => null,
             'total_price_aed' => null,
         ]);
+
+        $estimation->items()->delete();
 
         activity()
             ->causedBy($request->user())

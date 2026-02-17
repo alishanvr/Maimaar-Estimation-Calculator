@@ -139,6 +139,8 @@ class EstimationService
             'status' => 'calculated',
         ]);
 
+        $estimation->syncEstimationItems($results['detail']);
+
         return $estimation->fresh();
     }
 

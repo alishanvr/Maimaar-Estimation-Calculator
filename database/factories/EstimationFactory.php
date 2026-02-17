@@ -71,6 +71,17 @@ class EstimationFactory extends Factory
     }
 
     /**
+     * State with realistic results_data and synced estimation items.
+     * Used for tests that need a fully calculated estimation with items.
+     */
+    public function withItems(): static
+    {
+        return $this->withResults()->afterCreating(function (Estimation $estimation): void {
+            $estimation->syncEstimationItems($estimation->results_data['detail'] ?? []);
+        });
+    }
+
+    /**
      * State with realistic results_data including BOQ, JAF, and summary sheet data.
      * Used for PDF export tests without running the full calculation pipeline.
      */

@@ -48,6 +48,66 @@ it('cannot create estimations through filament', function () {
     expect(EstimationResource::canCreate())->toBeFalse();
 });
 
+it('logs activity when admin edits an estimation', function () {
+    $admin = User::factory()->admin()->create();
+    $estimation = Estimation::factory()->create([
+        'building_name' => 'Old Building',
+        'status' => 'draft',
+    ]);
+
+    $this->actingAs($admin);
+
+    Livewire::test(\App\Filament\Resources\Estimations\Pages\EditEstimation::class, [
+        'record' => $estimation->getRouteKey(),
+    ])
+        ->fillForm([
+            'building_name' => 'New Building',
+            'status' => 'finalized',
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $activity = \Spatie\Activitylog\Models\Activity::query()
+        ->where('subject_type', Estimation::class)
+        ->where('subject_id', $estimation->id)
+        ->where('event', 'updated')
+        ->latest()
+        ->first();
+
+    expect($activity)->not->toBeNull();
+    expect($activity->causer_id)->toBe($admin->id);
+    expect($activity->properties['old']['building_name'])->toBe('Old Building');
+    expect($activity->properties['attributes']['building_name'])->toBe('New Building');
+    expect($activity->properties['old']['status'])->toBe('draft');
+    expect($activity->properties['attributes']['status'])->toBe('finalized');
+});
+
+it('can render view page with calculation results for calculated estimation', function () {
+    $admin = User::factory()->admin()->create();
+    $estimation = Estimation::factory()->withResults()->create();
+
+    $this->actingAs($admin);
+
+    $this->get(EstimationResource::getUrl('view', ['record' => $estimation]))
+        ->assertSuccessful()
+        ->assertSeeText('Calculation Results')
+        ->assertSeeText('FCPBS')
+        ->assertSeeText('BOQ');
+});
+
+it('shows estimation items in edit page relation manager', function () {
+    $admin = User::factory()->admin()->create();
+    $estimation = Estimation::factory()->withItems()->create();
+
+    $this->actingAs($admin);
+
+    $this->get(EstimationResource::getUrl('edit', ['record' => $estimation]))
+        ->assertSuccessful();
+
+    expect($estimation->items)->toHaveCount(3);
+    expect($estimation->items->pluck('item_code')->toArray())->toContain('MFR', 'MFC', 'RP');
+});
+
 it('shows trashed estimations', function () {
     $admin = User::factory()->admin()->create();
     $estimation = Estimation::factory()->create();

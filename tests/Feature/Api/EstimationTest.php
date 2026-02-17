@@ -495,6 +495,36 @@ it('logs estimation deletion activity', function () {
     ]);
 });
 
+it('logs estimation update activity with changed fields', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('test-token')->plainTextToken;
+    $estimation = Estimation::factory()->create([
+        'user_id' => $user->id,
+        'building_name' => 'Original Building',
+        'customer_name' => 'Original Customer',
+    ]);
+
+    $this->withHeader('Authorization', "Bearer {$token}")
+        ->putJson("/api/estimations/{$estimation->id}", [
+            'building_name' => 'Updated Building',
+            'customer_name' => 'Updated Customer',
+        ]);
+
+    $activity = \Spatie\Activitylog\Models\Activity::query()
+        ->where('subject_type', Estimation::class)
+        ->where('subject_id', $estimation->id)
+        ->where('event', 'updated')
+        ->latest()
+        ->first();
+
+    expect($activity)->not->toBeNull();
+    expect($activity->causer_id)->toBe($user->id);
+    expect($activity->properties['old']['building_name'])->toBe('Original Building');
+    expect($activity->properties['attributes']['building_name'])->toBe('Updated Building');
+    expect($activity->properties['old']['customer_name'])->toBe('Original Customer');
+    expect($activity->properties['attributes']['customer_name'])->toBe('Updated Customer');
+});
+
 // ── Edge Cases ──────────────────────────────────────────────────────
 
 it('handles estimation with empty results_data gracefully for sheet endpoints', function () {
@@ -545,4 +575,57 @@ it('can filter estimations by finalized status', function () {
     $response->assertSuccessful();
     expect($response->json('data'))->toHaveCount(1);
     expect($response->json('data.0.status'))->toBe('finalized');
+});
+
+// ── Estimation Items Sync ─────────────────────────────────────────────
+
+it('syncs estimation items from detail data on calculation', function () {
+    $estimation = Estimation::factory()->withItems()->create();
+
+    // withItems() calls withResults() which has 5 detail items (2 headers + 3 data rows)
+    expect($estimation->items)->toHaveCount(3);
+
+    $mfrItem = $estimation->items->firstWhere('item_code', 'MFR');
+    expect($mfrItem)->not->toBeNull();
+    expect($mfrItem->description)->toBe('Main Frame Rafters');
+    expect($mfrItem->unit)->toBe('m');
+    expect((float) $mfrItem->quantity)->toBe(5.0);
+    // weight_kg = weight_per_unit * size * qty = 35.2 * 28.5 * 5 = 5016.0
+    expect((float) $mfrItem->weight_kg)->toBe(5016.0);
+    expect((float) $mfrItem->rate)->toBe(3.5);
+    // amount = weight_kg * rate = 5016.0 * 3.50 = 17556.0
+    expect((float) $mfrItem->amount)->toBe(17556.0);
+});
+
+it('clears estimation items when input data changes via api', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('test-token')->plainTextToken;
+    $estimation = Estimation::factory()->withItems()->create(['user_id' => $user->id]);
+
+    expect($estimation->items()->count())->toBe(3);
+
+    $this->withHeader('Authorization', "Bearer {$token}")
+        ->putJson("/api/estimations/{$estimation->id}", [
+            'input_data' => ['bay_spacing' => '5@8.0'],
+        ]);
+
+    expect($estimation->items()->count())->toBe(0);
+    expect($estimation->fresh()->status)->toBe('draft');
+});
+
+it('clears estimation items when estimation is unlocked', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('test-token')->plainTextToken;
+    $estimation = Estimation::factory()->withItems()->create([
+        'user_id' => $user->id,
+        'status' => 'finalized',
+    ]);
+
+    expect($estimation->items()->count())->toBe(3);
+
+    $this->withHeader('Authorization', "Bearer {$token}")
+        ->postJson("/api/estimations/{$estimation->id}/unlock");
+
+    expect($estimation->items()->count())->toBe(0);
+    expect($estimation->fresh()->status)->toBe('draft');
 });
