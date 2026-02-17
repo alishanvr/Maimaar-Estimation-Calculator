@@ -20,7 +20,7 @@ class BulkExportRequest extends FormRequest
             'ids' => ['required', 'array', 'min:1', 'max:20'],
             'ids.*' => ['required', 'integer', 'exists:estimations,id'],
             'sheets' => ['required', 'array', 'min:1'],
-            'sheets.*' => ['required', 'string', 'in:recap,detail,fcpbs,sal,boq,jaf'],
+            'sheets.*' => ['required', 'string', 'in:recap,detail,fcpbs,sal,boq,jaf,rawmat'],
         ];
     }
 }

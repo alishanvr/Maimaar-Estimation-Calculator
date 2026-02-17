@@ -17,6 +17,7 @@ class EstimationResource extends JsonResource
         return [
             'id' => $this->id,
             'parent_id' => $this->parent_id,
+            'project_id' => $this->project_id,
             'quote_number' => $this->quote_number,
             'revision_no' => $this->revision_no,
             'building_name' => $this->building_name,

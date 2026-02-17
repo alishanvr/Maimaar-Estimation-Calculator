@@ -11,6 +11,7 @@ const SHEET_TITLES: Record<SheetTab, string> = {
   sal: "SAL — Sales Summary",
   boq: "BOQ — Bill of Quantities",
   jaf: "JAF — Job Acceptance Form",
+  rawmat: "RAWMAT — Raw Material Summary",
 };
 
 interface PrintHeaderProps {

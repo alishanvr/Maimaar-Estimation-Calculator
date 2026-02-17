@@ -33,6 +33,7 @@ class DetailGenerator
         $this->generateMezzanineItems($input);
         $this->generatePartitionItems($input);
         $this->generateCanopyItems($input);
+        $this->generateLinerItems($input);
 
         return $this->items;
     }
@@ -1842,6 +1843,7 @@ class DetailGenerator
     /**
      * Generate canopy structure items.
      * VBA: AddCanopy_Click() — rafters, purlins, sheeting, drainage.
+     * Supports Canopy (Lean-To), Roof Extension, and Fascia types.
      *
      * @param  array<string, mixed>  $input
      */
@@ -1853,68 +1855,358 @@ class DetailGenerator
         }
 
         foreach ($canopies as $canopy) {
-            $description = $canopy['description'] ?? 'Canopy Structure';
-            $salesCode = (int) ($canopy['sales_code'] ?? 3);
-            $width = (float) ($canopy['width'] ?? 0);
-            $height = (float) ($canopy['height'] ?? 0);
-            $colSpacing = (string) ($canopy['col_spacing'] ?? '');
-            $roofSheeting = (string) ($canopy['roof_sheeting'] ?? '');
-            $wallSheeting = (string) ($canopy['wall_sheeting'] ?? '');
-            $soffit = (string) ($canopy['soffit'] ?? '');
-            $drainage = (string) ($canopy['drainage'] ?? '');
+            $frameType = (string) ($canopy['frame_type'] ?? 'Lean-To');
 
-            if ($width <= 0) {
+            // Dispatch to fascia-specific generator
+            if (str_starts_with($frameType, 'F')) {
+                $this->generateFasciaItems($canopy);
+
                 continue;
             }
 
-            // Parse column spacing notation
-            $totalLength = 0.0;
-            $colCount = 0;
-            if ($colSpacing !== '') {
-                $colList = $this->parser->getList($colSpacing);
-                $totalLength = $this->parser->calculateTotalFromList($colList);
-                $colCount = $this->parser->calculateCountFromList($colList);
+            $this->generateCanopyOrExtensionItems($canopy);
+        }
+    }
+
+    /**
+     * Generate canopy or roof extension items (non-fascia types).
+     * VBA: AddCanopy_Click() — standard canopy with rafters, purlins, sheeting, drainage.
+     *
+     * @param  array<string, mixed>  $canopy
+     */
+    private function generateCanopyOrExtensionItems(array $canopy): void
+    {
+        $description = $canopy['description'] ?? 'Canopy Structure';
+        $salesCode = (int) ($canopy['sales_code'] ?? 3);
+        $width = (float) ($canopy['width'] ?? 0);
+        $height = (float) ($canopy['height'] ?? 0);
+        $colSpacing = (string) ($canopy['col_spacing'] ?? '');
+        $roofSheeting = (string) ($canopy['roof_sheeting'] ?? '');
+        $wallSheeting = (string) ($canopy['wall_sheeting'] ?? '');
+        $soffit = (string) ($canopy['soffit'] ?? '');
+        $drainage = (string) ($canopy['drainage'] ?? '');
+
+        if ($width <= 0) {
+            return;
+        }
+
+        // Parse column spacing notation
+        $totalLength = 0.0;
+        $colCount = 0;
+        if ($colSpacing !== '') {
+            $colList = $this->parser->getList($colSpacing);
+            $totalLength = $this->parser->calculateTotalFromList($colList);
+            $colCount = $this->parser->calculateCountFromList($colList);
+        }
+
+        if ($totalLength <= 0) {
+            return;
+        }
+
+        // Header row
+        $des = $description;
+
+        // Canopy rafters: BU sections at canopy width
+        $numRafters = $colCount + 1;
+        $this->insertCode($des, 'BU', $salesCode, $width, $numRafters);
+        $des = '';
+
+        // Canopy purlins: Z sections spanning between columns
+        $baySpan = $colCount > 0 ? $totalLength / $colCount : $totalLength;
+        $purlinRows = max(1, (int) ceil($width / 1.5));
+        $this->insertCode($des, 'Z15G', $salesCode, $baySpan, $purlinRows * $colCount);
+
+        // Roof sheeting
+        $roofArea = $width * $totalLength;
+        if ($roofSheeting !== '' && $roofSheeting !== 'None') {
+            $this->insertCode($des, $roofSheeting, $salesCode, $roofArea, 1);
+        }
+
+        // Wall sheeting (if canopy has side closure)
+        if ($wallSheeting !== '' && $wallSheeting !== 'None' && $height > 0) {
+            $wallArea = $totalLength * $height;
+            $this->insertCode($des, $wallSheeting, $salesCode, $wallArea, 1);
+        }
+
+        // Soffit
+        if ($soffit !== '' && $soffit !== 'None') {
+            $this->insertCode($des, $soffit, $salesCode, $roofArea, 1);
+        }
+
+        // Drainage (eave gutter along canopy length)
+        if ($drainage !== '' && $drainage !== 'None') {
+            $this->insertCode($des, $drainage, $salesCode, $totalLength, 1);
+        }
+    }
+
+    /**
+     * Generate fascia structure items.
+     * VBA: calculateFascia() — wind-driven design with girts instead of purlins,
+     * wall sheeting instead of roof sheeting, and wind-based post sizing.
+     *
+     * Key differences from canopy:
+     * - Post sizing: windSpeed * (height + width) * bayWidth (wind-driven)
+     * - Uses girts (vertical wall) instead of purlins (horizontal roof)
+     * - Girt lines: int((height + width) / 1.7) + 1 (min 3 if height ≤ 1.2m)
+     * - Wind load: windSpeed² / 20000
+     * - Girt design index: 2 * windLoad * bayWidth²
+     * - Uses wall sheeting, not roof sheeting
+     * - Trims: TTS1 along top/bottom + sides
+     *
+     * @param  array<string, mixed>  $canopy
+     */
+    private function generateFasciaItems(array $canopy): void
+    {
+        $description = $canopy['description'] ?? 'Fascia Structure';
+        $salesCode = (int) ($canopy['sales_code'] ?? 3);
+        $width = (float) ($canopy['width'] ?? 0);
+        $height = (float) ($canopy['height'] ?? 0);
+        $colSpacing = (string) ($canopy['col_spacing'] ?? '');
+        $wallSheeting = (string) ($canopy['wall_sheeting'] ?? '');
+        $windSpeed = (float) ($canopy['wind_speed'] ?? 130);
+
+        if ($width <= 0 && $height <= 0) {
+            return;
+        }
+
+        // Parse column spacing notation
+        if ($colSpacing === '') {
+            return;
+        }
+
+        $colList = $this->parser->getList($colSpacing);
+        $totalLength = $this->parser->calculateTotalFromList($colList);
+        $colCount = $this->parser->calculateCountFromList($colList);
+        $expandedList = $this->parser->expandList($colList);
+
+        if ($totalLength <= 0) {
+            return;
+        }
+
+        // totalPosts = colCount (number of bays = number of intermediate posts; +1 for ends already in reference)
+        $totalPosts = $colCount + 1;
+
+        // Header row
+        $this->insertCode($description, '-', $salesCode, '', '');
+
+        // ── Posts: sized by wind index per bay ──
+        // postIndex = windSpeed * (height + width) * bayWidth
+        // Thresholds: ≤2500 → IPEa, ≤3500 → UB2, ≤6000 → UB2, >6000 → UB3
+        $postSize = $height + $width + 0.2;
+        $groupedPosts = [];
+        $numBays = (int) ($expandedList[0] ?? 0);
+
+        for ($i = 1; $i <= $numBays; $i++) {
+            $bayWidth = (float) ($expandedList[$i] ?? 0);
+            $postIndex = $windSpeed * ($height + $width) * $bayWidth;
+
+            $code = 'IPEa';
+            if ($postIndex > 2500) {
+                $code = 'UB2';
+            }
+            if ($postIndex > 6000) {
+                $code = 'UB3';
             }
 
-            if ($totalLength <= 0) {
+            $groupedPosts[$code] = ($groupedPosts[$code] ?? 0) + 1;
+        }
+
+        foreach ($groupedPosts as $code => $qty) {
+            $this->insertCode('', $code, $salesCode, $postSize, $qty);
+        }
+
+        // ── Connections ──
+        $this->insertCode('', 'MFC1', $salesCode, 1, $totalPosts);
+        $this->insertCode('', 'HSB16', $salesCode, 1, 8 * $totalPosts);
+
+        // ── Girts: wind-driven design ──
+        // girtLines = int((height + width) / 1.7) + 1, minimum 3 if height ≤ 1.2m
+        $girtLines = (int) (($height + $width) / 1.7) + 1;
+        if ($height <= 1.2) {
+            $girtLines = 3;
+        }
+
+        $windLoad = $windSpeed ** 2 / 20000;
+        $girtClips = 0;
+        $girtBolts = 0;
+
+        // Iterate over spacing groups: colList[0] = [numGroups, totalCount], colList[$i] = [count, value]
+        $numGroups = (int) ($colList[0][0] ?? 0);
+        for ($i = 1; $i <= $numGroups; $i++) {
+            $count = (int) ($colList[$i][0] ?? 0);
+            $bayWidth = (float) ($colList[$i][1] ?? 0);
+
+            $pdIndex = 2 * $windLoad * ($bayWidth ** 2);
+            $girtCode = $this->calculator->lookupGirtCode($pdIndex);
+
+            $qty = $count * $girtLines;
+            if ($qty > 0) {
+                $this->insertCode('', $girtCode, $salesCode, $bayWidth, $qty);
+                $girtClips += 2 * $qty;
+                $girtBolts += $qty * 8;
+            }
+        }
+
+        $this->insertCode('', 'HSB12', $salesCode, 1, $girtBolts);
+        if ($girtClips > 0) {
+            $this->insertCode('', 'CFClip', $salesCode, 1, $girtClips);
+        }
+
+        // ── Wall sheeting ──
+        if ($wallSheeting !== '' && $wallSheeting !== 'None') {
+            $wallArea = $totalLength * ($height + $width);
+            $this->insertCode('', $wallSheeting, $salesCode, 1, $wallArea);
+
+            // Trims: TTS1 along top/bottom edges + sides
+            $trimLength = 2 * $totalLength + 4 * ($height + $width);
+            $this->insertCode('', 'TTS1', $salesCode, 1, $trimLength);
+
+            // Fasteners: 4 screws per m² of wall area
+            $fastenerQty = 4 * $wallArea;
+            $screwCode = (stripos($wallSheeting, 'A') !== false) ? 'SS2' : 'CS2';
+            $this->insertCode('', $screwCode, $salesCode, 1, $fastenerQty);
+        }
+    }
+
+    /**
+     * Generate liner/ceiling panel items.
+     * VBA: AddLiner — roof liner, wall liner, or both with fasteners.
+     *
+     * @param  array<string, mixed>  $input
+     */
+    private function generateLinerItems(array $input): void
+    {
+        $liners = $input['liners'] ?? [];
+        if (empty($liners)) {
+            return;
+        }
+
+        // Building dimensions needed for auto-area calculation.
+        // Pre-parsed values come from EstimationService::parseInput().
+        // Fallback: re-parse from raw input keys for direct test calls.
+        $buildingLength = (float) ($input['building_length'] ?? 0);
+        if ($buildingLength <= 0 && ! empty($input['bays'] ?? $input['bay_spacing'] ?? '')) {
+            $bayStr = (string) ($input['bays'] ?? $input['bay_spacing'] ?? '');
+            $bayList = $this->parser->getList($bayStr);
+            $buildingLength = $this->parser->calculateTotalFromList($bayList);
+        }
+
+        $rafterLength = (float) ($input['rafter_length'] ?? 0);
+        $endwallArea = (float) ($input['endwall_area'] ?? 0);
+        $backEaveHeight = (float) ($input['back_eave_height'] ?? 0);
+        $frontEaveHeight = (float) ($input['front_eave_height'] ?? $backEaveHeight);
+
+        // If rafter_length is not pre-parsed, compute from raw inputs
+        if ($rafterLength <= 0) {
+            $spanStr = (string) ($input['spans'] ?? $input['span_widths'] ?? '1@28.5');
+            $spanList = $this->parser->getList($spanStr);
+            $leftSlope = (float) ($input['left_roof_slope'] ?? 1.0);
+            $rightSlope = (float) ($input['right_roof_slope'] ?? $leftSlope);
+            $slopeProfile = $this->parser->calculateSlopeProfile(
+                $spanList,
+                $backEaveHeight,
+                $leftSlope / 10,
+                $rightSlope / 10
+            );
+            $rafterLength = $slopeProfile['rafter_length'];
+            $endwallArea = $slopeProfile['endwall_area'];
+        }
+
+        $wasteFactor = 1.075;
+
+        foreach ($liners as $liner) {
+            $description = (string) ($liner['description'] ?? 'Liner / Ceiling Panels');
+            $salesCode = (int) ($liner['sales_code'] ?? 18);
+            $type = (string) ($liner['type'] ?? 'Both');
+            $roofLinerCode = (string) ($liner['roof_liner_code'] ?? '');
+            $wallLinerCode = (string) ($liner['wall_liner_code'] ?? '');
+            $roofAreaOverride = (float) ($liner['roof_area'] ?? 0);
+            $wallAreaOverride = (float) ($liner['wall_area'] ?? 0);
+            $roofOpeningsArea = (float) ($liner['roof_openings_area'] ?? 0);
+            $wallOpeningsArea = (float) ($liner['wall_openings_area'] ?? 0);
+
+            $hasRoof = in_array($type, ['Roof Liner', 'Both'], true);
+            $hasWall = in_array($type, ['Wall Liner', 'Both'], true);
+
+            // Skip if no valid liner codes for the requested type
+            if ($hasRoof && $roofLinerCode === '' && $hasWall && $wallLinerCode === '') {
+                continue;
+            }
+            if (! $hasRoof && ! $hasWall) {
                 continue;
             }
 
             // Header row
-            $des = $description;
+            $this->insertCode("LINER / CEILING PANELS - {$description}", '-', $salesCode, '', '');
 
-            // Canopy rafters: BU sections at canopy width
-            $numRafters = $colCount + 1;
-            $this->insertCode($des, 'BU', $salesCode, $width, $numRafters);
-            $des = '';
+            // --- Roof liner ---
+            if ($hasRoof && $roofLinerCode !== '') {
+                $roofArea = $roofAreaOverride;
+                if ($roofArea <= 0) {
+                    $roofArea = ($rafterLength * $buildingLength * 1.12 - $roofOpeningsArea) * $wasteFactor;
+                }
+                $roofArea = max(0, round($roofArea, 2));
 
-            // Canopy purlins: Z sections spanning between columns
-            $baySpan = $colCount > 0 ? $totalLength / $colCount : $totalLength;
-            $purlinRows = max(1, (int) ceil($width / 1.5));
-            $this->insertCode($des, 'Z15G', $salesCode, $baySpan, $purlinRows * $colCount);
+                $roofScrewCode = $this->getLinerScrewCode($roofLinerCode);
+                $roofStitchCode = $this->getLinerStitchCode($roofLinerCode);
 
-            // Roof sheeting
-            $roofArea = $width * $totalLength;
-            if ($roofSheeting !== '' && $roofSheeting !== 'None') {
-                $this->insertCode($des, $roofSheeting, $salesCode, $roofArea, 1);
+                $this->insertCode('', $roofLinerCode, $salesCode, $roofArea, 1);
+                $this->insertCode('', $roofScrewCode, $salesCode, 1, (int) ceil($roofArea * 4));
+                $this->insertCode('', $roofStitchCode, $salesCode, 1, (int) ceil($roofArea * 0.5));
             }
 
-            // Wall sheeting (if canopy has side closure)
-            if ($wallSheeting !== '' && $wallSheeting !== 'None' && $height > 0) {
-                $wallArea = $totalLength * $height;
-                $this->insertCode($des, $wallSheeting, $salesCode, $wallArea, 1);
-            }
+            // --- Wall liner ---
+            if ($hasWall && $wallLinerCode !== '') {
+                $wallArea = $wallAreaOverride;
+                if ($wallArea <= 0) {
+                    $sidewallArea = $buildingLength * ($backEaveHeight + $frontEaveHeight) * 1.1;
+                    $bothEndwalls = 2 * $endwallArea * 1.1;
+                    $wallArea = ($sidewallArea + $bothEndwalls - $wallOpeningsArea) * $wasteFactor;
+                }
+                $wallArea = max(0, round($wallArea, 2));
 
-            // Soffit
-            if ($soffit !== '' && $soffit !== 'None') {
-                $this->insertCode($des, $soffit, $salesCode, $roofArea, 1);
-            }
+                $wallScrewCode = $this->getLinerScrewCode($wallLinerCode);
+                $wallStitchCode = $this->getLinerStitchCode($wallLinerCode);
 
-            // Drainage (eave gutter along canopy length)
-            if ($drainage !== '' && $drainage !== 'None') {
-                $this->insertCode($des, $drainage, $salesCode, $totalLength, 1);
+                $this->insertCode('', $wallLinerCode, $salesCode, $wallArea, 1);
+                $this->insertCode('', $wallScrewCode, $salesCode, 1, (int) ceil($wallArea * 4));
+                $this->insertCode('', $wallStitchCode, $salesCode, 1, (int) ceil($wallArea * 0.5));
             }
         }
+    }
+
+    /**
+     * Determine the main screw code for a liner panel based on its material code.
+     *
+     * Priority: PUA → SS4, PUS → CS4, contains "A" → SS2, default → CS2.
+     */
+    private function getLinerScrewCode(string $linerCode): string
+    {
+        if (str_contains($linerCode, 'PUA')) {
+            return 'SS4';
+        }
+        if (str_contains($linerCode, 'PUS')) {
+            return 'CS4';
+        }
+        if (str_contains($linerCode, 'A')) {
+            return 'SS2';
+        }
+
+        return 'CS2';
+    }
+
+    /**
+     * Determine the stitch screw code for a liner panel based on its material code.
+     *
+     * Contains "A" → SS1, default → CS1.
+     */
+    private function getLinerStitchCode(string $linerCode): string
+    {
+        if (str_contains($linerCode, 'A')) {
+            return 'SS1';
+        }
+
+        return 'CS1';
     }
 
     /**

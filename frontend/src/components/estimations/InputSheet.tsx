@@ -296,6 +296,7 @@ export default function InputSheet({
     mezzanines: null,
     partitions: null,
     canopies: null,
+    liners: null,
   });
 
   /** Determine which components are active based on existing data */
@@ -308,6 +309,7 @@ export default function InputSheet({
     mezzanines: (estimation.input_data?.mezzanines?.length ?? 0) > 0,
     partitions: (estimation.input_data?.partitions?.length ?? 0) > 0,
     canopies: (estimation.input_data?.canopies?.length ?? 0) > 0,
+    liners: (estimation.input_data?.liners?.length ?? 0) > 0,
   }));
 
   /** Sync active state when estimation data changes externally (e.g. Fill Test Data) */
@@ -319,8 +321,9 @@ export default function InputSheet({
       mezzanines: (estimation.input_data?.mezzanines?.length ?? 0) > 0,
       partitions: (estimation.input_data?.partitions?.length ?? 0) > 0,
       canopies: (estimation.input_data?.canopies?.length ?? 0) > 0,
+      liners: (estimation.input_data?.liners?.length ?? 0) > 0,
     });
-  }, [estimation.input_data?.openings, estimation.input_data?.accessories, estimation.input_data?.cranes, estimation.input_data?.mezzanines, estimation.input_data?.partitions, estimation.input_data?.canopies]);
+  }, [estimation.input_data?.openings, estimation.input_data?.accessories, estimation.input_data?.cranes, estimation.input_data?.mezzanines, estimation.input_data?.partitions, estimation.input_data?.canopies, estimation.input_data?.liners]);
 
   /** Toggle a component on/off. Off = clear its data. */
   const handleComponentToggle = useCallback(

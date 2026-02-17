@@ -83,6 +83,12 @@ export default function Navbar() {
                 Estimations
               </Link>
               <Link
+                href="/projects"
+                className="text-sm text-gray-600 hover:text-gray-900 transition"
+              >
+                Projects
+              </Link>
+              <Link
                 href="/reports"
                 className="text-sm text-gray-600 hover:text-gray-900 transition"
               >

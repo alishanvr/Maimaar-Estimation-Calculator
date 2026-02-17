@@ -173,8 +173,8 @@ export const CANOPY_COLUMNS: ComponentColumnDef[] = [
     label: "Frame Type",
     type: "dropdown",
     width: 130,
-    dropdownOptions: ["Roof Extension", "Lean-To"],
-    hint: "Roof Extension = extends main roof. Lean-To = separate structure",
+    dropdownOptions: ["Roof Extension", "Lean-To", "Fascia"],
+    hint: "Roof Extension = extends main roof. Lean-To = separate structure. Fascia = vertical wall cladding",
   },
   {
     key: "location",
@@ -224,6 +224,29 @@ export const CANOPY_COLUMNS: ComponentColumnDef[] = [
 
 export const CANOPY_MAX_ROWS = 5;
 
+// ── Liner / Ceiling (9 fields, max 5 rows) ──────────────────────
+
+export const LINER_COLUMNS: ComponentColumnDef[] = [
+  { key: "description", label: "Description", type: "text", width: 160 },
+  { key: "sales_code", label: "Sales Code", type: "numeric", width: 80 },
+  {
+    key: "type",
+    label: "Type",
+    type: "dropdown",
+    width: 120,
+    dropdownOptions: ["Roof Liner", "Wall Liner", "Both"],
+    hint: "Roof Liner = roof only, Wall Liner = walls only, Both = roof + walls",
+  },
+  { key: "roof_liner_code", label: "Roof Liner Code", type: "text", width: 120, hint: "Product code e.g. S5OW, A5OW, PUA50" },
+  { key: "wall_liner_code", label: "Wall Liner Code", type: "text", width: 120, hint: "Product code e.g. S5OW, A5OW, PUS50" },
+  { key: "roof_area", label: "Roof Area (m\u00B2)", type: "numeric", width: 110, hint: "Manual override. Leave 0 for auto-calculation" },
+  { key: "wall_area", label: "Wall Area (m\u00B2)", type: "numeric", width: 110, hint: "Manual override. Leave 0 for auto-calculation" },
+  { key: "roof_openings_area", label: "Roof Openings (m\u00B2)", type: "numeric", width: 130, hint: "Area to deduct from roof (skylights etc.)" },
+  { key: "wall_openings_area", label: "Wall Openings (m\u00B2)", type: "numeric", width: 130, hint: "Area to deduct from walls (doors, windows)" },
+];
+
+export const LINER_MAX_ROWS = 5;
+
 // ── Component type registry ──────────────────────────────────────
 
 export type ComponentType =
@@ -232,7 +255,8 @@ export type ComponentType =
   | "cranes"
   | "mezzanines"
   | "partitions"
-  | "canopies";
+  | "canopies"
+  | "liners";
 
 export interface ComponentConfig {
   key: ComponentType;
@@ -277,5 +301,11 @@ export const COMPONENT_CONFIGS: ComponentConfig[] = [
     label: "Canopy",
     columns: CANOPY_COLUMNS,
     maxRows: CANOPY_MAX_ROWS,
+  },
+  {
+    key: "liners",
+    label: "Liner / Ceiling",
+    columns: LINER_COLUMNS,
+    maxRows: LINER_MAX_ROWS,
   },
 ];

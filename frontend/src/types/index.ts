@@ -161,6 +161,7 @@ export interface InputData {
   mezzanines?: Mezzanine[];
   partitions?: Partition[];
   canopies?: Canopy[];
+  liners?: Liner[];
 
   [key: string]: unknown;
 }
@@ -242,6 +243,18 @@ export interface Canopy {
   wind_speed?: number;
 }
 
+export interface Liner {
+  description?: string;
+  sales_code?: number;
+  type?: string;
+  roof_liner_code?: string;
+  wall_liner_code?: string;
+  roof_area?: number;
+  wall_area?: number;
+  roof_openings_area?: number;
+  wall_openings_area?: number;
+}
+
 // ── Estimation Summary (exposed when calculated) ───────────────────
 
 export interface EstimationSummary {
@@ -276,6 +289,7 @@ export type EstimationStatus = "draft" | "calculated" | "finalized";
 export interface Estimation {
   id: number;
   parent_id: number | null;
+  project_id: number | null;
   quote_number: string | null;
   revision_no: string | null;
   building_name: string | null;
@@ -471,6 +485,37 @@ export interface JAFData {
   revision_history: unknown[];
 }
 
+// ── RAWMAT (Raw Material) ────────────────────────────────────────
+
+export interface RawmatItem {
+  no: number;
+  code: string;
+  cost_code: string;
+  description: string;
+  unit: string;
+  quantity: number;
+  unit_weight: number;
+  total_weight: number;
+  category: string;
+  sources: string;
+}
+
+export interface RawmatCategoryStats {
+  count: number;
+  weight_kg: number;
+}
+
+export interface RawmatData {
+  items: RawmatItem[];
+  summary: {
+    total_items_before: number;
+    unique_materials: number;
+    total_weight_kg: number;
+    category_count: number;
+  };
+  categories: Record<string, RawmatCategoryStats>;
+}
+
 // ── Tab Definitions ────────────────────────────────────────────────
 
 export type SheetTab =
@@ -480,7 +525,8 @@ export type SheetTab =
   | "fcpbs"
   | "sal"
   | "boq"
-  | "jaf";
+  | "jaf"
+  | "rawmat";
 
 export const SHEET_TABS: { key: SheetTab; label: string }[] = [
   { key: "input", label: "Input" },
@@ -490,4 +536,37 @@ export const SHEET_TABS: { key: SheetTab; label: string }[] = [
   { key: "sal", label: "SAL" },
   { key: "boq", label: "BOQ" },
   { key: "jaf", label: "JAF" },
+  { key: "rawmat", label: "RAWMAT" },
 ];
+
+// ── Project Types ──────────────────────────────────────────────────
+
+export type ProjectStatus = "draft" | "in_progress" | "completed" | "archived";
+
+export interface ProjectSummary {
+  building_count: number;
+  total_weight: number | null;
+  total_price: number | null;
+}
+
+export interface Project {
+  id: number;
+  project_number: string;
+  project_name: string;
+  customer_name: string | null;
+  location: string | null;
+  description: string | null;
+  status: ProjectStatus;
+  summary: ProjectSummary;
+  estimations?: Estimation[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ActivityLogEntry {
+  id: number;
+  description: string;
+  causer_name: string | null;
+  created_at: string;
+  properties: Record<string, unknown>;
+}

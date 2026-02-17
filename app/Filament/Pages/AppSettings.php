@@ -10,6 +10,7 @@ use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
@@ -53,6 +54,7 @@ class AppSettings extends Page
             'app_logo_path' => $settings['app_logo_path'] ?? null,
             'favicon_path' => $settings['favicon_path'] ?? null,
             'primary_color' => $settings['primary_color'] ?? '#3B82F6',
+            'enable_fill_test_data' => ($settings['enable_fill_test_data'] ?? 'false') === 'true',
         ]);
     }
 
@@ -117,6 +119,15 @@ class AppSettings extends Page
                             ->helperText('Used for buttons and link accents. Default: #3B82F6 (blue).'),
                     ])
                     ->columns(1),
+
+                Section::make('Developer Tools')
+                    ->description('Settings for development and testing purposes.')
+                    ->schema([
+                        Toggle::make('enable_fill_test_data')
+                            ->label('Enable Fill Test Data Button')
+                            ->helperText('When enabled, a "Fill Test Data" button appears on estimation pages for quick testing.'),
+                    ])
+                    ->columns(1),
             ]);
     }
 
@@ -146,6 +157,7 @@ class AppSettings extends Page
             'app_logo_path' => $data['app_logo_path'] ?? '',
             'favicon_path' => $data['favicon_path'] ?? '',
             'primary_color' => $data['primary_color'] ?? '#3B82F6',
+            'enable_fill_test_data' => ($data['enable_fill_test_data'] ?? false) ? 'true' : 'false',
         ];
 
         foreach ($settings as $key => $value) {

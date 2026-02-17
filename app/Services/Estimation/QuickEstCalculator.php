@@ -9,6 +9,22 @@ class QuickEstCalculator
     ) {}
 
     /**
+     * Girt design table: maps design index thresholds to girt codes.
+     * VBA: ProductLookup::getGirtCode() — used for fascia and wall girt sizing.
+     * Format: [max_index => code]
+     *
+     * @var array<float, string>
+     */
+    private const GIRT_DESIGN_TABLE = [
+        50.0 => 'Z15G',
+        80.0 => 'Z20G',
+        140.0 => 'Z25G',
+        250.0 => 'Z30G',
+        400.0 => 'Z35G',
+        999999.0 => 'BUB',
+    ];
+
+    /**
      * Purlin design table: maps PDIndex range thresholds to cold-formed codes.
      * Derived from DB sheet named ranges PDIndex/PDCode.
      * Format: [max_index => code]
@@ -89,6 +105,21 @@ class QuickEstCalculator
         }
 
         return 'Z25G'; // Default for very high indices
+    }
+
+    /**
+     * Lookup girt code by design index.
+     * VBA: ProductLookup::getGirtCode() — used for fascia girts and wall girts.
+     */
+    public function lookupGirtCode(float $pdIndex): string
+    {
+        foreach (self::GIRT_DESIGN_TABLE as $threshold => $code) {
+            if ($pdIndex <= $threshold) {
+                return $code;
+            }
+        }
+
+        return 'BUB'; // Default for very high indices
     }
 
     /**

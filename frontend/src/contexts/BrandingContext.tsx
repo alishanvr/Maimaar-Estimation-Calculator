@@ -15,6 +15,7 @@ export interface BrandingSettings {
   logo_url: string | null;
   favicon_url: string | null;
   primary_color: string;
+  enable_fill_test_data: boolean;
 }
 
 const DEFAULTS: BrandingSettings = {
@@ -23,6 +24,7 @@ const DEFAULTS: BrandingSettings = {
   logo_url: null,
   favicon_url: null,
   primary_color: "#3B82F6",
+  enable_fill_test_data: false,
 };
 
 interface BrandingContextType {

@@ -177,3 +177,10 @@ export async function exportJafPdf(id: number): Promise<Blob> {
   });
   return data;
 }
+
+export async function exportRawmatPdf(id: number): Promise<Blob> {
+  const { data } = await api.get(`/estimations/${id}/export/rawmat`, {
+    responseType: "blob",
+  });
+  return data;
+}

@@ -53,6 +53,17 @@ it('validates sheet names', function () {
         ->assertUnprocessable();
 });
 
+it('accepts rawmat as valid sheet name', function () {
+    $response = $this->actingAs($this->user)
+        ->postJson('/api/estimations/bulk-export', [
+            'ids' => [$this->estimation1->id],
+            'sheets' => ['rawmat'],
+        ]);
+
+    $response->assertOk()
+        ->assertHeader('content-type', 'application/zip');
+});
+
 it('limits to 20 estimations', function () {
     $ids = Estimation::factory()
         ->for($this->user)

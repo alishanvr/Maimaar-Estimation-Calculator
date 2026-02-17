@@ -101,6 +101,75 @@ it('validates required fields', function () {
         ]);
 });
 
+it('can save enable_fill_test_data toggle as true', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin);
+
+    Livewire::test(AppSettings::class)
+        ->fillForm([
+            'app_name' => 'Test App',
+            'company_name' => 'Test Co',
+            'primary_color' => '#3B82F6',
+            'enable_fill_test_data' => true,
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect(DesignConfiguration::query()
+        ->where('category', 'app_settings')
+        ->where('key', 'enable_fill_test_data')
+        ->value('value')
+    )->toBe('true');
+});
+
+it('can save enable_fill_test_data toggle as false', function () {
+    $admin = User::factory()->admin()->create();
+
+    DesignConfiguration::query()->create([
+        'category' => 'app_settings',
+        'key' => 'enable_fill_test_data',
+        'value' => 'true',
+        'label' => 'Enable Fill Test Data',
+    ]);
+
+    $this->actingAs($admin);
+
+    Livewire::test(AppSettings::class)
+        ->fillForm([
+            'app_name' => 'Test App',
+            'company_name' => 'Test Co',
+            'primary_color' => '#3B82F6',
+            'enable_fill_test_data' => false,
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect(DesignConfiguration::query()
+        ->where('category', 'app_settings')
+        ->where('key', 'enable_fill_test_data')
+        ->value('value')
+    )->toBe('false');
+});
+
+it('loads enable_fill_test_data toggle state', function () {
+    $admin = User::factory()->admin()->create();
+
+    DesignConfiguration::query()->create([
+        'category' => 'app_settings',
+        'key' => 'enable_fill_test_data',
+        'value' => 'true',
+        'label' => 'Enable Fill Test Data',
+    ]);
+
+    $this->actingAs($admin);
+
+    Livewire::test(AppSettings::class)
+        ->assertFormSet([
+            'enable_fill_test_data' => true,
+        ]);
+});
+
 it('flushes cache after saving', function () {
     $admin = User::factory()->admin()->create();
 

@@ -22,6 +22,7 @@ class StoreEstimationRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'project_id' => ['nullable', 'integer', 'exists:projects,id'],
             'quote_number' => ['nullable', 'string', 'max:50'],
             'revision_no' => ['nullable', 'string', 'max:20'],
             'building_name' => ['nullable', 'string', 'max:255'],
@@ -184,7 +185,7 @@ class StoreEstimationRequest extends FormRequest
             'input_data.canopies' => ['nullable', 'array'],
             'input_data.canopies.*.description' => ['nullable', 'string', 'max:255'],
             'input_data.canopies.*.sales_code' => ['nullable', 'numeric'],
-            'input_data.canopies.*.frame_type' => ['nullable', 'string', 'in:Roof Extension,Lean-To'],
+            'input_data.canopies.*.frame_type' => ['nullable', 'string', 'in:Roof Extension,Lean-To,Fascia'],
             'input_data.canopies.*.location' => ['nullable', 'string', 'in:Front,Back,Left,Right,All Around'],
             'input_data.canopies.*.height' => ['nullable', 'numeric', 'min:0'],
             'input_data.canopies.*.width' => ['nullable', 'numeric', 'min:0'],
@@ -198,6 +199,18 @@ class StoreEstimationRequest extends FormRequest
             'input_data.canopies.*.cf_finish' => ['nullable', 'string'],
             'input_data.canopies.*.live_load' => ['nullable', 'numeric', 'min:0'],
             'input_data.canopies.*.wind_speed' => ['nullable', 'numeric', 'min:0'],
+
+            // Liners array
+            'input_data.liners' => ['nullable', 'array'],
+            'input_data.liners.*.description' => ['nullable', 'string', 'max:255'],
+            'input_data.liners.*.sales_code' => ['nullable', 'numeric'],
+            'input_data.liners.*.type' => ['nullable', 'string', 'in:Roof Liner,Wall Liner,Both'],
+            'input_data.liners.*.roof_liner_code' => ['nullable', 'string', 'max:50'],
+            'input_data.liners.*.wall_liner_code' => ['nullable', 'string', 'max:50'],
+            'input_data.liners.*.roof_area' => ['nullable', 'numeric', 'min:0'],
+            'input_data.liners.*.wall_area' => ['nullable', 'numeric', 'min:0'],
+            'input_data.liners.*.roof_openings_area' => ['nullable', 'numeric', 'min:0'],
+            'input_data.liners.*.wall_openings_area' => ['nullable', 'numeric', 'min:0'],
         ];
     }
 

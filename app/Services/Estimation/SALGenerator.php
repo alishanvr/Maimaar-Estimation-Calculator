@@ -238,6 +238,10 @@ class SALGenerator
         'CT' => 'H', 'DS' => 'H', 'RS' => 'H', 'GSTR' => 'H',
         'VGG' => 'H', 'VGS' => 'H', 'VGEC' => 'H', 'PB' => 'H',
         'BM1' => 'I', 'BM2' => 'I',
+        'CS1' => 'I', 'CS2' => 'I', 'CS4' => 'I',
+        'SS1' => 'I', 'SS2' => 'I', 'SS4' => 'I',
+        'S5OW' => 'F', 'A5OW' => 'F', 'S7OW' => 'F', 'A7OW' => 'F',
+        'PUA' => 'F', 'PUS' => 'F',
         'ContSkid' => 'M',
         'Freight' => 'O',
     ];

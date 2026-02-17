@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEstimation } from "@/hooks/useEstimation";
+import { useBranding } from "@/contexts/BrandingContext";
 import { cloneEstimation, createRevision } from "@/lib/estimations";
 import EstimationHeader from "@/components/estimations/EstimationHeader";
 import PrintHeader from "@/components/estimations/PrintHeader";
@@ -14,15 +15,16 @@ import FCPBSSheet from "@/components/estimations/sheets/FCPBSSheet";
 import SALSheet from "@/components/estimations/sheets/SALSheet";
 import BOQSheet from "@/components/estimations/sheets/BOQSheet";
 import JAFSheet from "@/components/estimations/sheets/JAFSheet";
+import RawmatSheet from "@/components/estimations/sheets/RawmatSheet";
 import type { SheetTab, InputData } from "@/types";
 
 function EstimationEditor() {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const id = Number(params.id);
   const [activeTab, setActiveTab] = useState<SheetTab>("input");
-  const showFillTestData = searchParams.get("fill_test_data") === "true";
+  const { branding } = useBranding();
+  const showFillTestData = branding.enable_fill_test_data;
   const {
     estimation,
     isLoading,
@@ -166,10 +168,8 @@ function EstimationEditor() {
       sales_office: "Dubai",
       num_buildings: 1,
       erection_price: 0,
-      markup_steel: 0,
-      markup_panels: 0,
-      markup_ssl: 0,
-      markup_finance: 0,
+      // Omit markup fields so the backend uses its defaults
+      // (explicit 0 would mean zero markup = $0 selling price)
       openings: [
         {
           location: "Front Sidewall",
@@ -247,14 +247,22 @@ function EstimationEditor() {
           wind_speed: 0.7,
         },
       ],
+      liners: [
+        {
+          description: "Roof & Wall Liner",
+          sales_code: 18,
+          type: "Both",
+          roof_liner_code: "S5OW",
+          wall_liner_code: "S5OW",
+          roof_area: 0,
+          wall_area: 0,
+          roof_openings_area: 0,
+          wall_openings_area: 0,
+        },
+      ],
     };
 
-    saveAndCalculate(topLevelFields, testInputData, {
-      steel: 0,
-      panels: 0,
-      ssl: 0,
-      finance: 0,
-    });
+    saveAndCalculate(topLevelFields, testInputData, {});
   };
 
   const handleClone = async () => {
@@ -333,6 +341,9 @@ function EstimationEditor() {
         )}
         {activeTab === "jaf" && (
           <JAFSheet estimationId={id} version={estimation.updated_at} />
+        )}
+        {activeTab === "rawmat" && (
+          <RawmatSheet estimationId={id} version={estimation.updated_at} />
         )}
       </div>
 

@@ -7,24 +7,24 @@
 
 ## Summary Table
 
-| # | Feature | Impact | Complexity | Category |
-|---|---------|--------|------------|----------|
-| 1 | Liner/Ceiling Calculator | High | Medium | Calculation Engine |
-| 2 | Fascia Type in Canopy Calculator | High | Low | Calculation Engine |
-| 3 | RAWMAT Output Sheet | High | Medium | Output Sheets |
-| 4 | Multi-Building Projects | High | High | Data Architecture |
-| 5 | Excel/CSV Import | High | High | Import/Export |
-| 6 | CSV/Excel Export | High | Medium | Import/Export |
-| 7 | User Self-Registration (API) | Medium | Low | Authentication |
-| 8 | Password Change (Frontend API) | Medium | Low | Authentication |
-| 9 | Password Reset Flow | Medium | Medium | Authentication |
-| 10 | API Token Management | Medium | Low | Authentication |
-| 11 | Product/Inventory Admin CRUD | Medium | Medium | Admin Panel |
-| 12 | Product Search API | Medium | Low | Admin Panel |
-| 13 | Analytics API for Frontend | Low | Low | Analytics |
-| 14 | Reports/Export Log Table | Low | Low | Database |
-| 15 | Session Tracking Table | Low | Low | Database |
-| 16 | Analytics Aggregation Table | Low | Low | Database |
+| # | Feature                          | Impact | Complexity | Category |
+|---|----------------------------------|--------|------------|----------|
+| 1 | ~~Liner/Ceiling Calculator~~       | High | Medium | Calculation Engine |
+| 2 | ~~Fascia Type in Canopy Calculator~~ | High | Low | Calculation Engine |
+| 3 | ~~RAWMAT Output Sheet~~              | High | Medium | Output Sheets |
+| 4 | ~~Multi-Building Projects~~          | High | High | Data Architecture |
+| 5 | Excel/CSV Import                 | High | High | Import/Export |
+| 6 | CSV/Excel Export                 | High | Medium | Import/Export |
+| 7 | User Self-Registration (API)     | Medium | Low | Authentication |
+| 8 | Password Change (Frontend API)   | Medium | Low | Authentication |
+| 9 | Password Reset Flow              | Medium | Medium | Authentication |
+| 10 | API Token Management             | Medium | Low | Authentication |
+| 11 | Product/Inventory Admin CRUD     | Medium | Medium | Admin Panel |
+| 12 | Product Search API               | Medium | Low | Admin Panel |
+| 13 | Analytics API for Frontend       | Low | Low | Analytics |
+| 14 | Reports/Export Log Table         | Low | Low | Database |
+| 15 | Session Tracking Table           | Low | Low | Database |
+| 16 | Analytics Aggregation Table      | Low | Low | Database |
 
 ---
 

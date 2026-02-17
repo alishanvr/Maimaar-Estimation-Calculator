@@ -303,6 +303,23 @@ it('validates canopies array structure accepted', function () {
     $response->assertSuccessful();
 });
 
+it('validates canopy frame_type accepts Fascia', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('test-token')->plainTextToken;
+    $estimation = Estimation::factory()->create(['user_id' => $user->id]);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+        ->putJson("/api/estimations/{$estimation->id}", [
+            'input_data' => [
+                'canopies' => [
+                    ['description' => 'Front Fascia', 'sales_code' => 3, 'frame_type' => 'Fascia', 'location' => 'Front', 'height' => 2, 'width' => 1],
+                ],
+            ],
+        ]);
+
+    $response->assertSuccessful();
+});
+
 // ── Persistence Tests ───────────────────────────────────────────────────
 
 it('can save estimation with openings data', function () {

@@ -420,6 +420,33 @@ it('can get jaf sheet data', function () {
     $response->assertSuccessful();
 });
 
+it('can get rawmat sheet data', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('test-token')->plainTextToken;
+
+    $estimation = Estimation::factory()->create([
+        'user_id' => $user->id,
+        'status' => 'calculated',
+        'results_data' => [
+            'summary' => [],
+            'rawmat' => [
+                'items' => [
+                    ['no' => 1, 'code' => 'BU200', 'category' => 'Primary Steel'],
+                ],
+                'summary' => ['unique_materials' => 1, 'total_weight_kg' => 5016.0],
+                'categories' => ['Primary Steel' => ['count' => 1, 'weight_kg' => 5016.0]],
+            ],
+        ],
+    ]);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+        ->getJson("/api/estimations/{$estimation->id}/rawmat");
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.summary.unique_materials', 1)
+        ->assertJsonPath('data.items.0.code', 'BU200');
+});
+
 it('returns 422 for sheet data when not calculated', function () {
     $user = User::factory()->create();
     $token = $user->createToken('test-token')->plainTextToken;

@@ -257,6 +257,14 @@ class EstimationController extends Controller
     }
 
     /**
+     * Get RAWMAT (Raw Material) sheet data.
+     */
+    public function rawmat(Estimation $estimation): JsonResponse
+    {
+        return $this->getSheetData($estimation, 'rawmat');
+    }
+
+    /**
      * Export BOQ as PDF.
      */
     public function exportBoq(Request $request, Estimation $estimation): JsonResponse|Response
@@ -467,6 +475,41 @@ class EstimationController extends Controller
     }
 
     /**
+     * Export RAWMAT as PDF.
+     */
+    public function exportRawmat(Request $request, Estimation $estimation): JsonResponse|Response
+    {
+        $this->authorize('view', $estimation);
+
+        if (! $estimation->isCalculated() && $estimation->status !== 'finalized') {
+            return response()->json([
+                'message' => 'Estimation has not been calculated yet.',
+            ], 422);
+        }
+
+        $rawmatData = $estimation->results_data['rawmat'] ?? null;
+
+        if (! $rawmatData) {
+            return response()->json([
+                'message' => 'RAWMAT data is not available.',
+            ], 422);
+        }
+
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($estimation)
+            ->log('exported RAWMAT PDF');
+
+        $pdfSettings = app(PdfSettingsService::class);
+        $pdf = Pdf::loadView('pdf.rawmat', $this->getPdfViewData($estimation, 'rawmatData', $rawmatData))
+            ->setPaper($pdfSettings->paperSize(), 'landscape');
+
+        $filename = 'RAWMAT-'.($estimation->quote_number ?? 'export').'.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    /**
      * Clone an estimation (copy input_data, reset to draft).
      */
     public function clone(Request $request, Estimation $estimation): JsonResponse
@@ -630,6 +673,7 @@ class EstimationController extends Controller
             'sal' => ['view' => 'pdf.sal', 'varName' => 'salData', 'dataKey' => 'sal', 'paper' => 'landscape'],
             'boq' => ['view' => 'pdf.boq', 'varName' => 'boqData', 'dataKey' => 'boq', 'paper' => 'landscape'],
             'jaf' => ['view' => 'pdf.jaf', 'varName' => 'jafData', 'dataKey' => 'jaf', 'paper' => 'portrait'],
+            'rawmat' => ['view' => 'pdf.rawmat', 'varName' => 'rawmatData', 'dataKey' => 'rawmat', 'paper' => 'landscape'],
         ];
 
         $pdfSettings = app(PdfSettingsService::class);

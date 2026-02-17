@@ -17,6 +17,7 @@ class AppSettingsController extends Controller
             'logo_url' => $appSettings->logoUrl(),
             'favicon_url' => $appSettings->faviconUrl(),
             'primary_color' => $appSettings->primaryColor(),
+            'enable_fill_test_data' => $appSettings->enableFillTestData(),
         ]);
     }
 }

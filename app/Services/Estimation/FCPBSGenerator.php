@@ -29,8 +29,13 @@ class FCPBSGenerator
         'GT' => 'H', 'RP' => 'H', 'ET' => 'H', 'CP' => 'H', 'EG' => 'H',
         'CT' => 'H', 'DS' => 'H', 'RS' => 'H', 'GSTR' => 'H',
         'VGG' => 'H', 'VGS' => 'H', 'VGEC' => 'H', 'PB' => 'H',
+        // F - Liner Panels (single skin liner sheeting)
+        'S5OW' => 'F', 'A5OW' => 'F', 'S7OW' => 'F', 'A7OW' => 'F',
+        'PUA' => 'F', 'PUS' => 'F',
         // I - Panels Standard Buyouts (screws, sealants, fasteners)
         'BM1' => 'I', 'BM2' => 'I',
+        'CS1' => 'I', 'CS2' => 'I', 'CS4' => 'I',
+        'SS1' => 'I', 'SS2' => 'I', 'SS4' => 'I',
         // M - Container & Skids
         'ContSkid' => 'M',
         // O - Freight

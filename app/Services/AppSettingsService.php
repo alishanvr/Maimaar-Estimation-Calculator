@@ -69,6 +69,11 @@ class AppSettingsService
         return $this->get('primary_color', '#3B82F6');
     }
 
+    public function enableFillTestData(): bool
+    {
+        return $this->get('enable_fill_test_data', 'false') === 'true';
+    }
+
     public function flushCache(): void
     {
         Cache::forget(self::CACHE_KEY);

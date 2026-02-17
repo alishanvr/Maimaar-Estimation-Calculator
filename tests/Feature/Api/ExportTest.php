@@ -274,3 +274,47 @@ it('logs SAL export activity', function () {
     expect($log)->not->toBeNull();
     expect($log->causer_id)->toBe($user->id);
 });
+
+// ── RAWMAT Export ────────────────────────────────────────────────
+
+it('can export RAWMAT as PDF', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('test-token')->plainTextToken;
+    $estimation = Estimation::factory()->withResults()->create(['user_id' => $user->id]);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+        ->get("/api/estimations/{$estimation->id}/export/rawmat");
+
+    $response->assertSuccessful();
+    $response->assertHeader('content-type', 'application/pdf');
+    expect($response->headers->get('content-disposition'))->toContain('RAWMAT-');
+});
+
+it('cannot export RAWMAT without calculation', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('test-token')->plainTextToken;
+    $estimation = Estimation::factory()->create(['user_id' => $user->id]);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+        ->getJson("/api/estimations/{$estimation->id}/export/rawmat");
+
+    $response->assertStatus(422)
+        ->assertJson(['message' => 'Estimation has not been calculated yet.']);
+});
+
+it('logs RAWMAT export activity', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('test-token')->plainTextToken;
+    $estimation = Estimation::factory()->withResults()->create(['user_id' => $user->id]);
+
+    $this->withHeader('Authorization', "Bearer {$token}")
+        ->get("/api/estimations/{$estimation->id}/export/rawmat");
+
+    $log = Activity::query()
+        ->where('description', 'exported RAWMAT PDF')
+        ->where('subject_id', $estimation->id)
+        ->first();
+
+    expect($log)->not->toBeNull();
+    expect($log->causer_id)->toBe($user->id);
+});

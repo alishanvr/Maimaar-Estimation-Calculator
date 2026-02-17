@@ -14,6 +14,7 @@ class EstimationService
         private readonly SALGenerator $salGenerator,
         private readonly BOQGenerator $boqGenerator,
         private readonly JAFGenerator $jafGenerator,
+        private readonly RawMatGenerator $rawmatGenerator,
         private readonly FreightCalculator $freightCalculator,
         private readonly PaintCalculator $paintCalculator,
         private readonly RoofMonitorCalculator $monitorCalculator,
@@ -81,6 +82,9 @@ class EstimationService
         // Step 10: Generate JAF
         $jafResult = $this->jafGenerator->generate($fcpbsResult, $parsedInput);
 
+        // Step 11: Generate RAWMAT (raw material aggregation)
+        $rawmatResult = $this->rawmatGenerator->generate($detailItems);
+
         // Build summary
         $totalWeightKg = (float) ($fcpbsResult['total_weight_kg'] ?? 0);
         $totalPrice = (float) ($fcpbsResult['total_price'] ?? 0);
@@ -100,6 +104,7 @@ class EstimationService
             'sal' => $salResult,
             'boq' => $boqResult,
             'jaf' => $jafResult,
+            'rawmat' => $rawmatResult,
             'freight' => $freightResult,
             'paint' => $paintResult,
             'monitor' => $monitorResult,

@@ -18,6 +18,7 @@ it('returns correct json structure', function () {
             'logo_url',
             'favicon_url',
             'primary_color',
+            'enable_fill_test_data',
         ]);
 });
 
@@ -31,6 +32,7 @@ it('returns defaults when no settings exist', function () {
             'logo_url' => null,
             'favicon_url' => null,
             'primary_color' => '#3B82F6',
+            'enable_fill_test_data' => false,
         ]);
 });
 
@@ -122,6 +124,31 @@ it('returns favicon url when file exists on disk', function () {
 
     $response->assertSuccessful();
     expect($response->json('favicon_url'))->toContain('app-settings/favicon.ico');
+});
+
+it('returns enable_fill_test_data as true when configured', function () {
+    DesignConfiguration::query()->create([
+        'category' => 'app_settings',
+        'key' => 'enable_fill_test_data',
+        'value' => 'true',
+        'label' => 'Enable Fill Test Data',
+    ]);
+
+    $response = $this->getJson('/api/app-settings');
+
+    $response->assertSuccessful()
+        ->assertJson([
+            'enable_fill_test_data' => true,
+        ]);
+});
+
+it('returns enable_fill_test_data as false when not configured', function () {
+    $response = $this->getJson('/api/app-settings');
+
+    $response->assertSuccessful()
+        ->assertJson([
+            'enable_fill_test_data' => false,
+        ]);
 });
 
 it('does not require sanctum middleware', function () {

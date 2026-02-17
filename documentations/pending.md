@@ -1,10 +1,31 @@
-**check file 15. missing features gap** and build that.
+check file documentations/15-missing-features-gap-analysis.md missing features gap and build the followings:
+Product/Inventory Admin CRUD
+Product Search (frontend and backend/admin side)
+
+You should build the backend and frontend.
+and in the end share how i can check/verify that the features are implemented correctly. give me steps to verify the features.
+also, in the end share a table for everything that is missing and considered as CRUD from admin side. So, admin will have a full control of every aspect.
+
+Excel/CSV Import
+CSV/Excel Export
+User Self-Registration
+Password Change
+Password Reset Flow
+
+Analytics
+Reports/Export Log Table
+Session Tracking Table
+Analytics Aggregation Table
 
 
+ 
 
 
-
-
+Verify that the following features are available on frontend and on backend:
+- Liner/Ceiling Calculator
+- Fascia Type in Canopy Calculator
+- RAWMAT Output Sheet
+- Multi-Building Projects
 
 
 

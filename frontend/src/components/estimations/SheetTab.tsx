@@ -9,6 +9,7 @@ const SHEET_LABELS: Record<Exclude<SheetTab, "input">, string> = {
   sal: "SAL (Sales Analysis)",
   boq: "BOQ (Bill of Quantities)",
   jaf: "JAF (Job Acceptance Form)",
+  rawmat: "RAWMAT (Raw Material Summary)",
 };
 
 interface SheetTabProps {

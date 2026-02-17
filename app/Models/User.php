@@ -58,6 +58,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Estimation::class);
     }
 
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class);
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->isAdmin() && $this->isActive();

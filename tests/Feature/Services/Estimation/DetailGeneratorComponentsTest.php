@@ -272,6 +272,313 @@ describe('canopy items', function () {
     });
 });
 
+describe('fascia items', function () {
+    it('generates fascia items with posts, girts, connections, and wall sheeting', function () {
+        $input = baseInput();
+        $input['canopies'] = [
+            [
+                'description' => 'Front Fascia',
+                'sales_code' => 3,
+                'frame_type' => 'Fascia',
+                'width' => 1,
+                'height' => 2,
+                'col_spacing' => '2@6',
+                'wall_sheeting' => 'S5OW',
+                'wind_speed' => 130,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $fasciaItems = array_filter($items, fn ($item) => $item['sales_code'] === 3 && ! $item['is_header']);
+
+        expect($fasciaItems)->not->toBeEmpty();
+
+        $codes = array_column($fasciaItems, 'code');
+
+        // Posts (IPEa for moderate wind index)
+        expect($codes)->toContain('IPEa');
+        // Connections
+        expect($codes)->toContain('MFC1');
+        expect($codes)->toContain('HSB16');
+        // Girts (Z-section based on wind design index)
+        $hasGirt = false;
+        foreach ($codes as $code) {
+            if (str_starts_with($code, 'Z') || $code === 'BUB') {
+                $hasGirt = true;
+                break;
+            }
+        }
+        expect($hasGirt)->toBeTrue();
+        // Girt bolts and clips
+        expect($codes)->toContain('HSB12');
+        expect($codes)->toContain('CFClip');
+        // Wall sheeting
+        expect($codes)->toContain('S5OW');
+        // Trims
+        expect($codes)->toContain('TTS1');
+        // Fasteners (carbon steel for steel sheeting)
+        expect($codes)->toContain('CS2');
+    });
+
+    it('uses stainless screws for aluminum wall sheeting', function () {
+        $input = baseInput();
+        $input['canopies'] = [
+            [
+                'description' => 'Fascia Aluminum',
+                'sales_code' => 3,
+                'frame_type' => 'Fascia',
+                'width' => 1,
+                'height' => 2,
+                'col_spacing' => '2@6',
+                'wall_sheeting' => 'A5OW',
+                'wind_speed' => 130,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $fasciaItems = array_filter($items, fn ($item) => $item['sales_code'] === 3 && ! $item['is_header']);
+        $codes = array_column($fasciaItems, 'code');
+
+        expect($codes)->toContain('SS2');
+        expect($codes)->not->toContain('CS2');
+    });
+
+    it('selects UB2 posts for moderate wind index', function () {
+        $input = baseInput();
+        // postIndex = windSpeed * (height + width) * bayWidth
+        // 130 * (3 + 2) * 8 = 5200, which is > 2500 but ≤ 6000 → UB2
+        $input['canopies'] = [
+            [
+                'description' => 'High Wind Fascia',
+                'sales_code' => 3,
+                'frame_type' => 'Fascia',
+                'width' => 2,
+                'height' => 3,
+                'col_spacing' => '2@8',
+                'wall_sheeting' => 'S5OW',
+                'wind_speed' => 130,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $fasciaItems = array_filter($items, fn ($item) => $item['sales_code'] === 3 && ! $item['is_header']);
+        $codes = array_column($fasciaItems, 'code');
+
+        expect($codes)->toContain('UB2');
+    });
+
+    it('selects UB3 posts for high wind index', function () {
+        $input = baseInput();
+        // postIndex = windSpeed * (height + width) * bayWidth
+        // 200 * (4 + 2) * 10 = 12000, which is > 6000 → UB3
+        $input['canopies'] = [
+            [
+                'description' => 'Very High Wind Fascia',
+                'sales_code' => 3,
+                'frame_type' => 'Fascia',
+                'width' => 2,
+                'height' => 4,
+                'col_spacing' => '1@10',
+                'wall_sheeting' => 'S5OW',
+                'wind_speed' => 200,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $fasciaItems = array_filter($items, fn ($item) => $item['sales_code'] === 3 && ! $item['is_header']);
+        $codes = array_column($fasciaItems, 'code');
+
+        expect($codes)->toContain('UB3');
+    });
+
+    it('calculates correct girt lines based on fascia height and width', function () {
+        $input = baseInput();
+        // height=3, width=2 → girtLines = int((3+2)/1.7)+1 = int(2.94)+1 = 3
+        // 2 bays → 2 sets of girts
+        $input['canopies'] = [
+            [
+                'description' => 'Fascia Girt Test',
+                'sales_code' => 3,
+                'frame_type' => 'Fascia',
+                'width' => 2,
+                'height' => 3,
+                'col_spacing' => '2@6',
+                'wall_sheeting' => 'None',
+                'wind_speed' => 130,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $girtItems = array_filter($items, fn ($item) => $item['sales_code'] === 3 && ! $item['is_header']
+            && str_starts_with($item['code'], 'Z'));
+
+        // girtLines=3, 2 bays → each bay gets 3 girts
+        $totalGirtQty = array_sum(array_column($girtItems, 'qty'));
+        expect($totalGirtQty)->toBe(6); // 2 bays * 3 girt lines
+    });
+
+    it('uses minimum 3 girt lines when height is short', function () {
+        $input = baseInput();
+        // height=1.0 (≤ 1.2), width=0.5 → girtLines = 3 (minimum)
+        $input['canopies'] = [
+            [
+                'description' => 'Short Fascia',
+                'sales_code' => 3,
+                'frame_type' => 'Fascia',
+                'width' => 0.5,
+                'height' => 1.0,
+                'col_spacing' => '1@6',
+                'wall_sheeting' => 'None',
+                'wind_speed' => 100,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $girtItems = array_filter($items, fn ($item) => $item['sales_code'] === 3 && ! $item['is_header']
+            && (str_starts_with($item['code'], 'Z') || $item['code'] === 'BUB'));
+
+        // 1 bay * 3 girt lines = 3
+        $totalGirtQty = array_sum(array_column($girtItems, 'qty'));
+        expect($totalGirtQty)->toBe(3);
+    });
+
+    it('does not generate roof sheeting for fascia type', function () {
+        $input = baseInput();
+        $input['canopies'] = [
+            [
+                'description' => 'Fascia No Roof',
+                'sales_code' => 3,
+                'frame_type' => 'Fascia',
+                'width' => 1,
+                'height' => 2,
+                'col_spacing' => '2@6',
+                'roof_sheeting' => 'M45AZ',
+                'wall_sheeting' => 'S5OW',
+                'wind_speed' => 130,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $fasciaItems = array_filter($items, fn ($item) => $item['sales_code'] === 3 && ! $item['is_header']);
+        $codes = array_column($fasciaItems, 'code');
+
+        // Fascia should NOT have roof sheeting or purlins
+        expect($codes)->not->toContain('M45AZ');
+        expect($codes)->not->toContain('BU'); // No rafters
+    });
+
+    it('skips fascia with no wall sheeting', function () {
+        $input = baseInput();
+        $input['canopies'] = [
+            [
+                'description' => 'Fascia No Wall',
+                'sales_code' => 3,
+                'frame_type' => 'Fascia',
+                'width' => 1,
+                'height' => 2,
+                'col_spacing' => '2@6',
+                'wall_sheeting' => 'None',
+                'wind_speed' => 130,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $fasciaItems = array_filter($items, fn ($item) => $item['sales_code'] === 3 && ! $item['is_header']);
+        $codes = array_column($fasciaItems, 'code');
+
+        // Should still have posts, girts, connections — but no sheeting, trims, or screws
+        expect($codes)->not->toContain('TTS1');
+        expect($codes)->not->toContain('CS2');
+        expect($codes)->not->toContain('SS2');
+        // But should have structural elements
+        expect($codes)->toContain('MFC1');
+        expect($codes)->toContain('HSB16');
+    });
+
+    it('skips fascia with zero width and zero height', function () {
+        $input = baseInput();
+        $input['canopies'] = [
+            [
+                'description' => 'Bad Fascia',
+                'sales_code' => 3,
+                'frame_type' => 'Fascia',
+                'width' => 0,
+                'height' => 0,
+                'col_spacing' => '2@6',
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $fasciaItems = array_filter($items, fn ($item) => $item['sales_code'] === 3);
+
+        expect($fasciaItems)->toBeEmpty();
+    });
+
+    it('calculates correct wall area and trim length', function () {
+        $input = baseInput();
+        // totalLength = 2*6 = 12m, height=2, width=1
+        // wallArea = 12 * (2+1) = 36 m²
+        // trimLength = 2*12 + 4*(2+1) = 24 + 12 = 36 m
+        // fasteners = 4 * 36 = 144
+        $input['canopies'] = [
+            [
+                'description' => 'Area Test Fascia',
+                'sales_code' => 3,
+                'frame_type' => 'Fascia',
+                'width' => 1,
+                'height' => 2,
+                'col_spacing' => '2@6',
+                'wall_sheeting' => 'S5OW',
+                'wind_speed' => 130,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $fasciaItems = array_values(array_filter($items, fn ($item) => $item['sales_code'] === 3 && ! $item['is_header']));
+
+        // Find wall sheeting item (S5OW)
+        $sheetingItems = array_filter($fasciaItems, fn ($item) => $item['code'] === 'S5OW');
+        $sheetingItem = array_values($sheetingItems)[0] ?? null;
+        expect($sheetingItem)->not->toBeNull();
+        expect((float) $sheetingItem['qty'])->toBe(36.0); // wallArea = 12 * 3
+
+        // Find trim item (TTS1)
+        $trimItems = array_filter($fasciaItems, fn ($item) => $item['code'] === 'TTS1');
+        $trimItem = array_values($trimItems)[0] ?? null;
+        expect($trimItem)->not->toBeNull();
+        expect((float) $trimItem['qty'])->toBe(36.0); // 2*12 + 4*(2+1) = 36
+
+        // Find fastener item (CS2)
+        $screwItems = array_filter($fasciaItems, fn ($item) => $item['code'] === 'CS2');
+        $screwItem = array_values($screwItems)[0] ?? null;
+        expect($screwItem)->not->toBeNull();
+        expect((float) $screwItem['qty'])->toBe(144.0); // 4 * 36
+    });
+
+    it('generates header row for fascia description', function () {
+        $input = baseInput();
+        $input['canopies'] = [
+            [
+                'description' => 'Custom Fascia Name',
+                'sales_code' => 3,
+                'frame_type' => 'Fascia',
+                'width' => 1,
+                'height' => 2,
+                'col_spacing' => '2@6',
+                'wall_sheeting' => 'S5OW',
+                'wind_speed' => 130,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $headerItems = array_filter($items, fn ($item) => $item['sales_code'] === 3
+            && ($item['is_header'] ?? false)
+            && str_contains($item['description'], 'Custom Fascia Name'));
+
+        expect($headerItems)->not->toBeEmpty();
+    });
+});
+
 describe('empty components', function () {
     it('gracefully handles empty component arrays', function () {
         $input = baseInput();
@@ -279,11 +586,12 @@ describe('empty components', function () {
         $input['mezzanines'] = [];
         $input['partitions'] = [];
         $input['canopies'] = [];
+        $input['liners'] = [];
 
         $items = $this->generator->generate($input);
 
         // Should still have building area items but no component items
-        $componentSalesCodes = [2, 3, 4, 11];
+        $componentSalesCodes = [2, 3, 4, 11, 18];
         $componentItems = array_filter($items, fn ($item) => in_array($item['sales_code'], $componentSalesCodes));
 
         expect($componentItems)->toBeEmpty();
@@ -291,11 +599,390 @@ describe('empty components', function () {
 
     it('gracefully handles missing component keys', function () {
         $input = baseInput();
-        // Don't set cranes, mezzanines, partitions, canopies at all
+        // Don't set cranes, mezzanines, partitions, canopies, liners at all
 
         $items = $this->generator->generate($input);
 
         // Should still work without errors
+        expect($items)->toBeArray();
+        expect(count($items))->toBeGreaterThan(0);
+    });
+});
+
+describe('liner items', function () {
+    it('generates roof and wall liner items for type Both', function () {
+        $input = baseInput();
+        $input['building_length'] = 18.0;
+        $input['rafter_length'] = 14.1;
+        $input['endwall_area'] = 105.7;
+        $input['liners'] = [
+            [
+                'description' => 'Roof & Wall Liner',
+                'sales_code' => 18,
+                'type' => 'Both',
+                'roof_liner_code' => 'S5OW',
+                'wall_liner_code' => 'S5OW',
+                'roof_area' => 0,
+                'wall_area' => 0,
+                'roof_openings_area' => 0,
+                'wall_openings_area' => 0,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $linerItems = array_filter($items, fn ($item) => $item['sales_code'] === 18 && ! $item['is_header']);
+
+        expect($linerItems)->not->toBeEmpty();
+
+        $codes = array_column($linerItems, 'code');
+        expect($codes)->toContain('S5OW');
+        expect($codes)->toContain('CS2');
+        expect($codes)->toContain('CS1');
+    });
+
+    it('generates header row for liner items', function () {
+        $input = baseInput();
+        $input['building_length'] = 18.0;
+        $input['rafter_length'] = 14.1;
+        $input['endwall_area'] = 105.7;
+        $input['liners'] = [
+            [
+                'description' => 'Test Liner',
+                'sales_code' => 18,
+                'type' => 'Both',
+                'roof_liner_code' => 'S5OW',
+                'wall_liner_code' => 'S5OW',
+                'roof_area' => 0,
+                'wall_area' => 0,
+                'roof_openings_area' => 0,
+                'wall_openings_area' => 0,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $headers = array_filter($items, fn ($item) => $item['sales_code'] === 18 && $item['is_header']);
+
+        expect($headers)->not->toBeEmpty();
+        $headerDescs = array_column($headers, 'description');
+        expect($headerDescs)->toContain('LINER / CEILING PANELS - Test Liner');
+    });
+
+    it('generates only roof liner items for type Roof Liner', function () {
+        $input = baseInput();
+        $input['building_length'] = 18.0;
+        $input['rafter_length'] = 14.1;
+        $input['endwall_area'] = 105.7;
+        $input['liners'] = [
+            [
+                'description' => 'Roof Only',
+                'sales_code' => 18,
+                'type' => 'Roof Liner',
+                'roof_liner_code' => 'S5OW',
+                'wall_liner_code' => 'S5OW',
+                'roof_area' => 0,
+                'wall_area' => 0,
+                'roof_openings_area' => 0,
+                'wall_openings_area' => 0,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $linerItems = array_filter($items, fn ($item) => $item['sales_code'] === 18 && ! $item['is_header']);
+
+        expect(count($linerItems))->toBe(3);
+    });
+
+    it('generates only wall liner items for type Wall Liner', function () {
+        $input = baseInput();
+        $input['building_length'] = 18.0;
+        $input['rafter_length'] = 14.1;
+        $input['endwall_area'] = 105.7;
+        $input['liners'] = [
+            [
+                'description' => 'Wall Only',
+                'sales_code' => 18,
+                'type' => 'Wall Liner',
+                'roof_liner_code' => 'S5OW',
+                'wall_liner_code' => 'S5OW',
+                'roof_area' => 0,
+                'wall_area' => 0,
+                'roof_openings_area' => 0,
+                'wall_openings_area' => 0,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $linerItems = array_filter($items, fn ($item) => $item['sales_code'] === 18 && ! $item['is_header']);
+
+        expect(count($linerItems))->toBe(3);
+    });
+
+    it('generates 6 product rows for type Both', function () {
+        $input = baseInput();
+        $input['building_length'] = 18.0;
+        $input['rafter_length'] = 14.1;
+        $input['endwall_area'] = 105.7;
+        $input['liners'] = [
+            [
+                'description' => 'Full Liner',
+                'sales_code' => 18,
+                'type' => 'Both',
+                'roof_liner_code' => 'S5OW',
+                'wall_liner_code' => 'S5OW',
+                'roof_area' => 0,
+                'wall_area' => 0,
+                'roof_openings_area' => 0,
+                'wall_openings_area' => 0,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $linerItems = array_filter($items, fn ($item) => $item['sales_code'] === 18 && ! $item['is_header']);
+
+        expect(count($linerItems))->toBe(6);
+    });
+
+    it('uses stainless screws for aluminum liner codes', function () {
+        $input = baseInput();
+        $input['building_length'] = 18.0;
+        $input['rafter_length'] = 14.1;
+        $input['endwall_area'] = 105.7;
+        $input['liners'] = [
+            [
+                'description' => 'Aluminum Liner',
+                'sales_code' => 18,
+                'type' => 'Roof Liner',
+                'roof_liner_code' => 'A5OW',
+                'wall_liner_code' => '',
+                'roof_area' => 100,
+                'wall_area' => 0,
+                'roof_openings_area' => 0,
+                'wall_openings_area' => 0,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $linerItems = array_filter($items, fn ($item) => $item['sales_code'] === 18 && ! $item['is_header']);
+        $codes = array_column($linerItems, 'code');
+
+        expect($codes)->toContain('A5OW');
+        expect($codes)->toContain('SS2');
+        expect($codes)->toContain('SS1');
+    });
+
+    it('uses SS4 screws for PU Aluminum liner codes', function () {
+        $input = baseInput();
+        $input['building_length'] = 18.0;
+        $input['rafter_length'] = 14.1;
+        $input['endwall_area'] = 105.7;
+        $input['liners'] = [
+            [
+                'description' => 'PUA Liner',
+                'sales_code' => 18,
+                'type' => 'Roof Liner',
+                'roof_liner_code' => 'PUA50',
+                'wall_liner_code' => '',
+                'roof_area' => 100,
+                'wall_area' => 0,
+                'roof_openings_area' => 0,
+                'wall_openings_area' => 0,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $linerItems = array_filter($items, fn ($item) => $item['sales_code'] === 18 && ! $item['is_header']);
+        $codes = array_column($linerItems, 'code');
+
+        expect($codes)->toContain('PUA50');
+        expect($codes)->toContain('SS4');
+        expect($codes)->toContain('SS1');
+    });
+
+    it('uses CS4 screws for PU Steel liner codes', function () {
+        $input = baseInput();
+        $input['building_length'] = 18.0;
+        $input['rafter_length'] = 14.1;
+        $input['endwall_area'] = 105.7;
+        $input['liners'] = [
+            [
+                'description' => 'PUS Liner',
+                'sales_code' => 18,
+                'type' => 'Roof Liner',
+                'roof_liner_code' => 'PUS50',
+                'wall_liner_code' => '',
+                'roof_area' => 100,
+                'wall_area' => 0,
+                'roof_openings_area' => 0,
+                'wall_openings_area' => 0,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $linerItems = array_filter($items, fn ($item) => $item['sales_code'] === 18 && ! $item['is_header']);
+        $codes = array_column($linerItems, 'code');
+
+        expect($codes)->toContain('PUS50');
+        expect($codes)->toContain('CS4');
+        expect($codes)->toContain('CS1');
+    });
+
+    it('uses manual area override when roof_area is provided', function () {
+        $input = baseInput();
+        $input['building_length'] = 18.0;
+        $input['rafter_length'] = 14.1;
+        $input['endwall_area'] = 105.7;
+        $input['liners'] = [
+            [
+                'description' => 'Manual Roof Area',
+                'sales_code' => 18,
+                'type' => 'Roof Liner',
+                'roof_liner_code' => 'S5OW',
+                'wall_liner_code' => '',
+                'roof_area' => 250,
+                'wall_area' => 0,
+                'roof_openings_area' => 0,
+                'wall_openings_area' => 0,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $sheetItems = array_values(array_filter(
+            $items,
+            fn ($item) => $item['code'] === 'S5OW' && $item['sales_code'] === 18
+        ));
+
+        expect($sheetItems)->toHaveCount(1);
+        expect((float) $sheetItems[0]['size'])->toBe(250.0);
+    });
+
+    it('correctly calculates screw quantities from area', function () {
+        $input = baseInput();
+        $input['building_length'] = 18.0;
+        $input['rafter_length'] = 14.1;
+        $input['endwall_area'] = 105.7;
+        $input['liners'] = [
+            [
+                'description' => 'Screw Qty Test',
+                'sales_code' => 18,
+                'type' => 'Roof Liner',
+                'roof_liner_code' => 'S5OW',
+                'wall_liner_code' => '',
+                'roof_area' => 100,
+                'wall_area' => 0,
+                'roof_openings_area' => 0,
+                'wall_openings_area' => 0,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $linerItems = array_values(array_filter(
+            $items,
+            fn ($item) => $item['sales_code'] === 18 && ! $item['is_header']
+        ));
+
+        expect($linerItems[0]['code'])->toBe('S5OW');
+        expect((float) $linerItems[0]['size'])->toBe(100.0);
+        expect((int) $linerItems[0]['qty'])->toBe(1);
+
+        expect($linerItems[1]['code'])->toBe('CS2');
+        expect((int) $linerItems[1]['qty'])->toBe(400);
+
+        expect($linerItems[2]['code'])->toBe('CS1');
+        expect((int) $linerItems[2]['qty'])->toBe(50);
+    });
+
+    it('deducts roof openings from auto-calculated roof area', function () {
+        $input = baseInput();
+        $input['building_length'] = 18.0;
+        $input['rafter_length'] = 14.1;
+        $input['endwall_area'] = 105.7;
+
+        $input['liners'] = [
+            [
+                'description' => 'No Openings',
+                'sales_code' => 18,
+                'type' => 'Roof Liner',
+                'roof_liner_code' => 'S5OW',
+                'wall_liner_code' => '',
+                'roof_area' => 0,
+                'wall_area' => 0,
+                'roof_openings_area' => 0,
+                'wall_openings_area' => 0,
+            ],
+        ];
+        $itemsNoOpenings = $this->generator->generate($input);
+        $sheetNoOpenings = array_values(array_filter(
+            $itemsNoOpenings,
+            fn ($item) => $item['code'] === 'S5OW' && $item['sales_code'] === 18
+        ));
+
+        $input['liners'][0]['roof_openings_area'] = 20;
+        $itemsWithOpenings = $this->generator->generate($input);
+        $sheetWithOpenings = array_values(array_filter(
+            $itemsWithOpenings,
+            fn ($item) => $item['code'] === 'S5OW' && $item['sales_code'] === 18
+        ));
+
+        expect((float) $sheetWithOpenings[0]['size'])->toBeLessThan((float) $sheetNoOpenings[0]['size']);
+    });
+
+    it('handles multiple liners', function () {
+        $input = baseInput();
+        $input['building_length'] = 18.0;
+        $input['rafter_length'] = 14.1;
+        $input['endwall_area'] = 105.7;
+        $input['liners'] = [
+            [
+                'description' => 'Liner 1',
+                'sales_code' => 18,
+                'type' => 'Roof Liner',
+                'roof_liner_code' => 'S5OW',
+                'wall_liner_code' => '',
+                'roof_area' => 100,
+                'wall_area' => 0,
+                'roof_openings_area' => 0,
+                'wall_openings_area' => 0,
+            ],
+            [
+                'description' => 'Liner 2',
+                'sales_code' => 19,
+                'type' => 'Wall Liner',
+                'roof_liner_code' => '',
+                'wall_liner_code' => 'A5OW',
+                'roof_area' => 0,
+                'wall_area' => 200,
+                'roof_openings_area' => 0,
+                'wall_openings_area' => 0,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $liner1Items = array_filter($items, fn ($item) => $item['sales_code'] === 18 && ! $item['is_header']);
+        $liner2Items = array_filter($items, fn ($item) => $item['sales_code'] === 19 && ! $item['is_header']);
+
+        expect($liner1Items)->not->toBeEmpty();
+        expect($liner2Items)->not->toBeEmpty();
+
+        $liner2Codes = array_column($liner2Items, 'code');
+        expect($liner2Codes)->toContain('A5OW');
+        expect($liner2Codes)->toContain('SS2');
+        expect($liner2Codes)->toContain('SS1');
+    });
+
+    it('skips liners with empty arrays', function () {
+        $input = baseInput();
+        $input['liners'] = [];
+
+        $items = $this->generator->generate($input);
+        $linerItems = array_filter($items, fn ($item) => $item['sales_code'] === 18);
+
+        expect($linerItems)->toBeEmpty();
+    });
+
+    it('gracefully handles missing liners key', function () {
+        $input = baseInput();
+
+        $items = $this->generator->generate($input);
         expect($items)->toBeArray();
         expect(count($items))->toBeGreaterThan(0);
     });

@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AppSettingsController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DesignConfigurationController;
 use App\Http\Controllers\Api\EstimationController;
+use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\ReportController;
 use Illuminate\Support\Facades\Route;
 
@@ -39,6 +40,16 @@ Route::middleware('auth:sanctum')->group(function () {
             ->middleware('throttle:exports');
     });
 
+    // Projects CRUD
+    Route::apiResource('projects', ProjectController::class);
+    Route::prefix('projects/{project}')->name('projects.')->group(function () {
+        Route::get('/buildings', [ProjectController::class, 'buildings'])->name('buildings');
+        Route::post('/buildings', [ProjectController::class, 'addBuilding'])->name('buildings.add');
+        Route::delete('/buildings/{estimation}', [ProjectController::class, 'removeBuilding'])->name('buildings.remove');
+        Route::post('/buildings/{estimation}/duplicate', [ProjectController::class, 'duplicateBuilding'])->name('buildings.duplicate');
+        Route::get('/history', [ProjectController::class, 'history'])->name('history');
+    });
+
     // Collection-level estimation actions (BEFORE apiResource to avoid route conflicts)
     Route::post('/estimations/compare', [EstimationController::class, 'compare'])
         ->name('estimations.compare');
@@ -67,6 +78,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/sal', [EstimationController::class, 'sal'])->name('sal');
         Route::get('/boq', [EstimationController::class, 'boq'])->name('boq');
         Route::get('/jaf', [EstimationController::class, 'jaf'])->name('jaf');
+        Route::get('/rawmat', [EstimationController::class, 'rawmat'])->name('rawmat');
 
         Route::middleware('throttle:exports')->group(function () {
             Route::get('/export/recap', [EstimationController::class, 'exportRecap'])->name('export.recap');
@@ -75,6 +87,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/export/sal', [EstimationController::class, 'exportSal'])->name('export.sal');
             Route::get('/export/boq', [EstimationController::class, 'exportBoq'])->name('export.boq');
             Route::get('/export/jaf', [EstimationController::class, 'exportJaf'])->name('export.jaf');
+            Route::get('/export/rawmat', [EstimationController::class, 'exportRawmat'])->name('export.rawmat');
         });
     });
 });

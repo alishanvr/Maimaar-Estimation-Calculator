@@ -25,6 +25,32 @@ describe('lookupPurlinCode', function () {
     });
 });
 
+describe('lookupGirtCode', function () {
+    it('returns Z15G for low index', function () {
+        expect($this->calculator->lookupGirtCode(30))->toBe('Z15G');
+    });
+
+    it('returns Z20G for medium index', function () {
+        expect($this->calculator->lookupGirtCode(60))->toBe('Z20G');
+    });
+
+    it('returns Z25G for higher index', function () {
+        expect($this->calculator->lookupGirtCode(100))->toBe('Z25G');
+    });
+
+    it('returns Z30G for high index', function () {
+        expect($this->calculator->lookupGirtCode(200))->toBe('Z30G');
+    });
+
+    it('returns Z35G for very high index', function () {
+        expect($this->calculator->lookupGirtCode(350))->toBe('Z35G');
+    });
+
+    it('returns BUB for extreme index', function () {
+        expect($this->calculator->lookupGirtCode(500))->toBe('BUB');
+    });
+});
+
 describe('lookupEndwallColumnCode', function () {
     it('returns Z15G for low index painted', function () {
         expect($this->calculator->lookupEndwallColumnCode(20, 3))->toBe('Z15G');

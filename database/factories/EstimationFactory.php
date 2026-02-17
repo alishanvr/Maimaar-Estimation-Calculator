@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Estimation;
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -50,6 +51,13 @@ class EstimationFactory extends Factory
             'parent_id' => $parent->id,
             'quote_number' => $parent->quote_number,
             'input_data' => $parent->input_data,
+        ]);
+    }
+
+    public function forProject(Project $project): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'project_id' => $project->id,
         ]);
     }
 
@@ -159,6 +167,22 @@ class EstimationFactory extends Factory
                     'total_price' => 424933,
                     'markup_ratio' => 0.970,
                     'price_per_mt' => 8577.21,
+                ],
+                'rawmat' => [
+                    'items' => [
+                        ['no' => 1, 'code' => 'BU200', 'cost_code' => 'A1', 'description' => 'Built-up Section', 'unit' => 'm', 'quantity' => 142.5, 'unit_weight' => 35.2, 'total_weight' => 5016.0, 'category' => 'Primary Steel', 'sources' => '1'],
+                        ['no' => 2, 'code' => 'Z20G', 'cost_code' => 'B1', 'description' => 'Z-Purlin 200', 'unit' => 'm', 'quantity' => 364.0, 'unit_weight' => 4.88, 'total_weight' => 1776.32, 'category' => 'Secondary Steel', 'sources' => '1'],
+                    ],
+                    'summary' => [
+                        'total_items_before' => 5,
+                        'unique_materials' => 2,
+                        'total_weight_kg' => 6792.32,
+                        'category_count' => 2,
+                    ],
+                    'categories' => [
+                        'Primary Steel' => ['count' => 1, 'weight_kg' => 5016.0],
+                        'Secondary Steel' => ['count' => 1, 'weight_kg' => 1776.32],
+                    ],
                 ],
             ],
         ]);
