@@ -570,3 +570,36 @@ export interface ActivityLogEntry {
   created_at: string;
   properties: Record<string, unknown>;
 }
+
+// ── Product Types ───────────────────────────────────────────────────
+
+export interface MbsdbProduct {
+  id: number;
+  code: string;
+  description: string;
+  unit: string | null;
+  category: string | null;
+  rate: number;
+  rate_type: string | null;
+  metadata: Record<string, unknown> | null;
+}
+
+export interface SsdbProduct {
+  id: number;
+  code: string;
+  description: string;
+  unit: string | null;
+  category: string | null;
+  rate: number;
+  grade: string | null;
+  metadata: Record<string, unknown> | null;
+}
+
+export interface RawMaterial {
+  id: number;
+  code: string;
+  description: string;
+  weight_per_sqm: number;
+  unit: string;
+  metadata: Record<string, unknown> | null;
+}

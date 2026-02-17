@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\AppSettingsController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DesignConfigurationController;
 use App\Http\Controllers\Api\EstimationController;
+use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\ReportController;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +30,20 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('freight-codes.index');
     Route::get('/paint-systems', [DesignConfigurationController::class, 'paintSystems'])
         ->name('paint-systems.index');
+
+    // Product search
+    Route::get('/products/search', [ProductController::class, 'search'])
+        ->name('products.search');
+    Route::get('/products/{code}', [ProductController::class, 'show'])
+        ->name('products.show');
+    Route::get('/structural-steel/search', [ProductController::class, 'searchStructuralSteel'])
+        ->name('structural-steel.search');
+    Route::get('/raw-materials/search', [ProductController::class, 'searchRawMaterials'])
+        ->name('raw-materials.search');
+
+    // Analytics (pre-aggregated metrics)
+    Route::get('/analytics/aggregated', [AnalyticsController::class, 'aggregated'])
+        ->name('analytics.aggregated');
 
     // Reports
     Route::prefix('reports')->name('reports.')->group(function () {

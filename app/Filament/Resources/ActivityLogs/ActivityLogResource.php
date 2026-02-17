@@ -9,12 +9,15 @@ use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Spatie\Activitylog\Models\Activity;
+use UnitEnum;
 
 class ActivityLogResource extends Resource
 {
     protected static ?string $model = Activity::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Activity & Logs';
 
     protected static ?string $navigationLabel = 'Activity Logs';
 

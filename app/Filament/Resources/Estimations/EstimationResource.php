@@ -2,8 +2,12 @@
 
 namespace App\Filament\Resources\Estimations;
 
+use App\Filament\Resources\Estimations\Pages\CreateEstimation;
+use App\Filament\Resources\Estimations\Pages\EditEstimation;
 use App\Filament\Resources\Estimations\Pages\ListEstimations;
 use App\Filament\Resources\Estimations\Pages\ViewEstimation;
+use App\Filament\Resources\Estimations\RelationManagers\ItemsRelationManager;
+use App\Filament\Resources\Estimations\Schemas\EstimationForm;
 use App\Filament\Resources\Estimations\Schemas\EstimationInfolist;
 use App\Filament\Resources\Estimations\Tables\EstimationsTable;
 use App\Models\Estimation;
@@ -21,9 +25,9 @@ class EstimationResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalculator;
 
-    public static function canCreate(): bool
+    public static function form(Schema $schema): Schema
     {
-        return false;
+        return EstimationForm::configure($schema);
     }
 
     public static function infolist(Schema $schema): Schema
@@ -39,7 +43,7 @@ class EstimationResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ItemsRelationManager::class,
         ];
     }
 
@@ -47,7 +51,9 @@ class EstimationResource extends Resource
     {
         return [
             'index' => ListEstimations::route('/'),
+            'create' => CreateEstimation::route('/create'),
             'view' => ViewEstimation::route('/{record}'),
+            'edit' => EditEstimation::route('/{record}/edit'),
         ];
     }
 

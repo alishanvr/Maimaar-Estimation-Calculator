@@ -11,6 +11,7 @@ use App\Http\Resources\Api\EstimationCollection;
 use App\Http\Resources\Api\EstimationResource;
 use App\Models\Estimation;
 use App\Services\Estimation\EstimationService;
+use App\Services\ExportLogger;
 use App\Services\Pdf\PdfSettingsService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -296,6 +297,8 @@ class EstimationController extends Controller
 
         $filename = 'BOQ-'.($estimation->quote_number ?? 'export').'.pdf';
 
+        ExportLogger::log($request->user(), 'pdf', 'boq', $filename, $estimation);
+
         return $pdf->download($filename);
     }
 
@@ -330,6 +333,8 @@ class EstimationController extends Controller
             ->setPaper($pdfSettings->paperSize(), 'portrait');
 
         $filename = 'JAF-'.($estimation->quote_number ?? 'export').'.pdf';
+
+        ExportLogger::log($request->user(), 'pdf', 'jaf', $filename, $estimation);
 
         return $pdf->download($filename);
     }
@@ -366,6 +371,8 @@ class EstimationController extends Controller
 
         $filename = 'Recap-'.($estimation->quote_number ?? 'export').'.pdf';
 
+        ExportLogger::log($request->user(), 'pdf', 'recap', $filename, $estimation);
+
         return $pdf->download($filename);
     }
 
@@ -400,6 +407,8 @@ class EstimationController extends Controller
             ->setPaper($pdfSettings->paperSize(), 'landscape');
 
         $filename = 'Detail-'.($estimation->quote_number ?? 'export').'.pdf';
+
+        ExportLogger::log($request->user(), 'pdf', 'detail', $filename, $estimation);
 
         return $pdf->download($filename);
     }
@@ -436,6 +445,8 @@ class EstimationController extends Controller
 
         $filename = 'FCPBS-'.($estimation->quote_number ?? 'export').'.pdf';
 
+        ExportLogger::log($request->user(), 'pdf', 'fcpbs', $filename, $estimation);
+
         return $pdf->download($filename);
     }
 
@@ -471,6 +482,8 @@ class EstimationController extends Controller
 
         $filename = 'SAL-'.($estimation->quote_number ?? 'export').'.pdf';
 
+        ExportLogger::log($request->user(), 'pdf', 'sal', $filename, $estimation);
+
         return $pdf->download($filename);
     }
 
@@ -505,6 +518,8 @@ class EstimationController extends Controller
             ->setPaper($pdfSettings->paperSize(), 'landscape');
 
         $filename = 'RAWMAT-'.($estimation->quote_number ?? 'export').'.pdf';
+
+        ExportLogger::log($request->user(), 'pdf', 'rawmat', $filename, $estimation);
 
         return $pdf->download($filename);
     }
@@ -703,6 +718,8 @@ class EstimationController extends Controller
         activity()
             ->causedBy($request->user())
             ->log('bulk exported '.count($ids).' estimations');
+
+        ExportLogger::log($request->user(), 'zip', 'bulk', 'estimations-export.zip');
 
         return response()->download($tempFile, 'estimations-export.zip', [
             'Content-Type' => 'application/zip',

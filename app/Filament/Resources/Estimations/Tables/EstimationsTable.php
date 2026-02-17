@@ -5,6 +5,11 @@ namespace App\Filament\Resources\Estimations\Tables;
 use App\Models\Estimation;
 use App\Models\User;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -38,7 +43,8 @@ class EstimationsTable
                     ->color(fn (string $state): string => match ($state) {
                         'draft' => 'gray',
                         'calculated' => 'success',
-                        default => 'info',
+                        'finalized' => 'info',
+                        default => 'gray',
                     })
                     ->sortable(),
                 TextColumn::make('total_weight_mt')
@@ -59,6 +65,7 @@ class EstimationsTable
                     ->options([
                         'draft' => 'Draft',
                         'calculated' => 'Calculated',
+                        'finalized' => 'Finalized',
                     ]),
                 SelectFilter::make('user_id')
                     ->label('User')
@@ -67,6 +74,7 @@ class EstimationsTable
             ])
             ->recordActions([
                 ViewAction::make(),
+                EditAction::make(),
                 Action::make('clone')
                     ->label('Clone')
                     ->icon('heroicon-o-document-duplicate')
@@ -84,6 +92,12 @@ class EstimationsTable
                         $clone->save();
                     })
                     ->successNotificationTitle('Estimation cloned.'),
+                DeleteAction::make(),
+                RestoreAction::make(),
+                ForceDeleteAction::make(),
+            ])
+            ->bulkActions([
+                DeleteBulkAction::make(),
             ]);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\ReportDashboardRequest;
+use App\Services\ExportLogger;
 use App\Services\Pdf\PdfSettingsService;
 use App\Services\ReportService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -39,6 +40,8 @@ class ReportController extends Controller
         );
 
         $filename = 'estimations-report-'.now()->format('Y-m-d').'.csv';
+
+        ExportLogger::log($request->user(), 'csv', 'dashboard', $filename);
 
         return response()->streamDownload(function () use ($rows) {
             $handle = fopen('php://output', 'w');
@@ -82,6 +85,8 @@ class ReportController extends Controller
         ])->setPaper($pdfSettings->paperSize(), 'portrait');
 
         $filename = 'report-dashboard-'.now()->format('Y-m-d').'.pdf';
+
+        ExportLogger::log($request->user(), 'pdf', 'dashboard', $filename);
 
         return $pdf->download($filename);
     }
