@@ -10,7 +10,7 @@ use function Laravel\Prompts\password;
 
 class ResetSuperAdminPassword extends Command
 {
-    protected $signature = 'app:reset-superadmin-password {--password= : The new password (min 8 characters)}';
+    protected $signature = 'app:reset-superadmin-password {--password=}';
 
     protected $description = 'Reset the super admin password via the terminal';
 
