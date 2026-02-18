@@ -10,7 +10,7 @@ class EnsureAppIsInstalled
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $isInstalled = file_exists(storage_path('app/installed'));
+        $isInstalled = env('APP_INSTALLED', false) || file_exists(storage_path('app/installed'));
         $isInstallerRoute = $request->is('install', 'install/*');
 
         // Not installed — redirect everything (except installer routes) to /install

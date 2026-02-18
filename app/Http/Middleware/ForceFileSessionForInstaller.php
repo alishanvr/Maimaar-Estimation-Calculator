@@ -21,7 +21,7 @@ class ForceFileSessionForInstaller
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! file_exists(storage_path('app/installed'))) {
+        if (! env('APP_INSTALLED', false) && ! file_exists(storage_path('app/installed'))) {
             config(['session.driver' => 'file']);
         }
 

@@ -14,7 +14,7 @@ class EnvironmentServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        if (! file_exists(storage_path('app/installed'))) {
+        if (! env('APP_INSTALLED', false) && ! file_exists(storage_path('app/installed'))) {
             return;
         }
 
