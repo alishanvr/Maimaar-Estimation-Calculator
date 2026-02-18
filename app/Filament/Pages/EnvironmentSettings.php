@@ -872,6 +872,7 @@ class EnvironmentSettings extends Page
             'DB_PORT' => (string) (config('database.connections.'.$currentConnection.'.port') ?? ''),
             'DB_DATABASE' => config('database.connections.'.$currentConnection.'.database') ?? '',
             'DB_USERNAME' => config('database.connections.'.$currentConnection.'.username') ?? '',
+            'DB_PASSWORD' => config('database.connections.'.$currentConnection.'.password') ?? '',
         ];
 
         try {

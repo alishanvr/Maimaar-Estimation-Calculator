@@ -209,3 +209,34 @@ it('preserves existing password when field is empty', function () {
 
     expect($storedPassword)->toBe($encrypted);
 });
+
+// ── Access Control ───────────────────────────────────────────
+
+it('save is blocked for non-superadmin users', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin);
+
+    Livewire::test(EnvironmentSettings::class)
+        ->call('save')
+        ->assertNotified('Access denied');
+});
+
+it('non-superadmin cannot see header actions', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin);
+
+    Livewire::test(EnvironmentSettings::class)
+        ->assertDontSee('Test DB Connection')
+        ->assertDontSee('Migrate Data to New Database');
+});
+
+it('superadmin can see test_database header action', function () {
+    $admin = User::factory()->superAdmin()->create();
+
+    $this->actingAs($admin);
+
+    Livewire::test(EnvironmentSettings::class)
+        ->assertActionVisible('test_database');
+});

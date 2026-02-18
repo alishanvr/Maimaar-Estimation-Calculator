@@ -99,3 +99,44 @@ it('preserves data integrity after import round-trip', function () {
     expect($exportedUsers->firstWhere('email', 'test@example.com'))->not->toBeNull();
     expect($exportedEstimations->firstWhere('quote_number', 'HQ-TEST-MIGRATE'))->not->toBeNull();
 });
+
+it('verifyMigration reports mismatch when target has fewer rows', function () {
+    $user = User::factory()->create();
+
+    $service = new DatabaseMigrationService;
+    $data = $service->exportData();
+
+    // Delete the user from the database to create a mismatch
+    User::query()->delete();
+
+    $verification = $service->verifyMigration($data, config('database.default'));
+
+    expect($verification['users']['match'])->toBeFalse();
+    expect($verification['users']['source'])->toBe(1);
+    expect($verification['users']['target'])->toBe(0);
+});
+
+it('all tables in TABLE_ORDER exist in the database schema', function () {
+    $service = new DatabaseMigrationService;
+    $tables = $service->getTableOrder();
+
+    foreach ($tables as $table) {
+        expect(\Illuminate\Support\Facades\Schema::hasTable($table))
+            ->toBeTrue("Table '{$table}' from TABLE_ORDER does not exist in the database.");
+    }
+});
+
+it('handles large datasets via chunked import', function () {
+    $user = User::factory()->create();
+    DesignConfiguration::factory()->count(550)->create();
+
+    $service = new DatabaseMigrationService;
+    $data = $service->exportData();
+
+    expect($data['design_configurations'])->toHaveCount(550);
+
+    // Re-import (truncates + inserts in chunks of 500)
+    $service->importData($data, config('database.default'));
+
+    expect(DesignConfiguration::count())->toBe(550);
+});
