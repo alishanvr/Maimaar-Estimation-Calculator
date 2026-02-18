@@ -2,15 +2,26 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\BoqExport;
+use App\Exports\DetailExport;
+use App\Exports\FcpbsExport;
+use App\Exports\JafExport;
+use App\Exports\RawmatExport;
+use App\Exports\RecapExport;
+use App\Exports\SalExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\BulkExportRequest;
 use App\Http\Requests\Api\CalculateEstimationRequest;
+use App\Http\Requests\Api\ErpExportRequest;
+use App\Http\Requests\Api\ImportEstimationDataRequest;
 use App\Http\Requests\Api\StoreEstimationRequest;
 use App\Http\Requests\Api\UpdateEstimationRequest;
 use App\Http\Resources\Api\EstimationCollection;
 use App\Http\Resources\Api\EstimationResource;
 use App\Models\Estimation;
 use App\Services\CurrencyService;
+use App\Services\Estimation\CsvImportService;
+use App\Services\Estimation\ErpExportService;
 use App\Services\Estimation\EstimationService;
 use App\Services\ExportLogger;
 use App\Services\Pdf\PdfSettingsService;
@@ -19,6 +30,9 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Maatwebsite\Excel\Excel;
+use Maatwebsite\Excel\Facades\Excel as ExcelFacade;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class EstimationController extends Controller
 {
@@ -726,6 +740,145 @@ class EstimationController extends Controller
         return response()->download($tempFile, 'estimations-export.zip', [
             'Content-Type' => 'application/zip',
         ])->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Export a sheet as CSV download.
+     */
+    public function exportCsv(Request $request, Estimation $estimation, string $sheetType): JsonResponse|BinaryFileResponse
+    {
+        $this->authorize('view', $estimation);
+
+        if (! $estimation->isCalculated() && $estimation->status !== 'finalized') {
+            return response()->json([
+                'message' => 'Estimation has not been calculated yet.',
+            ], 422);
+        }
+
+        $csvConfig = [
+            'recap' => ['dataKey' => 'summary', 'exportClass' => RecapExport::class],
+            'detail' => ['dataKey' => 'detail', 'exportClass' => DetailExport::class],
+            'fcpbs' => ['dataKey' => 'fcpbs', 'exportClass' => FcpbsExport::class],
+            'sal' => ['dataKey' => 'sal', 'exportClass' => SalExport::class],
+            'boq' => ['dataKey' => 'boq', 'exportClass' => BoqExport::class],
+            'jaf' => ['dataKey' => 'jaf', 'exportClass' => JafExport::class],
+            'rawmat' => ['dataKey' => 'rawmat', 'exportClass' => RawmatExport::class],
+        ];
+
+        $config = $csvConfig[$sheetType];
+        $sheetData = $estimation->results_data[$config['dataKey']] ?? null;
+
+        if (! $sheetData) {
+            return response()->json([
+                'message' => strtoupper($sheetType).' data is not available.',
+            ], 422);
+        }
+
+        $export = new $config['exportClass']($sheetData);
+        $filename = strtoupper($sheetType).'-'.($estimation->quote_number ?? 'export').'.csv';
+
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($estimation)
+            ->log("exported {$sheetType} CSV");
+
+        ExportLogger::log($request->user(), 'csv', $sheetType, $filename, $estimation);
+
+        return ExcelFacade::download($export, $filename, Excel::CSV);
+    }
+
+    /**
+     * Export ERP-formatted CSV.
+     */
+    public function exportErp(ErpExportRequest $request, Estimation $estimation): JsonResponse|\Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $this->authorize('view', $estimation);
+
+        if (! $estimation->isCalculated() && $estimation->status !== 'finalized') {
+            return response()->json([
+                'message' => 'Estimation has not been calculated yet.',
+            ], 422);
+        }
+
+        $fcpbsData = $estimation->results_data['fcpbs'] ?? null;
+
+        if (! $fcpbsData) {
+            return response()->json([
+                'message' => 'FCPBS data is not available.',
+            ], 422);
+        }
+
+        $erpService = app(ErpExportService::class);
+        $contractValue = (float) ($estimation->total_price_aed ?? 0);
+        $csvContent = $erpService->generate($fcpbsData, $request->validated(), $contractValue);
+
+        $filename = 'ERP-'.($estimation->quote_number ?? 'export').'.csv';
+
+        activity()
+            ->causedBy($request->user())
+            ->performedOn($estimation)
+            ->log('exported ERP CSV');
+
+        ExportLogger::log($request->user(), 'csv', 'erp', $filename, $estimation);
+
+        return response()->streamDownload(function () use ($csvContent): void {
+            echo $csvContent;
+        }, $filename, ['Content-Type' => 'text/csv']);
+    }
+
+    /**
+     * Import estimation data from CSV file.
+     */
+    public function importData(ImportEstimationDataRequest $request, Estimation $estimation): JsonResponse
+    {
+        $this->authorize('update', $estimation);
+
+        if (! $estimation->isDraft()) {
+            return response()->json([
+                'message' => 'Only draft estimations can be imported into.',
+            ], 422);
+        }
+
+        $importService = app(CsvImportService::class);
+        $result = $importService->parseFile($request->file('file'));
+
+        if (! empty($result['errors']) && empty($result['items'])) {
+            return response()->json([
+                'message' => 'CSV parsing failed.',
+                'errors' => $result['errors'],
+            ], 422);
+        }
+
+        if ($request->boolean('commit')) {
+            $inputData = $estimation->input_data ?? [];
+            $strategy = $request->input('merge_strategy', 'append');
+
+            if ($strategy === 'replace') {
+                $inputData['imported_items'] = $result['items'];
+            } else {
+                $existing = $inputData['imported_items'] ?? [];
+                $inputData['imported_items'] = array_merge($existing, $result['items']);
+            }
+
+            $estimation->update(['input_data' => $inputData]);
+
+            activity()
+                ->causedBy($request->user())
+                ->performedOn($estimation)
+                ->withProperties(['row_count' => $result['row_count']])
+                ->log('imported CSV data');
+        }
+
+        return response()->json([
+            'message' => $request->boolean('commit')
+                ? "Imported {$result['row_count']} items successfully."
+                : "Parsed {$result['row_count']} items. Use ?commit=true to save.",
+            'data' => [
+                'items' => $result['items'],
+                'errors' => $result['errors'],
+                'row_count' => $result['row_count'],
+            ],
+        ]);
     }
 
     /**

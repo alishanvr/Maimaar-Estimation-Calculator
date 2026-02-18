@@ -1,14 +1,20 @@
+i want to request you to check excel/vba file once again and verify with that we have all the functionalities.
+share a table for every functionality and ither its available in our laravel app or not.
+
+
+It will be a QA phase. and as a QA specialist, you have to test all functionalities and app and find the logical, UI/UX, and other issues. and only list down the issues and not implement anything. after that we can prioritize and implement the fixes.
+
+
+
 ~~- in some of my other laravel applications, i see storage suddenly have a large space used. i want to add a feature in admin panel to clear storage cache and also to see what is taking space in storage. please implement this functionality in the admin panel and ensure that it is secure and only accessible to authorized users. also, provide documentation on how to use this feature and what it does.~~
 ~~- **I want a workflow that I push to main and it auto deploy, auto migrate or other things**~~
 
-is there a way for automatic frontend testing, if yes then we need some testing for frontend. as some funcstions/buttons not working.
-there are some issues in database migration process from admin side. we need different tests to verify and to fix.
+~~is there a way for automatic frontend testing, if yes then we need some testing for frontend. as some funcstions/buttons not working.~~
+~~there are some issues in database migration process from admin side. we need different tests to verify and to fix.~~
 
-i want to request you to check excel/vba file once again and verify with that we have all the functionalities.
-share a table for every functionality and ither its available in our laravel app or not. 
 
-i want to test all functionalities and app and find the logical, UI/UX, and other issues. and only list down the issues and not implement anything. after that we can prioritize and implement the fixes.
-It will be a QA phase. 
+
+
 
 
 

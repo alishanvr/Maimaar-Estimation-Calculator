@@ -22,6 +22,7 @@ interface EstimationHeaderProps {
   onCreateRevision?: () => void;
   onFinalize?: () => void;
   onUnlock?: () => void;
+  onImportCsv?: () => void;
 }
 
 export default function EstimationHeader({
@@ -35,6 +36,7 @@ export default function EstimationHeader({
   onCreateRevision,
   onFinalize,
   onUnlock,
+  onImportCsv,
 }: EstimationHeaderProps) {
   const isFinalized = estimation.status === "finalized";
   const { format } = useCurrency();
@@ -123,6 +125,15 @@ export default function EstimationHeader({
               className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 transition disabled:opacity-50"
             >
               New Rev
+            </button>
+          )}
+          {onImportCsv && !isFinalized && (
+            <button
+              onClick={onImportCsv}
+              disabled={isCalculating}
+              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 transition disabled:opacity-50"
+            >
+              Import CSV
             </button>
           )}
           {onFillTestData && !isFinalized && (

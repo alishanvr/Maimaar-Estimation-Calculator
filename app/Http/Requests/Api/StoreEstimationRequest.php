@@ -211,6 +211,18 @@ class StoreEstimationRequest extends FormRequest
             'input_data.liners.*.wall_area' => ['nullable', 'numeric', 'min:0'],
             'input_data.liners.*.roof_openings_area' => ['nullable', 'numeric', 'min:0'],
             'input_data.liners.*.wall_openings_area' => ['nullable', 'numeric', 'min:0'],
+
+            // Imported items (from CSV import)
+            'input_data.imported_items' => ['nullable', 'array'],
+            'input_data.imported_items.*.description' => ['nullable', 'string'],
+            'input_data.imported_items.*.code' => ['nullable', 'string'],
+            'input_data.imported_items.*.sales_code' => ['nullable', 'numeric'],
+            'input_data.imported_items.*.cost_code' => ['nullable', 'string'],
+            'input_data.imported_items.*.size' => ['nullable', 'numeric', 'min:0'],
+            'input_data.imported_items.*.qty' => ['nullable', 'numeric', 'min:0'],
+            'input_data.imported_items.*.unit' => ['nullable', 'string'],
+            'input_data.imported_items.*.weight_per_unit' => ['nullable', 'numeric', 'min:0'],
+            'input_data.imported_items.*.rate' => ['nullable', 'numeric', 'min:0'],
         ];
     }
 

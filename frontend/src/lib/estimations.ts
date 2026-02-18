@@ -184,3 +184,80 @@ export async function exportRawmatPdf(id: number): Promise<Blob> {
   });
   return data;
 }
+
+// ── CSV Export ────────────────────────────────────────────────────
+
+export type CsvSheetType =
+  | "recap"
+  | "detail"
+  | "fcpbs"
+  | "sal"
+  | "boq"
+  | "jaf"
+  | "rawmat";
+
+export async function exportSheetCsv(
+  id: number,
+  sheetType: CsvSheetType
+): Promise<Blob> {
+  const { data } = await api.get(
+    `/estimations/${id}/export/${sheetType}/csv`,
+    { responseType: "blob" }
+  );
+  return data;
+}
+
+// ── ERP Export ────────────────────────────────────────────────────
+
+export interface ErpExportParams {
+  job_number: string;
+  building_number: string;
+  contract_date: string;
+  fiscal_year: number;
+}
+
+export async function exportErpCsv(
+  id: number,
+  params: ErpExportParams
+): Promise<Blob> {
+  const { data } = await api.get(`/estimations/${id}/export/erp`, {
+    params,
+    responseType: "blob",
+  });
+  return data;
+}
+
+// ── CSV Import ────────────────────────────────────────────────────
+
+export interface ImportResult {
+  message: string;
+  data: {
+    items: Array<Record<string, unknown>>;
+    errors: string[];
+    row_count: number;
+  };
+}
+
+export async function importEstimationCsv(
+  id: number,
+  file: File,
+  options?: { commit?: boolean; merge_strategy?: "append" | "replace" }
+): Promise<ImportResult> {
+  const formData = new FormData();
+  formData.append("file", file);
+  if (options?.merge_strategy) {
+    formData.append("merge_strategy", options.merge_strategy);
+  }
+
+  const params = new URLSearchParams();
+  if (options?.commit) {
+    params.set("commit", "true");
+  }
+
+  const { data } = await api.post(
+    `/estimations/${id}/import?${params.toString()}`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
+  return data;
+}

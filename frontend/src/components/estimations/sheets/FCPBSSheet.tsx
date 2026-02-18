@@ -13,6 +13,8 @@ import { exportFcpbsPdf } from "@/lib/estimations";
 import { downloadBlob } from "@/lib/download";
 import type { FCPBSData, FCPBSSubtotal } from "@/types";
 import ReadOnlySheet from "./ReadOnlySheet";
+import ExportButtons from "./ExportButtons";
+import ErpExportModal from "./ErpExportModal";
 
 registerAllModules();
 
@@ -81,6 +83,7 @@ export default function FCPBSSheet({
 
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [showErpModal, setShowErpModal] = useState(false);
 
   const handleDownloadPdf = useCallback(async () => {
     setDownloading(true);
@@ -220,34 +223,28 @@ export default function FCPBSSheet({
   );
 
   return (
+    <>
     <ReadOnlySheet isLoading={isLoading} error={error} sheetLabel="FCPBS">
       {(height) => (
         <div className="flex flex-col" style={{ height }}>
           {/* Download button bar */}
           <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 bg-gray-50 no-print shrink-0">
-            <button
-              onClick={handleDownloadPdf}
-              disabled={downloading}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary rounded-md hover:bg-primary/80 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            <ExportButtons
+              estimationId={estimationId}
+              sheetType="fcpbs"
+              onDownloadPdf={handleDownloadPdf}
+              downloadingPdf={downloading}
             >
-              <svg
-                className="w-3.5 h-3.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
+              <button
+                onClick={() => setShowErpModal(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
-                />
-              </svg>
-              {downloading ? "Downloading..." : "Download PDF"}
-            </button>
-            {downloadError && (
-              <span className="text-xs text-red-500">{downloadError}</span>
-            )}
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                </svg>
+                Export ERP
+              </button>
+            </ExportButtons>
           </div>
 
           {/* Grid */}
@@ -295,5 +292,12 @@ export default function FCPBSSheet({
         </div>
       )}
     </ReadOnlySheet>
+
+    <ErpExportModal
+      estimationId={estimationId}
+      isOpen={showErpModal}
+      onClose={() => setShowErpModal(false)}
+    />
+    </>
   );
 }

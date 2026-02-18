@@ -96,6 +96,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/jaf', [EstimationController::class, 'jaf'])->name('jaf');
         Route::get('/rawmat', [EstimationController::class, 'rawmat'])->name('rawmat');
 
+        Route::post('/import', [EstimationController::class, 'importData'])->name('import');
+
         Route::middleware('throttle:exports')->group(function () {
             Route::get('/export/recap', [EstimationController::class, 'exportRecap'])->name('export.recap');
             Route::get('/export/detail', [EstimationController::class, 'exportDetail'])->name('export.detail');
@@ -104,6 +106,10 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/export/boq', [EstimationController::class, 'exportBoq'])->name('export.boq');
             Route::get('/export/jaf', [EstimationController::class, 'exportJaf'])->name('export.jaf');
             Route::get('/export/rawmat', [EstimationController::class, 'exportRawmat'])->name('export.rawmat');
+            Route::get('/export/{sheetType}/csv', [EstimationController::class, 'exportCsv'])
+                ->where('sheetType', 'recap|detail|fcpbs|sal|boq|jaf|rawmat')
+                ->name('export.csv');
+            Route::get('/export/erp', [EstimationController::class, 'exportErp'])->name('export.erp');
         });
     });
 });

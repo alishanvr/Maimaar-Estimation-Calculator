@@ -7,6 +7,7 @@ import { useEstimation } from "@/hooks/useEstimation";
 import { useBranding } from "@/contexts/BrandingContext";
 import { cloneEstimation, createRevision } from "@/lib/estimations";
 import EstimationHeader from "@/components/estimations/EstimationHeader";
+import CsvImportModal from "@/components/estimations/CsvImportModal";
 import PrintHeader from "@/components/estimations/PrintHeader";
 import TabBar from "@/components/estimations/TabBar";
 import InputSheet from "@/components/estimations/InputSheet";
@@ -23,6 +24,7 @@ function EstimationEditor() {
   const router = useRouter();
   const id = Number(useRealParam("id", 1));
   const [activeTab, setActiveTab] = useState<SheetTab>("input");
+  const [showImportModal, setShowImportModal] = useState(false);
   const { branding } = useBranding();
   const showFillTestData = branding.enable_fill_test_data;
   const {
@@ -37,6 +39,7 @@ function EstimationEditor() {
     saveAndCalculate,
     finalize,
     unlock,
+    refetch,
   } = useEstimation(id);
 
   if (isLoading) {
@@ -297,6 +300,11 @@ function EstimationEditor() {
         onCreateRevision={handleCreateRevision}
         onFinalize={finalize}
         onUnlock={unlock}
+        onImportCsv={
+          estimation.status === "draft"
+            ? () => setShowImportModal(true)
+            : undefined
+        }
       />
 
       {/* Error bar */}
@@ -352,6 +360,14 @@ function EstimationEditor() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
         isCalculated={isCalculated}
+      />
+
+      {/* CSV Import Modal */}
+      <CsvImportModal
+        estimationId={id}
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImported={refetch}
       />
     </div>
   );

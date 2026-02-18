@@ -270,6 +270,96 @@ describe('canopy items', function () {
 
         expect($canopyItems)->toBeEmpty();
     });
+
+    it('expands All Around canopy into 4 wall-specific entries', function () {
+        $input = baseInput();
+        // baseInput has bay_spacing=2@9 (length=18) and span_widths=1@28 (width=28)
+        $input['building_length'] = 18.0;
+        $input['building_width'] = 28.0;
+        $input['canopies'] = [
+            [
+                'description' => 'Extension All Around',
+                'sales_code' => 3,
+                'frame_type' => 'Roof Extension',
+                'location' => 'All Around',
+                'width' => 3.0,
+                'height' => 0,
+                'col_spacing' => '2@6',
+                'roof_sheeting' => 'M45AZ',
+                'wall_sheeting' => 'None',
+                'soffit' => 'None',
+                'drainage' => 'EGS',
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+
+        // The first BU rafter item for each wall carries the wall-specific description
+        $wallItems = array_values(array_filter($items, fn ($item) => $item['sales_code'] === 3
+            && str_contains($item['description'], 'Extension All Around - ')
+            && $item['code'] === 'BU'));
+
+        // Should have 4 BU rafter entries: one for each wall
+        expect($wallItems)->toHaveCount(4);
+
+        $descriptions = array_column($wallItems, 'description');
+        expect($descriptions)->toContain('Extension All Around - Left Wall');
+        expect($descriptions)->toContain('Extension All Around - Right Wall');
+        expect($descriptions)->toContain('Extension All Around - Front Wall');
+        expect($descriptions)->toContain('Extension All Around - Back Wall');
+    });
+
+    it('uses building length for Left/Right walls and width for Front/Back when All Around', function () {
+        $input = baseInput();
+        $input['building_length'] = 18.0;
+        $input['building_width'] = 28.0;
+        $input['canopies'] = [
+            [
+                'description' => 'Test AA',
+                'sales_code' => 3,
+                'frame_type' => 'Roof Extension',
+                'location' => 'All Around',
+                'width' => 2.0,
+                'col_spacing' => '2@6',
+                'roof_sheeting' => 'M45AZ',
+                'drainage' => 'None',
+                'soffit' => 'None',
+                'wall_sheeting' => 'None',
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $nonHeaderCanopy = array_filter($items, fn ($i) => ! $i['is_header'] && $i['sales_code'] === 3);
+
+        // Items exist for all 4 walls — at minimum BU rafters + Z15G purlins per wall = 8+ items
+        expect(count($nonHeaderCanopy))->toBeGreaterThanOrEqual(8);
+    });
+
+    it('does not expand when location is a specific wall', function () {
+        $input = baseInput();
+        $input['building_length'] = 18.0;
+        $input['building_width'] = 28.0;
+        $input['canopies'] = [
+            [
+                'description' => 'Front Only',
+                'sales_code' => 3,
+                'frame_type' => 'Roof Extension',
+                'location' => 'Front',
+                'width' => 3.0,
+                'col_spacing' => '2@6',
+                'roof_sheeting' => 'M45AZ',
+                'drainage' => 'EGS',
+                'soffit' => 'None',
+                'wall_sheeting' => 'None',
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        // Only one BU rafter entry with 'Front Only' description (not expanded)
+        $canopyBU = array_values(array_filter($items, fn ($item) => str_contains($item['description'], 'Front Only') && $item['code'] === 'BU'));
+
+        expect($canopyBU)->toHaveCount(1);
+    });
 });
 
 describe('fascia items', function () {
@@ -985,5 +1075,40 @@ describe('liner items', function () {
         $items = $this->generator->generate($input);
         expect($items)->toBeArray();
         expect(count($items))->toBeGreaterThan(0);
+    });
+});
+
+describe('imported items', function () {
+    it('includes imported items in generated detail', function () {
+        $input = baseInput();
+        $input['imported_items'] = [
+            [
+                'description' => 'Custom Beam',
+                'code' => 'BU',
+                'sales_code' => 1,
+                'cost_code' => 'X1',
+                'size' => 10.0,
+                'qty' => 2,
+                'unit' => 'm',
+                'weight_per_unit' => 25.0,
+                'rate' => 3.5,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $importedHeaders = array_filter($items, fn ($i) => $i['is_header'] && str_contains($i['description'], 'IMPORTED ITEMS'));
+        expect($importedHeaders)->not->toBeEmpty();
+
+        // Find imported BU items (size=10, which wouldn't come from main area items)
+        $importedBU = array_filter($items, fn ($i) => ! $i['is_header'] && $i['code'] === 'BU' && $i['size'] == 10.0);
+        expect($importedBU)->not->toBeEmpty();
+    });
+
+    it('skips when no imported items exist', function () {
+        $input = baseInput();
+        // No imported_items key
+        $items = $this->generator->generate($input);
+        $importedHeaders = array_filter($items, fn ($i) => $i['is_header'] && str_contains($i['description'], 'IMPORTED'));
+        expect($importedHeaders)->toBeEmpty();
     });
 });

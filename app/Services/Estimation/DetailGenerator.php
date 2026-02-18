@@ -34,6 +34,7 @@ class DetailGenerator
         $this->generatePartitionItems($input);
         $this->generateCanopyItems($input);
         $this->generateLinerItems($input);
+        $this->generateImportedItems($input);
 
         return $this->items;
     }
@@ -1854,7 +1855,21 @@ class DetailGenerator
             return;
         }
 
+        // Expand "All Around" canopies into 4 wall-specific entries
+        $expandedCanopies = [];
         foreach ($canopies as $canopy) {
+            $location = (string) ($canopy['location'] ?? '');
+            if ($location === 'All Around') {
+                $expandedCanopies = array_merge(
+                    $expandedCanopies,
+                    $this->expandAllAroundCanopy($canopy, $input)
+                );
+            } else {
+                $expandedCanopies[] = $canopy;
+            }
+        }
+
+        foreach ($expandedCanopies as $canopy) {
             $frameType = (string) ($canopy['frame_type'] ?? 'Lean-To');
 
             // Dispatch to fascia-specific generator
@@ -1866,6 +1881,50 @@ class DetailGenerator
 
             $this->generateCanopyOrExtensionItems($canopy);
         }
+    }
+
+    /**
+     * Expand an "All Around" canopy into 4 wall-specific canopy entries.
+     * Left/Right walls use building length, Front/Back walls use building width.
+     * Improves on VBA which refused to process "All Around" in one shot.
+     *
+     * @param  array<string, mixed>  $canopy  The original canopy with location "All Around"
+     * @param  array<string, mixed>  $input  Full input (contains building_width, building_length)
+     * @return array<int, array<string, mixed>> Up to four canopy entries
+     */
+    private function expandAllAroundCanopy(array $canopy, array $input): array
+    {
+        $buildingWidth = (float) ($input['building_width'] ?? 0);
+        $buildingLength = (float) ($input['building_length'] ?? 0);
+
+        $walls = [
+            ['location' => 'Left', 'length' => $buildingLength],
+            ['location' => 'Right', 'length' => $buildingLength],
+            ['location' => 'Front', 'length' => $buildingWidth],
+            ['location' => 'Back', 'length' => $buildingWidth],
+        ];
+
+        $expanded = [];
+        $baseDescription = $canopy['description'] ?? 'Canopy Structure';
+
+        foreach ($walls as $wall) {
+            if ($wall['length'] <= 0) {
+                continue;
+            }
+
+            $wallCanopy = $canopy;
+            $wallCanopy['location'] = $wall['location'];
+            $wallCanopy['description'] = "{$baseDescription} - {$wall['location']} Wall";
+
+            // Derive col_spacing from wall length using ~6m default bay spacing
+            $numBays = max(1, (int) round($wall['length'] / 6.0));
+            $baySize = round($wall['length'] / $numBays, 2);
+            $wallCanopy['col_spacing'] = "{$numBays}@{$baySize}";
+
+            $expanded[] = $wallCanopy;
+        }
+
+        return $expanded;
     }
 
     /**
@@ -2171,6 +2230,37 @@ class DetailGenerator
                 $this->insertCode('', $wallLinerCode, $salesCode, $wallArea, 1);
                 $this->insertCode('', $wallScrewCode, $salesCode, 1, (int) ceil($wallArea * 4));
                 $this->insertCode('', $wallStitchCode, $salesCode, 1, (int) ceil($wallArea * 0.5));
+            }
+        }
+    }
+
+    /**
+     * Add imported CSV items to the detail list.
+     * These are items previously imported via the CSV import endpoint
+     * and stored in input_data['imported_items'].
+     *
+     * @param  array<string, mixed>  $input
+     */
+    private function generateImportedItems(array $input): void
+    {
+        $importedItems = $input['imported_items'] ?? [];
+        if (empty($importedItems)) {
+            return;
+        }
+
+        // Header row
+        $this->insertCode('IMPORTED ITEMS', '-', 1, '', '');
+
+        foreach ($importedItems as $item) {
+            $code = (string) ($item['code'] ?? '');
+            $salesCode = (int) ($item['sales_code'] ?? 1);
+            $size = (float) ($item['size'] ?? 0);
+            $qty = (float) ($item['qty'] ?? 0);
+            $costCode = (string) ($item['cost_code'] ?? '');
+            $description = (string) ($item['description'] ?? '');
+
+            if ($code !== '' && $size > 0 && $qty > 0) {
+                $this->insertCode($description, $code, $salesCode, $size, $qty, $costCode);
             }
         }
     }

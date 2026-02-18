@@ -12,6 +12,7 @@ import { exportRawmatPdf } from "@/lib/estimations";
 import { downloadBlob } from "@/lib/download";
 import type { RawmatData } from "@/types";
 import ReadOnlySheet from "./ReadOnlySheet";
+import ExportButtons from "./ExportButtons";
 
 registerAllModules();
 
@@ -149,29 +150,12 @@ export default function RawmatSheet({
               )}
             </div>
             <div className="flex items-center gap-2">
-              <button
-                onClick={handleDownloadPdf}
-                disabled={downloading}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary rounded-md hover:bg-primary/80 transition disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <svg
-                  className="w-3.5 h-3.5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
-                  />
-                </svg>
-                {downloading ? "Downloading..." : "Download PDF"}
-              </button>
-              {downloadError && (
-                <span className="text-xs text-red-500">{downloadError}</span>
-              )}
+              <ExportButtons
+                estimationId={estimationId}
+                sheetType="rawmat"
+                onDownloadPdf={handleDownloadPdf}
+                downloadingPdf={downloading}
+              />
             </div>
           </div>
 
