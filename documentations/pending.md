@@ -1,20 +1,17 @@
-- default currency is set as PKR but i am still see AED in some places. like in Total Value card in admin side.
-- and in projects on frontend side. and in Estimation Value Trends card (avg value and total value) and in Recent Estimations card
+~~- in some of my other laravel applications, i see storage suddenly have a large space used. i want to add a feature in admin panel to clear storage cache and also to see what is taking space in storage. please implement this functionality in the admin panel and ensure that it is secure and only accessible to authorized users. also, provide documentation on how to use this feature and what it does.~~
+~~- **I want a workflow that I push to main and it auto deploy, auto migrate or other things**~~
 
-- i want that when setup run, then it creates a user (superadmin) that should not be deleteable or revokable or change passwordable. that will be used as super admin. only one way to reset password is login this account and change self. OR change from terminal. no other way. i want the username could be ali@wprobo.com and password could be @@Ali1122$$. please implement this functionality in the admin panel and ensure that it is secure and only accessible to authorized users. also, provide documentation on how to use this feature and what it does.
-additionally, i want that system management, environment settings, ONLY changeable by super admin. this mean admin can see but not able to change or modify. only readable. 
-- but superadmin ali@wprobo.com have access to make any changes to this. 
-
-
-
-- **I want a workflow that I push to main and it auto deploy, auto migrate or other things**
-- in some of my other laravel applications, i see storage suddenly have a large space used. i want to add a feature in admin panel to clear storage cache and also to see what is taking space in storage. please implement this functionality in the admin panel and ensure that it is secure and only accessible to authorized users. also, provide documentation on how to use this feature and what it does.
-
-5. how to host Laravel and frontend securely on the same domain with SSL on shared domain?
-
-
+is there a way for automatic frontend testing, if yes then we need some testing for frontend. as some funcstions/buttons not working.
 there are some issues in database migration process from admin side. we need different tests to verify and to fix.
-need some testing for frontend. as some funcstions/buttons not working.
+
+i want to request you to check excel/vba file once again and verify with that we have all the functionalities.
+share a table for every functionality and ither its available in our laravel app or not. 
+
+i want to test all functionalities and app and find the logical, UI/UX, and other issues. and only list down the issues and not implement anything. after that we can prioritize and implement the fixes.
+It will be a QA phase. 
+
+
+
 
 ~~Branding & PDF Polish — Company logo in PDF headers, letterhead styling, custom fonts for the generated BOQ/JAF PDFs.~~
 ~~User Experience Polish — Estimation duplication/clone, version history/revision tracking, estimation comparison, bulk export.~~ DONE (Iteration 12)
@@ -53,12 +50,16 @@ need some testing for frontend. as some funcstions/buttons not working.
 ~~- i want that  admin should be able to set up the application and database details from the admin panel. please implement this functionality in the admin panel and ensure that it is secure and only accessible to authorized users. also, provide documentation on how to use this feature and what it does. admin should have option to use file database , mysql, sqlite, postgresql or sql server as database. admin should also have option to set up email settings from the admin panel. please implement this functionality in the admin panel and ensure that it is secure and only accessible to authorized users. also, provide documentation on how to use this feature and what it does.~~
 ~~- currently the frontend is on a different side like localhost:3000. i want that when i open the website then it should open frontend and when i open dashboard, then all admin relevant ui and functionality appear. is that possble if yes then how.~~
 ~~- i want to everything should setup (that can be in .env) from the admin side, including database details, email settings, etc. (everything that is in .env file) so that we can easily deploy the application on any server without changing the env file. please implement this functionality in the admin panel and ensure that all settings are stored securely and can be easily updated by the admin. also, provide documentation on how to use these settings and what each setting does.~~
+~~- default currency is set as PKR but i am still see AED in some places. like in Total Value card in admin side.~~
+~~- and in projects on frontend side. and in Estimation Value Trends card (avg value and total value) and in Recent Estimations card~~
 
-
-
+~~- i want that when setup run, then it creates a user (superadmin) that should not be deleteable or revokable or change passwordable. that will be used as super admin. only one way to reset password is login this account and change self. OR change from terminal. no other way. i want the username could be ali@wprobo.com and password could be @@Ali1122$$. please implement this functionality in the admin panel and ensure that it is secure and only accessible to authorized users. also, provide documentation on how to use this feature and what it does.
+additionally, i want that system management, environment settings, ONLY changeable by super admin. this mean admin can see but not able to change or modify. only readable.~~
+~~- but superadmin ali@wprobo.com have access to make any changes to this.~~
+~~6. how to host Laravel and frontend securely on the same domain with SSL on shared domain?~~
+~~2. Do we need to set reverse proxy for Laravel to work on shared hosting?~~
 
 ---
 16. We need to display all inventory items and other details to admin and they can set, add, remove etc.
-2. Do we need to set reverse proxy for Laravel to work on shared hosting?
 3. What are the best practices for securing Laravel applications on shared hosting?
 9. I need more details on recent activity widget. What kind of activities should be logged and displayed? Should it include user actions, system events, or both? How should the data be presented (e.g., table, list, etc.)?

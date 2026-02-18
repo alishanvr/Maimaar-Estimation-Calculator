@@ -53,7 +53,7 @@ it('loads existing settings into the form', function () {
 });
 
 it('can save environment settings', function () {
-    $admin = User::factory()->admin()->create();
+    $admin = User::factory()->superAdmin()->create();
 
     $this->actingAs($admin);
 
@@ -93,7 +93,7 @@ it('can save environment settings', function () {
 });
 
 it('encrypts mail password on save', function () {
-    $admin = User::factory()->admin()->create();
+    $admin = User::factory()->superAdmin()->create();
 
     $this->actingAs($admin);
 
@@ -127,7 +127,7 @@ it('encrypts mail password on save', function () {
 });
 
 it('flushes cache after saving', function () {
-    $admin = User::factory()->admin()->create();
+    $admin = User::factory()->superAdmin()->create();
 
     $this->actingAs($admin);
 
@@ -162,7 +162,7 @@ it('loads database settings from config', function () {
 });
 
 it('warns when attempting to migrate to the same database driver', function () {
-    $admin = User::factory()->admin()->create();
+    $admin = User::factory()->superAdmin()->create();
 
     $this->actingAs($admin);
 
@@ -172,7 +172,7 @@ it('warns when attempting to migrate to the same database driver', function () {
 });
 
 it('preserves existing password when field is empty', function () {
-    $admin = User::factory()->admin()->create();
+    $admin = User::factory()->superAdmin()->create();
 
     $encrypted = Crypt::encryptString('existing-password');
     DesignConfiguration::query()->create([
