@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use Filament\Facades\Filament;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -24,9 +26,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if (app()->isProduction()) {
+        if (str_starts_with(config('app.url'), 'https://')) {
             URL::forceScheme('https');
         }
+
+        ResetPassword::createUrlUsing(function (object $notifiable, string $token) {
+            return Filament::getResetPasswordUrl($token, $notifiable);
+        });
 
         RateLimiter::for('calculate', function (Request $request) {
             return Limit::perMinute(30)->by($request->user()?->id ?: $request->ip());

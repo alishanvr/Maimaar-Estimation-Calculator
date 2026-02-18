@@ -22,6 +22,9 @@ class EnvironmentService
      */
     private const ENCRYPTED_KEYS = [
         'mail_password',
+        'redis_password',
+        'aws_access_key_id',
+        'aws_secret_access_key',
     ];
 
     /**
@@ -52,9 +55,34 @@ class EnvironmentService
         return $value;
     }
 
+    public function appName(): string
+    {
+        return $this->get('app_name', config('app.name') ?? 'Laravel');
+    }
+
     public function appUrl(): string
     {
         return $this->get('app_url', config('app.url') ?? 'http://localhost');
+    }
+
+    public function appTimezone(): string
+    {
+        return $this->get('app_timezone', config('app.timezone') ?? 'UTC');
+    }
+
+    public function appLocale(): string
+    {
+        return $this->get('app_locale', config('app.locale') ?? 'en');
+    }
+
+    public function appFallbackLocale(): string
+    {
+        return $this->get('app_fallback_locale', config('app.fallback_locale') ?? 'en');
+    }
+
+    public function bcryptRounds(): int
+    {
+        return (int) $this->get('bcrypt_rounds', (string) (config('hashing.bcrypt.rounds') ?? 12));
     }
 
     public function mailMailer(): string
@@ -109,6 +137,11 @@ class EnvironmentService
         return $this->get('log_level', config('logging.channels.single.level') ?? 'debug');
     }
 
+    public function sessionDriver(): string
+    {
+        return $this->get('session_driver', config('session.driver') ?? 'database');
+    }
+
     public function sessionLifetime(): int
     {
         return (int) $this->get('session_lifetime', (string) (config('session.lifetime') ?? 120));
@@ -124,6 +157,23 @@ class EnvironmentService
         return $this->get('session_secure_cookie', 'false') === 'true';
     }
 
+    public function sessionDomain(): ?string
+    {
+        $value = $this->get('session_domain', '');
+
+        return $value !== '' ? $value : null;
+    }
+
+    public function sessionSameSite(): string
+    {
+        return $this->get('session_same_site', config('session.same_site') ?? 'lax');
+    }
+
+    public function sessionHttpOnly(): bool
+    {
+        return $this->get('session_http_only', 'true') === 'true';
+    }
+
     public function frontendUrl(): string
     {
         return $this->get('frontend_url', config('cors.frontend_url') ?? 'http://localhost:3000');
@@ -132,6 +182,56 @@ class EnvironmentService
     public function filesystemDisk(): string
     {
         return $this->get('filesystem_disk', config('filesystems.default') ?? 'local');
+    }
+
+    public function cacheStore(): string
+    {
+        return $this->get('cache_store', config('cache.default') ?? 'database');
+    }
+
+    public function cachePrefix(): string
+    {
+        return $this->get('cache_prefix', config('cache.prefix') ?? '');
+    }
+
+    public function queueConnection(): string
+    {
+        return $this->get('queue_connection', config('queue.default') ?? 'database');
+    }
+
+    public function redisHost(): string
+    {
+        return $this->get('redis_host', config('database.redis.default.host') ?? '127.0.0.1');
+    }
+
+    public function redisPassword(): string
+    {
+        return $this->get('redis_password', '');
+    }
+
+    public function redisPort(): int
+    {
+        return (int) $this->get('redis_port', (string) (config('database.redis.default.port') ?? 6379));
+    }
+
+    public function awsAccessKeyId(): string
+    {
+        return $this->get('aws_access_key_id', '');
+    }
+
+    public function awsSecretAccessKey(): string
+    {
+        return $this->get('aws_secret_access_key', '');
+    }
+
+    public function awsDefaultRegion(): string
+    {
+        return $this->get('aws_default_region', config('filesystems.disks.s3.region') ?? 'us-east-1');
+    }
+
+    public function awsBucket(): string
+    {
+        return $this->get('aws_bucket', config('filesystems.disks.s3.bucket') ?? '');
     }
 
     public function flushCache(): void

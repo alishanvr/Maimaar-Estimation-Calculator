@@ -78,7 +78,7 @@
 
         {{-- Footer --}}
         <div class="text-center mt-6 text-gray-400 text-sm">
-            &copy; {{ date('Y') }} {{ config('app.name', 'Maimaar') }}. All rights reserved.
+            &copy; {{ date('Y') }} WPRobo. All rights reserved.
         </div>
     </div>
 </body>

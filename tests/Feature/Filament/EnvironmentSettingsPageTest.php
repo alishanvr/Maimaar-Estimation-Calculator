@@ -150,6 +150,27 @@ it('flushes cache after saving', function () {
     expect(Cache::has('environment_settings'))->toBeFalse();
 });
 
+it('loads database settings from config', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin);
+
+    Livewire::test(EnvironmentSettings::class)
+        ->assertFormSet([
+            'db_connection' => config('database.default'),
+        ]);
+});
+
+it('warns when attempting to migrate to the same database driver', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin);
+
+    Livewire::test(EnvironmentSettings::class)
+        ->callAction('migrate_database')
+        ->assertNotified('Same database driver');
+});
+
 it('preserves existing password when field is empty', function () {
     $admin = User::factory()->admin()->create();
 

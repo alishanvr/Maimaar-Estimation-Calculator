@@ -14,9 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
         $middleware->trustProxies(at: '*');
-        $middleware->web(append: [
-            \App\Http\Middleware\EnsureAppIsInstalled::class,
-        ]);
+        $middleware->web(
+            prepend: [\App\Http\Middleware\ForceFileSessionForInstaller::class],
+            append: [\App\Http\Middleware\EnsureAppIsInstalled::class],
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->dontReport([

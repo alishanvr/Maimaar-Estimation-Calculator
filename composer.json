@@ -47,6 +47,12 @@
             "npm install",
             "npm run build"
         ],
+        "build-frontend": [
+            "cd frontend && npm run build",
+            "rm -rf public/app public/_next",
+            "cp -r frontend/out public/app",
+            "@php -r \"symlink(base_path('public/app/_next'), base_path('public/_next'));\""
+        ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1 --timeout=0\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite --kill-others"

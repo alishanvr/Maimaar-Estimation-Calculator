@@ -116,15 +116,16 @@ class ReportService
 
     /**
      * Get the SQL expression for extracting year-month from a date column.
-     * Works on both MySQL (DATE_FORMAT) and SQLite (strftime).
+     * Supports SQLite, PostgreSQL, MySQL/MariaDB, and SQL Server.
      */
     private function yearMonthExpression(string $column): string
     {
-        $driver = DB::getDriverName();
-
-        return $driver === 'sqlite'
-            ? "strftime('%Y-%m', {$column})"
-            : "DATE_FORMAT({$column}, '%Y-%m')";
+        return match (DB::getDriverName()) {
+            'sqlite' => "strftime('%Y-%m', {$column})",
+            'pgsql' => "to_char({$column}, 'YYYY-MM')",
+            'sqlsrv' => "FORMAT({$column}, 'yyyy-MM')",
+            default => "DATE_FORMAT({$column}, '%Y-%m')",
+        };
     }
 
     /**

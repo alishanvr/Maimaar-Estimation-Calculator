@@ -110,14 +110,14 @@ class UsersTable
                             ->password()
                             ->visible(fn ($get): bool => in_array($get('action_type'), ['set_password', 'set_password_and_notify'])),
                     ])
-                    ->action(function (User $record, array $data): void {
+                    ->action(function (User $record, array $data, Action $action): void {
                         match ($data['action_type']) {
                             'set_password' => static::handleSetPassword($record, $data['new_password']),
                             'set_password_and_notify' => static::handleSetPasswordAndNotify($record, $data['new_password']),
                             'send_reset_link' => static::handleSendResetLink($record),
                         };
                     })
-                    ->successNotificationTitle('Password action completed successfully.'),
+                    ->successNotification(null),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -134,6 +134,11 @@ class UsersTable
             ->causedBy(auth()->user())
             ->performedOn($record)
             ->log('set user password manually');
+
+        Notification::make()
+            ->title('Password updated successfully.')
+            ->success()
+            ->send();
     }
 
     private static function handleSetPasswordAndNotify(User $record, string $password): void
@@ -145,6 +150,11 @@ class UsersTable
             ->causedBy(auth()->user())
             ->performedOn($record)
             ->log('set user password and sent email notification');
+
+        Notification::make()
+            ->title('Password updated and notification sent.')
+            ->success()
+            ->send();
     }
 
     private static function handleSendResetLink(User $record): void
@@ -165,5 +175,10 @@ class UsersTable
             ->causedBy(auth()->user())
             ->performedOn($record)
             ->log('sent password reset link');
+
+        Notification::make()
+            ->title('Password reset link sent successfully.')
+            ->success()
+            ->send();
     }
 }

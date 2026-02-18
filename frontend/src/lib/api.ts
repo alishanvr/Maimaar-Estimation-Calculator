@@ -1,9 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://maimaar-estimation-calculator.test/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
   headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-  withCredentials: true,
 });
 
 api.interceptors.request.use((config) => {
@@ -18,7 +17,10 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
-        window.location.href = '/login';
+        const path = window.location.pathname;
+        if (path !== '/login' && path !== '/login/') {
+          window.location.href = '/login';
+        }
       }
     }
     return Promise.reject(error);

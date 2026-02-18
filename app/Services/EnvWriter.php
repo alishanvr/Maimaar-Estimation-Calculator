@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Process;
 
 class EnvWriter
 {
@@ -70,11 +70,15 @@ class EnvWriter
 
     /**
      * Clear the config cache so new .env values take effect.
+     *
+     * Runs in a separate process to avoid disrupting the in-memory
+     * config that encryption and sessions depend on mid-request.
      */
     private function clearConfigCache(): void
     {
         if (app()->configurationIsCached()) {
-            Artisan::call('config:clear');
+            Process::path(base_path())
+                ->run(['php', 'artisan', 'config:clear', '--no-interaction']);
         }
     }
 }
