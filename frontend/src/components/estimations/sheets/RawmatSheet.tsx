@@ -32,18 +32,12 @@ export default function RawmatSheet({
   );
 
   const [downloading, setDownloading] = useState(false);
-  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   const handleDownloadPdf = useCallback(async () => {
     setDownloading(true);
-    setDownloadError(null);
     try {
       const blob = await exportRawmatPdf(estimationId);
       downloadBlob(blob, `RAWMAT-${estimationId}.pdf`);
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Failed to download PDF";
-      setDownloadError(message);
     } finally {
       setDownloading(false);
     }

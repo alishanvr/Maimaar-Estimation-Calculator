@@ -2,6 +2,10 @@
 
 import { useState, useCallback, useRef } from "react";
 import { importEstimationCsv, type ImportResult } from "@/lib/estimations";
+import { getErrorMessage } from "@/lib/api";
+
+const TEMPLATE_CSV =
+  "description,code,sales_code,cost_code,size,qty,unit,weight_per_unit,rate\nSample Beam,BU,1,MC01,200,4,EA,125.5,3500\nSample Plate,PL,2,MC02,10,10,EA,78.2,2200\n";
 
 interface CsvImportModalProps {
   estimationId: number;
@@ -32,6 +36,7 @@ export default function CsvImportModal({
     setError(null);
     setLoading(false);
     setCommitting(false);
+    setMergeStrategy("append");
     if (fileRef.current) fileRef.current.value = "";
   }, []);
 
@@ -46,6 +51,18 @@ export default function CsvImportModal({
     setPreview(null);
     setError(null);
   };
+
+  const handleDownloadTemplate = useCallback(() => {
+    const blob = new Blob([TEMPLATE_CSV], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "import-template.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, []);
 
   const handlePreview = useCallback(async () => {
     if (!file) return;
@@ -62,9 +79,7 @@ export default function CsvImportModal({
         );
       }
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Failed to preview CSV";
-      setError(message);
+      setError(getErrorMessage(err, "Failed to preview CSV"));
     } finally {
       setLoading(false);
     }
@@ -82,9 +97,7 @@ export default function CsvImportModal({
       onImported();
       handleClose();
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Failed to import CSV";
-      setError(message);
+      setError(getErrorMessage(err, "Failed to import CSV"));
     } finally {
       setCommitting(false);
     }
@@ -92,16 +105,24 @@ export default function CsvImportModal({
 
   if (!isOpen) return null;
 
+  const strategyLabel = mergeStrategy === "replace" ? "Replace" : "Append";
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 p-6 max-h-[80vh] flex flex-col">
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
           Import Detail Items from CSV
         </h3>
-        <p className="text-sm text-gray-500 mb-4">
+        <p className="text-sm text-gray-500 mb-1">
           Upload a CSV file with columns: description, code, sales_code,
           cost_code, size, qty, unit, weight_per_unit, rate.
         </p>
+        <button
+          onClick={handleDownloadTemplate}
+          className="text-xs text-primary hover:underline mb-4 self-start"
+        >
+          Download sample template CSV
+        </button>
 
         {/* File input */}
         <div className="mb-4">
@@ -251,7 +272,7 @@ export default function CsvImportModal({
             >
               {committing
                 ? "Importing..."
-                : `Import ${preview.data.items.length} Item(s)`}
+                : `${strategyLabel} ${preview.data.items.length} Item(s)`}
             </button>
           )}
         </div>

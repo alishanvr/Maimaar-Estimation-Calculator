@@ -288,7 +288,7 @@ class EstimationController extends Controller
     {
         $this->authorize('view', $estimation);
 
-        if (! $estimation->isCalculated() && $estimation->status !== 'finalized') {
+        if (! $this->isCalculatedOrFinalized($estimation)) {
             return response()->json([
                 'message' => 'Estimation has not been calculated yet.',
             ], 422);
@@ -325,7 +325,7 @@ class EstimationController extends Controller
     {
         $this->authorize('view', $estimation);
 
-        if (! $estimation->isCalculated() && $estimation->status !== 'finalized') {
+        if (! $this->isCalculatedOrFinalized($estimation)) {
             return response()->json([
                 'message' => 'Estimation has not been calculated yet.',
             ], 422);
@@ -362,7 +362,7 @@ class EstimationController extends Controller
     {
         $this->authorize('view', $estimation);
 
-        if (! $estimation->isCalculated() && $estimation->status !== 'finalized') {
+        if (! $this->isCalculatedOrFinalized($estimation)) {
             return response()->json([
                 'message' => 'Estimation has not been calculated yet.',
             ], 422);
@@ -399,7 +399,7 @@ class EstimationController extends Controller
     {
         $this->authorize('view', $estimation);
 
-        if (! $estimation->isCalculated() && $estimation->status !== 'finalized') {
+        if (! $this->isCalculatedOrFinalized($estimation)) {
             return response()->json([
                 'message' => 'Estimation has not been calculated yet.',
             ], 422);
@@ -436,7 +436,7 @@ class EstimationController extends Controller
     {
         $this->authorize('view', $estimation);
 
-        if (! $estimation->isCalculated() && $estimation->status !== 'finalized') {
+        if (! $this->isCalculatedOrFinalized($estimation)) {
             return response()->json([
                 'message' => 'Estimation has not been calculated yet.',
             ], 422);
@@ -473,7 +473,7 @@ class EstimationController extends Controller
     {
         $this->authorize('view', $estimation);
 
-        if (! $estimation->isCalculated() && $estimation->status !== 'finalized') {
+        if (! $this->isCalculatedOrFinalized($estimation)) {
             return response()->json([
                 'message' => 'Estimation has not been calculated yet.',
             ], 422);
@@ -510,7 +510,7 @@ class EstimationController extends Controller
     {
         $this->authorize('view', $estimation);
 
-        if (! $estimation->isCalculated() && $estimation->status !== 'finalized') {
+        if (! $this->isCalculatedOrFinalized($estimation)) {
             return response()->json([
                 'message' => 'Estimation has not been calculated yet.',
             ], 422);
@@ -749,7 +749,7 @@ class EstimationController extends Controller
     {
         $this->authorize('view', $estimation);
 
-        if (! $estimation->isCalculated() && $estimation->status !== 'finalized') {
+        if (! $this->isCalculatedOrFinalized($estimation)) {
             return response()->json([
                 'message' => 'Estimation has not been calculated yet.',
             ], 422);
@@ -774,7 +774,14 @@ class EstimationController extends Controller
             ], 422);
         }
 
-        $export = new $config['exportClass']($sheetData);
+        // RecapExport needs the dynamic currency code
+        if ($sheetType === 'recap') {
+            $currencyCode = app(CurrencyService::class)->getDisplayCurrency();
+            $export = new RecapExport($sheetData, $currencyCode);
+        } else {
+            $export = new $config['exportClass']($sheetData);
+        }
+
         $filename = strtoupper($sheetType).'-'.($estimation->quote_number ?? 'export').'.csv';
 
         activity()
@@ -794,7 +801,7 @@ class EstimationController extends Controller
     {
         $this->authorize('view', $estimation);
 
-        if (! $estimation->isCalculated() && $estimation->status !== 'finalized') {
+        if (! $this->isCalculatedOrFinalized($estimation)) {
             return response()->json([
                 'message' => 'Estimation has not been calculated yet.',
             ], 422);
@@ -849,6 +856,9 @@ class EstimationController extends Controller
             ], 422);
         }
 
+        $validCount = $result['valid_count'];
+        $totalRows = $result['row_count'];
+
         if ($request->boolean('commit')) {
             $inputData = $estimation->input_data ?? [];
             $strategy = $request->input('merge_strategy', 'append');
@@ -865,18 +875,18 @@ class EstimationController extends Controller
             activity()
                 ->causedBy($request->user())
                 ->performedOn($estimation)
-                ->withProperties(['row_count' => $result['row_count']])
+                ->withProperties(['row_count' => $totalRows, 'valid_count' => $validCount])
                 ->log('imported CSV data');
         }
 
         return response()->json([
             'message' => $request->boolean('commit')
-                ? "Imported {$result['row_count']} items successfully."
-                : "Parsed {$result['row_count']} items. Use ?commit=true to save.",
+                ? "Imported {$validCount} of {$totalRows} rows successfully."
+                : "Parsed {$totalRows} rows, {$validCount} valid items. Use ?commit=true to save.",
             'data' => [
                 'items' => $result['items'],
                 'errors' => $result['errors'],
-                'row_count' => $result['row_count'],
+                'row_count' => $totalRows,
             ],
         ]);
     }
@@ -912,7 +922,7 @@ class EstimationController extends Controller
     {
         $this->authorize('view', $estimation);
 
-        if (! $estimation->isCalculated() && $estimation->status !== 'finalized') {
+        if (! $this->isCalculatedOrFinalized($estimation)) {
             return response()->json([
                 'message' => 'Estimation has not been calculated yet.',
             ], 422);
@@ -921,5 +931,13 @@ class EstimationController extends Controller
         return response()->json([
             'data' => $estimation->results_data[$sheetKey] ?? null,
         ]);
+    }
+
+    /**
+     * Check if the estimation has been calculated or finalized.
+     */
+    private function isCalculatedOrFinalized(Estimation $estimation): bool
+    {
+        return $estimation->isCalculated() || $estimation->isFinalized();
     }
 }

@@ -96,7 +96,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/jaf', [EstimationController::class, 'jaf'])->name('jaf');
         Route::get('/rawmat', [EstimationController::class, 'rawmat'])->name('rawmat');
 
-        Route::post('/import', [EstimationController::class, 'importData'])->name('import');
+        Route::post('/import', [EstimationController::class, 'importData'])
+            ->middleware('throttle:exports')
+            ->name('import');
 
         Route::middleware('throttle:exports')->group(function () {
             Route::get('/export/recap', [EstimationController::class, 'exportRecap'])->name('export.recap');

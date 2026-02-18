@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { exportErpCsv } from "@/lib/estimations";
 import { downloadBlob } from "@/lib/download";
+import { getErrorMessage } from "@/lib/api";
 
 interface ErpExportModalProps {
   estimationId: number;
@@ -22,6 +23,20 @@ export default function ErpExportModal({
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const reset = useCallback(() => {
+    setJobNumber("");
+    setBuildingNumber("");
+    setContractDate("");
+    setFiscalYear(new Date().getFullYear());
+    setError(null);
+    setDownloading(false);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    reset();
+    onClose();
+  }, [reset, onClose]);
+
   const handleExport = useCallback(async () => {
     if (!jobNumber || !buildingNumber || !contractDate) {
       setError("All fields are required.");
@@ -38,15 +53,13 @@ export default function ErpExportModal({
         fiscal_year: fiscalYear,
       });
       downloadBlob(blob, `ERP-${estimationId}.csv`);
-      onClose();
+      handleClose();
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Failed to export ERP CSV";
-      setError(message);
+      setError(getErrorMessage(err, "Failed to export ERP CSV"));
     } finally {
       setDownloading(false);
     }
-  }, [estimationId, jobNumber, buildingNumber, contractDate, fiscalYear, onClose]);
+  }, [estimationId, jobNumber, buildingNumber, contractDate, fiscalYear, handleClose]);
 
   if (!isOpen) return null;
 
@@ -122,7 +135,7 @@ export default function ErpExportModal({
 
         <div className="flex justify-end gap-2 mt-6">
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition"
           >
             Cancel

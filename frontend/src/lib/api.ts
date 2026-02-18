@@ -28,3 +28,23 @@ api.interceptors.response.use(
 );
 
 export default api;
+
+/**
+ * Extract a human-readable error message from an Axios error or generic Error.
+ * Prefers the server's `message` field from JSON responses.
+ */
+export function getErrorMessage(err: unknown, fallback: string): string {
+  if (err && typeof err === "object" && "response" in err) {
+    const axiosErr = err as {
+      response?: { data?: { message?: string } | Blob };
+    };
+    const data = axiosErr.response?.data;
+    if (data && typeof data === "object" && "message" in data) {
+      return (data as { message: string }).message;
+    }
+  }
+  if (err instanceof Error) {
+    return err.message;
+  }
+  return fallback;
+}

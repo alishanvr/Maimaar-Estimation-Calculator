@@ -77,6 +77,10 @@ class ErpExportService
                 $ohUnit = $ohCost;
             }
 
+            // MQty (Manufacturing Qty) equals selling Qty per VBA convention.
+            // ERP systems use this to reconcile manufacturing vs sales quantities.
+            $mQty = $sQty;
+
             $lines[] = implode(',', [
                 '2',
                 $fy,
@@ -86,7 +90,7 @@ class ErpExportService
                 str_pad(number_format($matUnit, 2, '.', ''), 15),
                 str_pad(number_format($prodUnit, 2, '.', ''), 15),
                 str_pad(number_format($ohUnit, 2, '.', ''), 15),
-                str_pad(number_format($sQty, 4, '.', ''), 15),
+                str_pad(number_format($mQty, 4, '.', ''), 15),
             ]);
         }
 

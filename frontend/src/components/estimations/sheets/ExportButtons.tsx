@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { exportSheetCsv, type CsvSheetType } from "@/lib/estimations";
 import { downloadBlob } from "@/lib/download";
+import { getErrorMessage } from "@/lib/api";
 
 const DownloadIcon = () => (
   <svg
@@ -48,9 +49,7 @@ export default function ExportButtons({
         `${sheetType.toUpperCase()}-${estimationId}.csv`
       );
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Failed to download CSV";
-      setError(message);
+      setError(getErrorMessage(err, "Failed to download CSV"));
     } finally {
       setDownloadingCsv(false);
     }

@@ -31,18 +31,12 @@ export default function SALSheet({ estimationId, version }: SALSheetProps) {
   );
 
   const [downloading, setDownloading] = useState(false);
-  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   const handleDownloadPdf = useCallback(async () => {
     setDownloading(true);
-    setDownloadError(null);
     try {
       const blob = await exportSalPdf(estimationId);
       downloadBlob(blob, `SAL-${estimationId}.pdf`);
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Failed to download PDF";
-      setDownloadError(message);
     } finally {
       setDownloading(false);
     }

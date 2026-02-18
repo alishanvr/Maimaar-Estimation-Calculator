@@ -220,11 +220,33 @@ export async function exportErpCsv(
   id: number,
   params: ErpExportParams
 ): Promise<Blob> {
-  const { data } = await api.get(`/estimations/${id}/export/erp`, {
-    params,
-    responseType: "blob",
-  });
-  return data;
+  try {
+    const { data } = await api.get(`/estimations/${id}/export/erp`, {
+      params,
+      responseType: "blob",
+    });
+    return data;
+  } catch (err: unknown) {
+    // When responseType is "blob", error responses are also blobs.
+    // Parse the blob back to JSON to extract the server error message.
+    if (err && typeof err === "object" && "response" in err) {
+      const axiosErr = err as { response?: { data?: Blob } };
+      const blob = axiosErr.response?.data;
+      if (blob instanceof Blob) {
+        try {
+          const json = JSON.parse(await blob.text());
+          if (json.message) {
+            throw new Error(json.message);
+          }
+        } catch (parseErr) {
+          if (parseErr instanceof Error && parseErr.message) {
+            throw parseErr;
+          }
+        }
+      }
+    }
+    throw err;
+  }
 }
 
 // ── CSV Import ────────────────────────────────────────────────────

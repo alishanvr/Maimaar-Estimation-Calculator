@@ -1104,6 +1104,84 @@ describe('imported items', function () {
         expect($importedBU)->not->toBeEmpty();
     });
 
+    it('uses CSV weight and rate instead of DB product lookup', function () {
+        $input = baseInput();
+        $input['imported_items'] = [
+            [
+                'description' => 'Custom Part',
+                'code' => 'CUSTOM99',
+                'sales_code' => 5,
+                'cost_code' => 'CC1',
+                'size' => 3.0,
+                'qty' => 7,
+                'unit' => 'EA',
+                'weight_per_unit' => 99.99,
+                'rate' => 55.55,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $imported = array_values(array_filter(
+            $items,
+            fn ($i) => ! $i['is_header'] && $i['code'] === 'CUSTOM99'
+        ));
+
+        expect($imported)->toHaveCount(1);
+        expect($imported[0]['weight_per_unit'])->toBe(99.99);
+        expect($imported[0]['rate'])->toBe(55.55);
+        expect($imported[0]['unit'])->toBe('EA');
+        expect($imported[0]['description'])->toBe('Custom Part');
+        expect($imported[0]['cost_code'])->toBe('CC1');
+    });
+
+    it('allows items with zero size or zero qty', function () {
+        $input = baseInput();
+        $input['imported_items'] = [
+            [
+                'description' => 'Labour Item',
+                'code' => 'LB',
+                'sales_code' => 1,
+                'cost_code' => '',
+                'size' => 0,
+                'qty' => 1,
+                'unit' => 'LS',
+                'weight_per_unit' => 0,
+                'rate' => 5000,
+            ],
+            [
+                'description' => 'Placeholder',
+                'code' => 'PH',
+                'sales_code' => 1,
+                'cost_code' => '',
+                'size' => 5,
+                'qty' => 0,
+                'unit' => 'EA',
+                'weight_per_unit' => 10,
+                'rate' => 100,
+            ],
+        ];
+
+        $items = $this->generator->generate($input);
+        $labourItem = array_values(array_filter($items, fn ($i) => $i['code'] === 'LB'));
+        $placeholderItem = array_values(array_filter($items, fn ($i) => $i['code'] === 'PH'));
+
+        expect($labourItem)->toHaveCount(1);
+        expect($labourItem[0]['rate'])->toBe(5000.0);
+        expect($placeholderItem)->toHaveCount(1);
+    });
+
+    it('skips items with empty code and empty description', function () {
+        $input = baseInput();
+        $input['imported_items'] = [
+            ['description' => '', 'code' => '', 'sales_code' => 1, 'size' => 1, 'qty' => 1],
+            ['description' => 'Has desc only', 'code' => '', 'sales_code' => 1, 'size' => 1, 'qty' => 1],
+        ];
+
+        $items = $this->generator->generate($input);
+        $descOnly = array_filter($items, fn ($i) => $i['description'] === 'Has desc only');
+        expect($descOnly)->toHaveCount(1);
+    });
+
     it('skips when no imported items exist', function () {
         $input = baseInput();
         // No imported_items key

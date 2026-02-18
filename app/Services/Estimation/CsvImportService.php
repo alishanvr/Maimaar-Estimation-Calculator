@@ -65,8 +65,10 @@ class CsvImportService
         }
 
         $rowNum = 1;
+        $totalDataRows = 0;
         while (($row = fgetcsv($handle, 0, ',', '"', '')) !== false) {
             $rowNum++;
+            $totalDataRows++;
 
             // Skip empty rows
             if (count($row) < count($headers)) {
@@ -112,7 +114,8 @@ class CsvImportService
         return [
             'items' => $items,
             'errors' => $errors,
-            'row_count' => count($items),
+            'row_count' => $totalDataRows,
+            'valid_count' => count($items),
         ];
     }
 }

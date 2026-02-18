@@ -35,18 +35,12 @@ export default function JAFSheet({ estimationId, version }: JAFSheetProps) {
   );
 
   const [downloading, setDownloading] = useState(false);
-  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   const handleDownloadPdf = useCallback(async () => {
     setDownloading(true);
-    setDownloadError(null);
     try {
       const blob = await exportJafPdf(estimationId);
       downloadBlob(blob, `JAF-${estimationId}.pdf`);
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Failed to download PDF";
-      setDownloadError(message);
     } finally {
       setDownloading(false);
     }

@@ -1916,10 +1916,13 @@ class DetailGenerator
             $wallCanopy['location'] = $wall['location'];
             $wallCanopy['description'] = "{$baseDescription} - {$wall['location']} Wall";
 
-            // Derive col_spacing from wall length using ~6m default bay spacing
-            $numBays = max(1, (int) round($wall['length'] / 6.0));
-            $baySize = round($wall['length'] / $numBays, 2);
-            $wallCanopy['col_spacing'] = "{$numBays}@{$baySize}";
+            // Only derive col_spacing when the user hasn't specified one
+            $userColSpacing = trim((string) ($canopy['col_spacing'] ?? ''));
+            if ($userColSpacing === '') {
+                $numBays = max(1, (int) round($wall['length'] / 6.0));
+                $baySize = round($wall['length'] / $numBays, 2);
+                $wallCanopy['col_spacing'] = "{$numBays}@{$baySize}";
+            }
 
             $expanded[] = $wallCanopy;
         }
@@ -2254,15 +2257,63 @@ class DetailGenerator
         foreach ($importedItems as $item) {
             $code = (string) ($item['code'] ?? '');
             $salesCode = (int) ($item['sales_code'] ?? 1);
-            $size = (float) ($item['size'] ?? 0);
-            $qty = (float) ($item['qty'] ?? 0);
+            $size = $item['size'] ?? 0;
+            $qty = $item['qty'] ?? 0;
             $costCode = (string) ($item['cost_code'] ?? '');
             $description = (string) ($item['description'] ?? '');
+            $unit = (string) ($item['unit'] ?? '');
+            $weightPerUnit = (float) ($item['weight_per_unit'] ?? 0);
+            $rate = (float) ($item['rate'] ?? 0);
 
-            if ($code !== '' && $size > 0 && $qty > 0) {
-                $this->insertCode($description, $code, $salesCode, $size, $qty, $costCode);
+            if ($code === '' && $description === '') {
+                continue;
             }
+
+            $this->insertImportedItem(
+                $description,
+                $code,
+                $salesCode,
+                $size,
+                $qty,
+                $costCode,
+                $unit,
+                $weightPerUnit,
+                $rate
+            );
         }
+    }
+
+    /**
+     * Insert an imported item directly using CSV-provided values.
+     * Unlike insertCode(), this does NOT do a product DB lookup — the weight,
+     * rate, and unit come directly from the user's CSV data.
+     */
+    private function insertImportedItem(
+        string $description,
+        string $code,
+        int $salesCode,
+        float|int|string $size,
+        float|int|string $qty,
+        string $costCode,
+        string $unit,
+        float $weightPerUnit,
+        float $rate
+    ): void {
+        $this->sortOrder++;
+        $this->items[] = [
+            'description' => $description ?: $code,
+            'code' => $code !== '' ? $code : '-',
+            'sales_code' => $salesCode,
+            'cost_code' => $costCode,
+            'size' => $size,
+            'qty' => $qty,
+            'is_header' => false,
+            'sort_order' => $this->sortOrder,
+            'weight_per_unit' => $weightPerUnit,
+            'rate' => $rate,
+            'unit' => $unit,
+            'surface_area' => 0,
+        ];
     }
 
     /**

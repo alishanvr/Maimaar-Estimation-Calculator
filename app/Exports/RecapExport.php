@@ -8,21 +8,13 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class RecapExport implements FromArray, ShouldAutoSize, WithHeadings
 {
-    /** @var array<string, string> */
-    private const LABELS = [
-        'total_weight_kg' => 'Total Weight (kg)',
-        'total_weight_mt' => 'Total Weight (MT)',
-        'total_price_aed' => 'Total Price (AED)',
-        'price_per_mt' => 'Price per MT (AED)',
-        'fob_price_aed' => 'FOB Price (AED)',
-        'steel_weight_kg' => 'Steel Weight (kg)',
-        'panels_weight_kg' => 'Panels Weight (kg)',
-    ];
-
     /**
      * @param  array<string, mixed>  $summaryData
      */
-    public function __construct(private readonly array $summaryData) {}
+    public function __construct(
+        private readonly array $summaryData,
+        private readonly string $currencyCode = 'AED'
+    ) {}
 
     public function headings(): array
     {
@@ -34,8 +26,19 @@ class RecapExport implements FromArray, ShouldAutoSize, WithHeadings
      */
     public function array(): array
     {
+        $currency = $this->currencyCode;
+        $labels = [
+            'total_weight_kg' => 'Total Weight (kg)',
+            'total_weight_mt' => 'Total Weight (MT)',
+            'total_price_aed' => "Total Price ({$currency})",
+            'price_per_mt' => "Price per MT ({$currency})",
+            'fob_price_aed' => "FOB Price ({$currency})",
+            'steel_weight_kg' => 'Steel Weight (kg)',
+            'panels_weight_kg' => 'Panels Weight (kg)',
+        ];
+
         $rows = [];
-        foreach (self::LABELS as $key => $label) {
+        foreach ($labels as $key => $label) {
             $rows[] = [$label, $this->summaryData[$key] ?? ''];
         }
 

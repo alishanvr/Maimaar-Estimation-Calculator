@@ -50,8 +50,10 @@ class JafExport implements FromArray, ShouldAutoSize, WithHeadings
         $specialReqs = $this->jafData['special_requirements'] ?? [];
         if (! empty($specialReqs)) {
             $rows[] = ['--- Special Requirements ---', ''];
-            foreach ($specialReqs as $index => $req) {
-                $rows[] = ["Requirement {$index}", (string) $req];
+            $seqNum = 1;
+            foreach ($specialReqs as $req) {
+                $rows[] = ["Requirement {$seqNum}", (string) $req];
+                $seqNum++;
             }
         }
 
