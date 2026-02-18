@@ -279,10 +279,10 @@ class InstallerController extends Controller
             Artisan::call('key:generate', ['--force' => true, '--no-interaction' => true]);
         }
 
-        // Ensure frontend URL is set
+        // Ensure frontend URL is set (frontend is served from the same domain at /app)
         $frontendUrl = env('FRONTEND_URL');
         if (empty($frontendUrl)) {
-            $envWriter->set('FRONTEND_URL', config('app.url', 'http://localhost').':3000');
+            $envWriter->set('FRONTEND_URL', config('app.url', 'http://localhost'));
         }
 
         // Write the installed flag

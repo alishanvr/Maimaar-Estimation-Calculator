@@ -176,7 +176,7 @@ class EnvironmentService
 
     public function frontendUrl(): string
     {
-        return $this->get('frontend_url', config('cors.frontend_url') ?? 'http://localhost:3000');
+        return $this->get('frontend_url', config('cors.frontend_url') ?? config('app.url', 'http://localhost'));
     }
 
     public function filesystemDisk(): string

@@ -18,8 +18,8 @@ api.interceptors.response.use(
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
         const path = window.location.pathname;
-        if (path !== '/login' && path !== '/login/') {
-          window.location.href = '/login';
+        if (path !== '/app/login' && path !== '/app/login/') {
+          window.location.href = '/app/login';
         }
       }
     }

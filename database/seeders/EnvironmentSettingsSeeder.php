@@ -27,7 +27,7 @@ class EnvironmentSettingsSeeder extends Seeder
             ['key' => 'session_lifetime', 'value' => '120', 'label' => 'Session Lifetime', 'sort_order' => 12],
             ['key' => 'session_encrypt', 'value' => 'false', 'label' => 'Session Encrypt', 'sort_order' => 13],
             ['key' => 'session_secure_cookie', 'value' => 'false', 'label' => 'Session Secure Cookie', 'sort_order' => 14],
-            ['key' => 'frontend_url', 'value' => 'http://localhost:3000', 'label' => 'Frontend URL', 'sort_order' => 15],
+            ['key' => 'frontend_url', 'value' => '', 'label' => 'Frontend URL', 'sort_order' => 15],
             ['key' => 'filesystem_disk', 'value' => 'local', 'label' => 'Filesystem Disk', 'sort_order' => 16],
         ];
 

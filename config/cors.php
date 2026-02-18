@@ -20,7 +20,7 @@ return [
     'allowed_methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 
     'allowed_origins' => [
-        env('FRONTEND_URL', 'http://localhost:3000'),
+        env('FRONTEND_URL', env('APP_URL', 'http://localhost')),
     ],
 
     'allowed_origins_patterns' => [],

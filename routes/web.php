@@ -68,8 +68,11 @@ Route::prefix('install')->name('install.')->group(function () {
 Route::get('/{any}', function (string $any) {
     $path = trim($any, '/');
 
+    // Strip the "app/" prefix so route matching works with basePath: "/app"
+    $spaPath = preg_replace('#^app/#', '', $path);
+
     // 1. Exact pre-rendered page (login, estimations, estimations/compare, etc.)
-    $routeIndex = public_path('app/'.$path.'/index.html');
+    $routeIndex = public_path('app/'.$spaPath.'/index.html');
     if (file_exists($routeIndex)) {
         return response()->file($routeIndex);
     }
@@ -84,7 +87,7 @@ Route::get('/{any}', function (string $any) {
     ];
 
     foreach ($dynamicRoutes as $pattern => $placeholder) {
-        if (preg_match($pattern, $path)) {
+        if (preg_match($pattern, $spaPath)) {
             $file = public_path($placeholder);
             if (file_exists($file)) {
                 return response()->file($file);
