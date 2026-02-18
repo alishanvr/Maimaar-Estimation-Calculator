@@ -24,14 +24,26 @@ class SystemManagement extends Page
 
     protected static ?int $navigationSort = 103;
 
+    /**
+     * Whether the current user can perform system management actions (superadmin only).
+     */
+    private function canModify(): bool
+    {
+        return auth()->user()?->isSuperAdmin() ?? false;
+    }
+
     public function content(Schema $schema): Schema
     {
+        $readOnly = ! $this->canModify();
+
         return $schema
             ->components([
                 Section::make('Cache Management')
-                    ->description('Clear various application caches. Use this after making configuration changes or when the application behaves unexpectedly.')
+                    ->description($readOnly
+                        ? 'You can view system settings but only the super admin can perform these actions.'
+                        : 'Clear various application caches. Use this after making configuration changes or when the application behaves unexpectedly.')
                     ->icon('heroicon-o-trash')
-                    ->footerActions([
+                    ->footerActions($readOnly ? [] : [
                         Action::make('clear_application_cache')
                             ->label('Clear Application Cache')
                             ->icon('heroicon-o-archive-box-x-mark')
@@ -70,9 +82,11 @@ class SystemManagement extends Page
                     ]),
 
                 Section::make('Optimize Application')
-                    ->description('Cache configuration, routes, and views for better performance in production. No need to clear caches first — this rebuilds them automatically.')
+                    ->description($readOnly
+                        ? 'Application optimization is managed by the super admin.'
+                        : 'Cache configuration, routes, and views for better performance in production. No need to clear caches first — this rebuilds them automatically.')
                     ->icon('heroicon-o-bolt')
-                    ->footerActions([
+                    ->footerActions($readOnly ? [] : [
                         Action::make('optimize')
                             ->label('Optimize Application')
                             ->icon('heroicon-o-rocket-launch')
@@ -83,9 +97,11 @@ class SystemManagement extends Page
                     ]),
 
                 Section::make('Database Migrations')
-                    ->description('Run pending database migrations. This is required after application updates to apply schema changes.')
+                    ->description($readOnly
+                        ? 'Database migrations are managed by the super admin.'
+                        : 'Run pending database migrations. This is required after application updates to apply schema changes.')
                     ->icon('heroicon-o-circle-stack')
-                    ->footerActions([
+                    ->footerActions($readOnly ? [] : [
                         Action::make('check_migration_status')
                             ->label('Check Migration Status')
                             ->icon('heroicon-o-magnifying-glass')
@@ -102,9 +118,11 @@ class SystemManagement extends Page
                     ]),
 
                 Section::make('Database Seeders')
-                    ->description('Run database seeders to populate or refresh reference data. Select which seeders to run.')
+                    ->description($readOnly
+                        ? 'Database seeders are managed by the super admin.'
+                        : 'Run database seeders to populate or refresh reference data. Select which seeders to run.')
                     ->icon('heroicon-o-table-cells')
-                    ->footerActions([
+                    ->footerActions($readOnly ? [] : [
                         Action::make('run_seeders')
                             ->label('Run Selected Seeders')
                             ->icon('heroicon-o-play')
@@ -128,9 +146,11 @@ class SystemManagement extends Page
                     ]),
 
                 Section::make('Storage')
-                    ->description('Manage storage links and file system operations.')
+                    ->description($readOnly
+                        ? 'Storage management is handled by the super admin.'
+                        : 'Manage storage links and file system operations.')
                     ->icon('heroicon-o-folder')
-                    ->footerActions([
+                    ->footerActions($readOnly ? [] : [
                         Action::make('create_storage_link')
                             ->label('Create Storage Link')
                             ->icon('heroicon-o-link')

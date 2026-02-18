@@ -1,9 +1,6 @@
 - default currency is set as PKR but i am still see AED in some places. like in Total Value card in admin side.
 - and in projects on frontend side. and in Estimation Value Trends card (avg value and total value) and in Recent Estimations card
 
-
-
-
 - i want that when setup run, then it creates a user (superadmin) that should not be deleteable or revokable or change passwordable. that will be used as super admin. only one way to reset password is login this account and change self. OR change from terminal. no other way. i want the username could be ali@wprobo.com and password could be @@Ali1122$$. please implement this functionality in the admin panel and ensure that it is secure and only accessible to authorized users. also, provide documentation on how to use this feature and what it does.
 additionally, i want that system management, environment settings, ONLY changeable by super admin. this mean admin can see but not able to change or modify. only readable. 
 - but superadmin ali@wprobo.com have access to make any changes to this. 

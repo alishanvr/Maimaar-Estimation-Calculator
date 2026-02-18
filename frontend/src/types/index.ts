@@ -29,7 +29,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  role: "admin" | "user";
+  role: "superadmin" | "admin" | "user";
   status: "active" | "inactive";
   company_name: string | null;
   phone: string | null;

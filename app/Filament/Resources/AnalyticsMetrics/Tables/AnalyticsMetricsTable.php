@@ -4,6 +4,7 @@ namespace App\Filament\Resources\AnalyticsMetrics\Tables;
 
 use App\Models\AnalyticsMetric;
 use App\Models\User;
+use App\Services\CurrencyService;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -27,7 +28,7 @@ class AnalyticsMetricsTable
                     ->formatStateUsing(fn (string $state): string => match ($state) {
                         'monthly_estimations' => 'Monthly Estimations',
                         'total_weight' => 'Total Weight (MT)',
-                        'total_revenue' => 'Total Revenue (AED)',
+                        'total_revenue' => 'Total Revenue ('.app(CurrencyService::class)->getDisplayCurrency().')',
                         'avg_price_per_mt' => 'Avg Price/MT',
                         default => $state,
                     }),

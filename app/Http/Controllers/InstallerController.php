@@ -113,6 +113,7 @@ class InstallerController extends Controller
                 \Database\Seeders\PdfSettingsSeeder::class,
                 \Database\Seeders\AppSettingsSeeder::class,
                 \Database\Seeders\EnvironmentSettingsSeeder::class,
+                \Database\Seeders\SuperAdminSeeder::class,
             ];
 
             if ($request->boolean('seed_reference_data', true)) {

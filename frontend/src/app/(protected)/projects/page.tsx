@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useProjects } from "@/hooks/useProjects";
+import { useCurrency } from "@/hooks/useCurrency";
 import { createProject, deleteProject } from "@/lib/projects";
 import type { ProjectStatus } from "@/types";
 
@@ -36,6 +37,7 @@ export default function ProjectsPage() {
 
   const { projects, meta, isLoading, error, page, setPage, refetch } =
     useProjects(statusFilter, search);
+  const { symbol, format: formatCur } = useCurrency();
 
   const handleCreate = async () => {
     if (!newProject.project_number || !newProject.project_name) return;
@@ -185,7 +187,7 @@ export default function ProjectsPage() {
                   Weight (MT)
                 </th>
                 <th className="text-right px-4 py-3 font-medium text-gray-500">
-                  Price (AED)
+                  Price ({symbol})
                 </th>
                 <th className="text-left px-4 py-3 font-medium text-gray-500">
                   Date
@@ -225,7 +227,7 @@ export default function ProjectsPage() {
                     {formatNumber(proj.summary?.total_weight ?? null, 2)}
                   </td>
                   <td className="px-4 py-3 text-right font-mono text-xs">
-                    {formatNumber(proj.summary?.total_price ?? null, 0)}
+                    {formatCur(proj.summary?.total_price ?? null, 0)}
                   </td>
                   <td className="px-4 py-3 text-gray-500 text-xs">
                     {proj.created_at?.slice(0, 10)}

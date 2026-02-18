@@ -45,6 +45,13 @@ class UserFactory extends Factory
         ]);
     }
 
+    public function superAdmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'superadmin',
+        ]);
+    }
+
     public function revoked(): static
     {
         return $this->state(fn (array $attributes) => [

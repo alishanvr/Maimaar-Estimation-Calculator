@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Estimation;
+use App\Services\CurrencyService;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +25,10 @@ class EstimationValueTrendsWidget extends ChartWidget
 
     protected function getData(): array
     {
+        $currencyService = app(CurrencyService::class);
+        $currency = $currencyService->getDisplayCurrency();
+        $rate = $currencyService->getExchangeRate();
+
         $months = collect();
         $totals = collect();
         $averages = collect();
@@ -42,14 +47,14 @@ class EstimationValueTrendsWidget extends ChartWidget
                 ->first();
 
             $months->push($start->format('M Y'));
-            $totals->push(round((float) $result->total, 0));
-            $averages->push(round((float) $result->average, 0));
+            $totals->push(round((float) $result->total * $rate, 0));
+            $averages->push(round((float) $result->average * $rate, 0));
         }
 
         return [
             'datasets' => [
                 [
-                    'label' => 'Total Value (AED)',
+                    'label' => "Total Value ({$currency})",
                     'data' => $totals->toArray(),
                     'backgroundColor' => 'rgba(245, 158, 11, 0.6)',
                     'borderColor' => 'rgb(245, 158, 11)',
@@ -57,7 +62,7 @@ class EstimationValueTrendsWidget extends ChartWidget
                     'order' => 2,
                 ],
                 [
-                    'label' => 'Avg Value (AED)',
+                    'label' => "Avg Value ({$currency})",
                     'data' => $averages->toArray(),
                     'type' => 'line',
                     'borderColor' => 'rgb(16, 185, 129)',

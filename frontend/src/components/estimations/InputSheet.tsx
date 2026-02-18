@@ -9,6 +9,7 @@ import "handsontable/styles/ht-theme-main.min.css";
 
 import { INPUT_ROWS, type InputRowDef } from "./InputSheetConfig";
 import { useDesignConfigurations } from "@/hooks/useDesignConfigurations";
+import { useCurrency } from "@/hooks/useCurrency";
 import ComponentTable from "./ComponentTable";
 import ComponentButtonBar from "./ComponentButtonBar";
 import {
@@ -63,6 +64,7 @@ export default function InputSheet({
   onFieldsChange,
   readOnly = false,
 }: InputSheetProps) {
+  const { symbol: currencySymbol } = useCurrency();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const hotRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -117,9 +119,9 @@ export default function InputSheet({
     return INPUT_ROWS.map((row) => [
       row.label,
       row.type === "header" ? "" : getValueForRow(row),
-      row.type === "header" ? "" : (row.unit ?? ""),
+      row.type === "header" ? "" : ((row.unit ?? "").replace(/AED/g, currencySymbol)),
     ]);
-  }, [getValueForRow]);
+  }, [getValueForRow, currencySymbol]);
 
   /** Sync Handsontable data whenever estimation changes externally. */
   useEffect(() => {

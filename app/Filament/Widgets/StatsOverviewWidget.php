@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Models\Estimation;
 use App\Models\User;
+use App\Services\CurrencyService;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -22,6 +23,7 @@ class StatsOverviewWidget extends BaseWidget
         $estimationsToday = Estimation::whereDate('created_at', today())->count();
 
         $totalValue = Estimation::where('status', 'calculated')->sum('total_price_aed');
+        $currencyService = app(CurrencyService::class);
 
         return [
             Stat::make('Total Users', (string) $totalUsers)
@@ -39,7 +41,7 @@ class StatsOverviewWidget extends BaseWidget
                 ->descriptionIcon('heroicon-m-calendar')
                 ->color('info'),
 
-            Stat::make('Total Value', number_format($totalValue, 0).' AED')
+            Stat::make('Total Value', $currencyService->format($totalValue, null, 0))
                 ->description('All calculated estimations')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('warning'),

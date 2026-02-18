@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { compareEstimations } from "@/lib/estimations";
+import { useCurrency } from "@/hooks/useCurrency";
 import type { ComparisonEstimation, EstimationStatus } from "@/types";
 
 const STATUS_BADGE: Record<EstimationStatus, string> = {
@@ -20,55 +21,59 @@ interface MetricRow {
   getValue: (est: ComparisonEstimation) => number | null;
 }
 
-const METRICS: MetricRow[] = [
-  {
-    label: "Total Weight",
-    key: "total_weight_mt",
-    decimals: 2,
-    unit: "MT",
-    getValue: (e) => e.total_weight_mt,
-  },
-  {
-    label: "Total Price",
-    key: "total_price_aed",
-    decimals: 0,
-    unit: "AED",
-    getValue: (e) => e.total_price_aed,
-  },
-  {
-    label: "Price / MT",
-    key: "price_per_mt",
-    decimals: 2,
-    unit: "AED",
-    getValue: (e) => e.summary?.price_per_mt ?? null,
-  },
-  {
-    label: "FOB Price",
-    key: "fob_price",
-    decimals: 0,
-    unit: "AED",
-    getValue: (e) => e.summary?.fob_price_aed ?? null,
-  },
-  {
-    label: "Steel Weight",
-    key: "steel_weight_kg",
-    decimals: 0,
-    unit: "kg",
-    getValue: (e) => e.summary?.steel_weight_kg ?? null,
-  },
-  {
-    label: "Panels Weight",
-    key: "panels_weight_kg",
-    decimals: 0,
-    unit: "kg",
-    getValue: (e) => e.summary?.panels_weight_kg ?? null,
-  },
-];
+function buildMetrics(symbol: string): MetricRow[] {
+  return [
+    {
+      label: "Total Weight",
+      key: "total_weight_mt",
+      decimals: 2,
+      unit: "MT",
+      getValue: (e) => e.total_weight_mt,
+    },
+    {
+      label: "Total Price",
+      key: "total_price_aed",
+      decimals: 0,
+      unit: symbol,
+      getValue: (e) => e.total_price_aed,
+    },
+    {
+      label: "Price / MT",
+      key: "price_per_mt",
+      decimals: 2,
+      unit: symbol,
+      getValue: (e) => e.summary?.price_per_mt ?? null,
+    },
+    {
+      label: "FOB Price",
+      key: "fob_price",
+      decimals: 0,
+      unit: symbol,
+      getValue: (e) => e.summary?.fob_price_aed ?? null,
+    },
+    {
+      label: "Steel Weight",
+      key: "steel_weight_kg",
+      decimals: 0,
+      unit: "kg",
+      getValue: (e) => e.summary?.steel_weight_kg ?? null,
+    },
+    {
+      label: "Panels Weight",
+      key: "panels_weight_kg",
+      decimals: 0,
+      unit: "kg",
+      getValue: (e) => e.summary?.panels_weight_kg ?? null,
+    },
+  ];
+}
 
 export default function ComparePage() {
   const searchParams = useSearchParams();
   const idsParam = searchParams.get("ids");
   const ids = idsParam ? idsParam.split(",").map(Number) : [];
+  const { symbol } = useCurrency();
+  const METRICS = useMemo(() => buildMetrics(symbol), [symbol]);
 
   const [data, setData] = useState<ComparisonEstimation[]>([]);
   const [isLoading, setIsLoading] = useState(true);

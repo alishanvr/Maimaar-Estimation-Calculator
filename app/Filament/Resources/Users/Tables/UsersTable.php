@@ -32,9 +32,16 @@ class UsersTable
                 TextColumn::make('role')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
+                        'superadmin' => 'warning',
                         'admin' => 'danger',
                         'user' => 'info',
                         default => 'gray',
+                    })
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'superadmin' => 'Super Admin',
+                        'admin' => 'Admin',
+                        'user' => 'User',
+                        default => $state,
                     })
                     ->sortable(),
                 TextColumn::make('status')
@@ -56,6 +63,7 @@ class UsersTable
             ->filters([
                 SelectFilter::make('role')
                     ->options([
+                        'superadmin' => 'Super Admin',
                         'admin' => 'Admin',
                         'user' => 'User',
                     ]),
@@ -66,25 +74,27 @@ class UsersTable
                     ]),
             ])
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()
+                    ->visible(fn (User $record): bool => ! $record->isSuperAdmin()),
                 Action::make('revoke')
                     ->label('Revoke')
                     ->icon('heroicon-o-no-symbol')
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->visible(fn (User $record): bool => $record->status === 'active' && $record->id !== auth()->id())
+                    ->visible(fn (User $record): bool => ! $record->isSuperAdmin() && $record->status === 'active' && $record->id !== auth()->id())
                     ->action(fn (User $record) => $record->update(['status' => 'revoked'])),
                 Action::make('activate')
                     ->label('Activate')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->visible(fn (User $record): bool => $record->status === 'revoked')
+                    ->visible(fn (User $record): bool => ! $record->isSuperAdmin() && $record->status === 'revoked')
                     ->action(fn (User $record) => $record->update(['status' => 'active'])),
                 Action::make('managePassword')
                     ->label('Manage Password')
                     ->icon('heroicon-o-key')
                     ->color('warning')
+                    ->visible(fn (User $record): bool => ! $record->isSuperAdmin())
                     ->modalHeading('Manage User Password')
                     ->modalDescription('Choose how to handle the password for this user.')
                     ->form([
@@ -121,7 +131,18 @@ class UsersTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->before(function (DeleteBulkAction $action, \Illuminate\Support\Collection $records): void {
+                            if ($records->contains(fn (User $record): bool => $record->isSuperAdmin())) {
+                                Notification::make()
+                                    ->danger()
+                                    ->title('Cannot delete super admin')
+                                    ->body('The super admin account is protected and cannot be deleted.')
+                                    ->send();
+
+                                $action->cancel();
+                            }
+                        }),
                 ]),
             ]);
     }

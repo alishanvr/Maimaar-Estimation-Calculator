@@ -41,6 +41,14 @@ class EnvironmentSettings extends Page
     protected static ?int $navigationSort = 102;
 
     /**
+     * Whether the current user can modify settings (superadmin only).
+     */
+    private function canModify(): bool
+    {
+        return auth()->user()?->isSuperAdmin() ?? false;
+    }
+
+    /**
      * @var array<string, mixed>|null
      */
     public ?array $data = [];
@@ -119,9 +127,15 @@ class EnvironmentSettings extends Page
 
     public function defaultForm(Schema $schema): Schema
     {
-        return $schema
+        $schema = $schema
             ->operation('edit')
             ->statePath('data');
+
+        if (! $this->canModify()) {
+            $schema->disabled();
+        }
+
+        return $schema;
     }
 
     public function form(Schema $schema): Schema
@@ -570,6 +584,10 @@ class EnvironmentSettings extends Page
      */
     protected function getHeaderActions(): array
     {
+        if (! $this->canModify()) {
+            return [];
+        }
+
         return [
             Action::make('test_database')
                 ->label('Test DB Connection')
@@ -646,6 +664,16 @@ class EnvironmentSettings extends Page
 
     public function save(): void
     {
+        if (! $this->canModify()) {
+            Notification::make()
+                ->danger()
+                ->title('Access denied')
+                ->body('Only the super admin can modify environment settings.')
+                ->send();
+
+            return;
+        }
+
         $data = $this->form->getState();
 
         // Save database settings to .env (required for app to boot)
@@ -749,6 +777,10 @@ class EnvironmentSettings extends Page
      */
     protected function getFormActions(): array
     {
+        if (! $this->canModify()) {
+            return [];
+        }
+
         return [
             Action::make('save')
                 ->label('Save Settings')

@@ -46,6 +46,25 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::deleting(function (User $user): void {
+            if ($user->isSuperAdmin()) {
+                throw new \RuntimeException('The super admin account cannot be deleted.');
+            }
+        });
+
+        static::updating(function (User $user): void {
+            if ($user->isSuperAdmin() && $user->isDirty('role')) {
+                throw new \RuntimeException('The super admin role cannot be changed.');
+            }
+
+            if ($user->isSuperAdmin() && $user->isDirty('status') && $user->status !== 'active') {
+                throw new \RuntimeException('The super admin account cannot be deactivated.');
+            }
+        });
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -73,9 +92,14 @@ class User extends Authenticatable implements FilamentUser
         return $this->isAdmin() && $this->isActive();
     }
 
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'superadmin';
+    }
+
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->role === 'admin' || $this->role === 'superadmin';
     }
 
     public function isActive(): bool

@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Estimation;
+use App\Services\CurrencyService;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
@@ -45,8 +46,10 @@ class RecentEstimationsWidget extends TableWidget
                     ->numeric(decimalPlaces: 4)
                     ->placeholder('-'),
                 TextColumn::make('total_price_aed')
-                    ->label('Price (AED)')
-                    ->numeric(decimalPlaces: 2)
+                    ->label('Price ('.app(CurrencyService::class)->getDisplayCurrency().')')
+                    ->formatStateUsing(fn ($state): ?string => $state !== null
+                        ? number_format($state * app(CurrencyService::class)->getExchangeRate(), 2)
+                        : null)
                     ->placeholder('-'),
                 TextColumn::make('created_at')
                     ->label('Created')

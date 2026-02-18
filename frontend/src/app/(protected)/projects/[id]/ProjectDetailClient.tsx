@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useRealParam } from "@/hooks/useRealParam";
+import { useCurrency } from "@/hooks/useCurrency";
 import {
   getProject,
   updateProject,
@@ -43,6 +44,7 @@ const EST_STATUS_BADGE: Record<EstimationStatus, string> = {
 export default function ProjectDetailClient() {
   const router = useRouter();
   const id = Number(useRealParam("id", 1));
+  const { symbol, format: formatCur } = useCurrency();
 
   const [project, setProject] = useState<Project | null>(null);
   const [buildings, setBuildings] = useState<Estimation[]>([]);
@@ -365,10 +367,10 @@ export default function ProjectDetailClient() {
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Total Price (AED)
+            Total Price ({symbol})
           </p>
           <p className="text-2xl font-bold text-gray-900 mt-1">
-            {formatNumber(project.summary?.total_price ?? null, 0)}
+            {formatCur(project.summary?.total_price ?? null, 0)}
           </p>
         </div>
       </div>
@@ -435,7 +437,7 @@ export default function ProjectDetailClient() {
                     Weight (MT)
                   </th>
                   <th className="text-right px-4 py-2 font-medium text-gray-500">
-                    Price (AED)
+                    Price ({symbol})
                   </th>
                   <th className="text-right px-4 py-2 font-medium text-gray-500">
                     Actions
@@ -466,7 +468,7 @@ export default function ProjectDetailClient() {
                       {formatNumber(est.total_weight_mt, 2)}
                     </td>
                     <td className="px-4 py-2.5 text-right font-mono text-xs">
-                      {formatNumber(est.total_price_aed, 0)}
+                      {formatCur(est.total_price_aed, 0)}
                     </td>
                     <td className="px-4 py-2.5 text-right">
                       <div className="flex items-center justify-end gap-2">
