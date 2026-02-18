@@ -10,7 +10,7 @@ use function Laravel\Prompts\password;
 
 class ResetSuperAdminPassword extends Command
 {
-    protected $signature = 'app:reset-superadmin-password';
+    protected $signature = 'app:reset-superadmin-password {--password= : The new password (min 8 characters)}';
 
     protected $description = 'Reset the super admin password via the terminal';
 
@@ -26,23 +26,33 @@ class ResetSuperAdminPassword extends Command
 
         $this->info("Super admin account: {$superAdmin->email}");
 
-        $newPassword = password(
-            label: 'Enter new password (min 8 characters)',
-            required: true,
-            validate: fn (string $value) => strlen($value) < 8
-                ? 'Password must be at least 8 characters.'
-                : null,
-        );
+        $newPassword = $this->option('password');
 
-        $confirmPassword = password(
-            label: 'Confirm new password',
-            required: true,
-        );
+        if ($newPassword) {
+            if (strlen($newPassword) < 8) {
+                $this->error('Password must be at least 8 characters.');
 
-        if ($newPassword !== $confirmPassword) {
-            $this->error('Passwords do not match.');
+                return self::FAILURE;
+            }
+        } else {
+            $newPassword = password(
+                label: 'Enter new password (min 8 characters)',
+                required: true,
+                validate: fn (string $value) => strlen($value) < 8
+                    ? 'Password must be at least 8 characters.'
+                    : null,
+            );
 
-            return self::FAILURE;
+            $confirmPassword = password(
+                label: 'Confirm new password',
+                required: true,
+            );
+
+            if ($newPassword !== $confirmPassword) {
+                $this->error('Passwords do not match.');
+
+                return self::FAILURE;
+            }
         }
 
         // Bypass model events to allow direct password update

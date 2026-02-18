@@ -1,6 +1,6 @@
 It will be a QA phase. and as a QA specialist, you have to test all functionalities and app and find the logical, UI/UX, and other issues. and only list down the issues and not implement anything. after that we can prioritize and implement the fixes.
 
-
+php artisan app:reset-superadmin-password
 
 
 ~~Branding & PDF Polish — Company logo in PDF headers, letterhead styling, custom fonts for the generated BOQ/JAF PDFs.~~
