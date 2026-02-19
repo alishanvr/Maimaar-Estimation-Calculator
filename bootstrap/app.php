@@ -16,8 +16,25 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
         $middleware->web(
             prepend: [\App\Http\Middleware\ForceFileSessionForInstaller::class],
-            append: [\App\Http\Middleware\EnsureAppIsInstalled::class],
+            append: [
+                \App\Http\Middleware\EnsureAppIsInstalled::class,
+                \App\Http\Middleware\HandleInertiaRequests::class,
+            ],
         );
+        $middleware->redirectGuestsTo(function ($request) {
+            if ($request->is('v2/*')) {
+                return '/v2/login';
+            }
+
+            return null;
+        });
+        $middleware->redirectUsersTo(function ($request) {
+            if ($request->is('v2/*')) {
+                return '/v2/dashboard';
+            }
+
+            return '/admin';
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->dontReport([

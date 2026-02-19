@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\InstallerController;
+use App\Http\Controllers\V2\AuthController as V2AuthController;
+use App\Http\Controllers\V2\DashboardController as V2DashboardController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -54,6 +56,27 @@ Route::prefix('install')->name('install.')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| Inertia v2 Routes
+|--------------------------------------------------------------------------
+|
+| These routes serve the new Inertia.js + React frontend at /v2/*.
+| They use session-based authentication via the web guard.
+|
+*/
+Route::prefix('v2')->name('v2.')->group(function () {
+    Route::middleware('guest')->group(function () {
+        Route::get('/login', [V2AuthController::class, 'showLogin'])->name('login');
+        Route::post('/login', [V2AuthController::class, 'login']);
+    });
+
+    Route::middleware('auth')->group(function () {
+        Route::post('/logout', [V2AuthController::class, 'logout'])->name('logout');
+        Route::get('/dashboard', V2DashboardController::class)->name('dashboard');
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
 | SPA Catch-All
 |--------------------------------------------------------------------------
 |
@@ -102,4 +125,4 @@ Route::get('/{any}', function (string $any) {
     }
 
     abort(404);
-})->where('any', '^(?!admin|install|api|sanctum|livewire|up|_next|build).*$');
+})->where('any', '^(?!admin|install|api|sanctum|livewire|up|_next|build|v2).*$');
