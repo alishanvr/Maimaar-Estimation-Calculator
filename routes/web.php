@@ -3,6 +3,10 @@
 use App\Http\Controllers\InstallerController;
 use App\Http\Controllers\V2\AuthController as V2AuthController;
 use App\Http\Controllers\V2\DashboardController as V2DashboardController;
+use App\Http\Controllers\V2\EstimationController as V2EstimationController;
+use App\Http\Controllers\V2\ProfileController as V2ProfileController;
+use App\Http\Controllers\V2\ProjectController as V2ProjectController;
+use App\Http\Controllers\V2\ReportController as V2ReportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -72,6 +76,33 @@ Route::prefix('v2')->name('v2.')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::post('/logout', [V2AuthController::class, 'logout'])->name('logout');
         Route::get('/dashboard', V2DashboardController::class)->name('dashboard');
+
+        // Profile
+        Route::get('/profile', [V2ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [V2ProfileController::class, 'update'])->name('profile.update');
+        Route::put('/profile/password', [V2ProfileController::class, 'updatePassword'])->name('profile.password');
+
+        // Reports
+        Route::get('/reports', [V2ReportController::class, 'index'])->name('reports.index');
+
+        // Estimations — compare MUST be before {estimation} to avoid model binding conflict
+        Route::get('/estimations/compare', [V2EstimationController::class, 'compare'])->name('estimations.compare');
+        Route::get('/estimations', [V2EstimationController::class, 'index'])->name('estimations.index');
+        Route::post('/estimations', [V2EstimationController::class, 'store'])->name('estimations.store');
+        Route::get('/estimations/{estimation}', [V2EstimationController::class, 'show'])->name('estimations.show');
+        Route::delete('/estimations/{estimation}', [V2EstimationController::class, 'destroy'])->name('estimations.destroy');
+        Route::post('/estimations/{estimation}/clone', [V2EstimationController::class, 'clone'])->name('estimations.clone');
+
+        // Projects
+        Route::get('/projects', [V2ProjectController::class, 'index'])->name('projects.index');
+        Route::post('/projects', [V2ProjectController::class, 'store'])->name('projects.store');
+        Route::get('/projects/{project}', [V2ProjectController::class, 'show'])->name('projects.show');
+        Route::put('/projects/{project}', [V2ProjectController::class, 'update'])->name('projects.update');
+        Route::delete('/projects/{project}', [V2ProjectController::class, 'destroy'])->name('projects.destroy');
+        Route::post('/projects/{project}/buildings', [V2ProjectController::class, 'addBuilding'])->name('projects.addBuilding');
+        Route::post('/projects/{project}/buildings/{estimation}/duplicate', [V2ProjectController::class, 'duplicateBuilding'])->name('projects.duplicateBuilding');
+        Route::delete('/projects/{project}/buildings/{estimation}', [V2ProjectController::class, 'removeBuilding'])->name('projects.removeBuilding');
+        Route::get('/projects/{project}/history', [V2ProjectController::class, 'history'])->name('projects.history');
     });
 });
 

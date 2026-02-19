@@ -1,10 +1,13 @@
 import { Head } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
+import { useDynamicBranding } from '../hooks/useDynamicBranding';
 
 export default function GuestLayout({
     children,
     title,
 }: PropsWithChildren<{ title?: string }>) {
+    useDynamicBranding();
+
     return (
         <>
             <Head title={title} />

@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+@import 'handsontable/styles/handsontable.min.css';
+@import 'handsontable/styles/ht-theme-main.min.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -10,4 +12,36 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/*
+ * Dynamic primary color — set at runtime by useDynamicBranding hook.
+ * @theme inline tells Tailwind to generate utilities (bg-primary, text-primary, etc.)
+ * that reference the CSS variable, without emitting a static value.
+ * The actual value is set via :root default + JS override.
+ */
+@theme inline {
+    --color-primary: var(--color-primary);
+}
+
+:root {
+    --color-primary: #3B82F6;
+}
+
+/* ── Handsontable overrides (loaded after HT styles above) ── */
+.ht-root-wrapper > .ht-grid > .ht-wrapper > .ht_clone_top {
+    z-index: 9 !important;
+}
+
+/* Print utilities */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+}
+
+@media not print {
+    .print-only {
+        display: none !important;
+    }
 }
