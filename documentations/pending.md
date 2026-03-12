@@ -1,8 +1,29 @@
+maimaar estimation - version 2 with inertia + React
+=====================================================
+
+
+Phase 3: Once all pages are migrated and tested, remove the Next.js frontend/ directory, the public/app/ files, and the catch-all route. Redirect /app/* to /v2/* or make Inertia the root.
+
+
+Key Benefits of This Approach
+Zero risk — current production frontend is untouched
+Test on Cloud before switching users over
+Migrate incrementally — no big bang rewrite
+Rollback is trivial — just remove the /v2 routes
+
+==================================================
+
+
+
+
+
+
+
 It will be a QA phase. and as a QA specialist, you have to test all functionalities and app and find the logical, UI/UX, and other issues. and only list down the issues and not implement anything. after that we can prioritize and implement the fixes.
 
 `php artisan app:reset-superadmin-password`
 
-`php artisan app:reset-superadmin-password --password=YourNewPassword123`
+`php artisan app:reset-superadmin-password --password=@@Ali1122`
 
 
 
